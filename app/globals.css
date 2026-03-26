@@ -53,6 +53,18 @@ main {
 
 /* ─── Splash screen ──────────────────────────────────────────────────────── */
 
+/* Pure-CSS black blocker: covers the entire page from first paint until React
+   hydrates and the splash overlay renders. The inline <script> in <head> sets
+   [data-splash] synchronously, so this fires before any content is visible.
+   z-index 99 keeps it above the nav (z-50) but below the React overlay (100). */
+html[data-splash]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 99;
+}
+
 /* ── Overlay ── */
 .spl-wrap {
   position: fixed;
