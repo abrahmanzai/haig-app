@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       {/* Runs synchronously before first paint — sets data-splash so hero stays
           hidden until the splash overlay is ready, preventing a content flash. */}
       <head>
