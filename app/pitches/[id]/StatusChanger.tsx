@@ -4,35 +4,53 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-const STATUSES = ["pending", "voting", "approved", "rejected", "closed"] as const;
-type Status = typeof STATUSES[number];
+interface Vote {
+  vote: string;
+  voting_units_cast: number;
+}
 
-const STATUS_CONFIG: Record<Status, { label: string; color: string }> = {
-  pending:  { label: "Pending",  color: "#8e8e93" },
-  voting:   { label: "Voting",   color: "#ff9f0a" },
-  approved: { label: "Approved", color: "#30d158" },
-  rejected: { label: "Rejected", color: "#ff453a" },
-  closed:   { label: "Closed",   color: "#636366" },
-};
-
-export default function StatusChanger({
-  pitchId,
-  currentStatus,
-}: {
+interface Props {
   pitchId: string;
   currentStatus: string;
-}) {
-  const router  = useRouter();
-  const [status, setStatus]   = useState<Status>(currentStatus as Status);
-  const [saving, setSaving]   = useState(false);
-  const [error,  setError]    = useState<string | null>(null);
-  const [saved,  setSaved]    = useState(false);
+  voteThreshold: string;
+  votes: Vote[];
+}
 
-  async function handleChange(next: Status) {
-    if (next === status) return;
+const THRESHOLD_REQUIRED: Record<string, number> = {
+  simple:                       0.5,
+  supermajority_two_thirds:     2 / 3,
+  supermajority_three_quarters: 0.75,
+};
+
+const THRESHOLD_LABELS: Record<string, string> = {
+  simple:                       ">50%",
+  supermajority_two_thirds:     ">66.7%",
+  supermajority_three_quarters: ">75%",
+};
+
+function resolveOutcome(votes: Vote[], threshold: string): "approved" | "rejected" {
+  let yes = 0, no = 0;
+  for (const v of votes) {
+    if (v.vote === "yes")      yes += Number(v.voting_units_cast);
+    else if (v.vote === "no")  no  += Number(v.voting_units_cast);
+  }
+  const decisive = yes + no;
+  const required = THRESHOLD_REQUIRED[threshold] ?? 0.5;
+  if (decisive === 0) return "rejected"; // no decisive votes → reject
+  return yes / decisive > required ? "approved" : "rejected";
+}
+
+export default function StatusChanger({ pitchId, currentStatus, voteThreshold, votes }: Props) {
+  const router = useRouter();
+  const [status,  setStatus]  = useState(currentStatus);
+  const [saving,  setSaving]  = useState(false);
+  const [error,   setError]   = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function updateStatus(next: string) {
     setSaving(true);
     setError(null);
-    setSaved(false);
+    setMessage(null);
 
     const supabase = createClient();
     const { error: err } = await supabase
@@ -44,48 +62,95 @@ export default function StatusChanger({
 
     setStatus(next);
     setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setMessage(next === "approved" ? "Approved ✓" : next === "rejected" ? "Rejected ✗" : "Updated ✓");
+    setTimeout(() => setMessage(null), 3000);
     router.refresh();
   }
 
-  const cfg = STATUS_CONFIG[status];
+  async function closeVoting() {
+    const outcome = resolveOutcome(votes, voteThreshold);
+    await updateStatus(outcome);
+  }
+
+  const required = THRESHOLD_LABELS[voteThreshold] ?? ">50%";
 
   return (
     <div
-      className="rounded-2xl border border-[var(--border)] p-5"
+      className="rounded-2xl border border-[var(--border)] p-5 space-y-3"
       style={{ background: "var(--bg-secondary)" }}
     >
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
-          Admin · Change Status
+          Admin · Vote Controls
         </p>
-        {saving && <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Saving…</span>}
-        {saved  && <span className="text-xs" style={{ color: "#30d158" }}>Saved ✓</span>}
-      </div>
-      <div className="flex gap-2 flex-wrap">
-        {STATUSES.map((s) => {
-          const c      = STATUS_CONFIG[s];
-          const active = s === status;
-          return (
-            <button
-              key={s}
-              disabled={saving}
-              onClick={() => handleChange(s)}
-              className="px-3 py-1.5 rounded-full text-xs font-semibold border transition-all disabled:opacity-50"
-              style={
-                active
-                  ? { background: c.color + "20", color: c.color, borderColor: c.color + "60" }
-                  : { background: "transparent", color: "var(--text-tertiary)", borderColor: "var(--border)" }
-              }
+        <div className="flex items-center gap-2">
+          {saving && <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Saving…</span>}
+          {message && (
+            <span
+              className="text-xs font-semibold"
+              style={{ color: message.includes("Approved") ? "#30d158" : message.includes("Rejected") ? "#ff453a" : "#30d158" }}
             >
-              {c.label}
-            </button>
-          );
-        })}
+              {message}
+            </span>
+          )}
+        </div>
       </div>
+
+      <div className="flex gap-3 flex-wrap">
+        {/* Open Voting — only from pending */}
+        {status === "pending" && (
+          <button
+            onClick={() => updateStatus("voting")}
+            disabled={saving}
+            className="px-4 py-2 rounded-xl text-sm font-semibold border transition-all disabled:opacity-50 hover:brightness-110"
+            style={{ background: "rgba(255,159,10,0.15)", color: "#ff9f0a", borderColor: "rgba(255,159,10,0.4)" }}
+          >
+            Open Voting →
+          </button>
+        )}
+
+        {/* Close Voting — auto-resolves based on threshold */}
+        {status === "voting" && (
+          <div className="flex flex-col gap-1">
+            <button
+              onClick={closeVoting}
+              disabled={saving}
+              className="px-4 py-2 rounded-xl text-sm font-semibold border transition-all disabled:opacity-50 hover:brightness-110"
+              style={{ background: "rgba(10,132,255,0.15)", color: "#0a84ff", borderColor: "rgba(10,132,255,0.4)" }}
+            >
+              Close Voting &amp; Resolve
+            </button>
+            <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+              Threshold: {required} yes of decisive votes
+            </p>
+          </div>
+        )}
+
+        {/* Manual override — reopen or close manually after resolution */}
+        {(status === "approved" || status === "rejected" || status === "closed") && (
+          <>
+            <button
+              onClick={() => updateStatus("voting")}
+              disabled={saving}
+              className="px-4 py-2 rounded-xl text-sm font-semibold border transition-all disabled:opacity-50"
+              style={{ background: "transparent", color: "var(--text-tertiary)", borderColor: "var(--border)" }}
+            >
+              Reopen Voting
+            </button>
+            <button
+              onClick={() => updateStatus("closed")}
+              disabled={saving || status === "closed"}
+              className="px-4 py-2 rounded-xl text-sm font-semibold border transition-all disabled:opacity-50"
+              style={{ background: "transparent", color: "var(--text-tertiary)", borderColor: "var(--border)" }}
+            >
+              Archive
+            </button>
+          </>
+        )}
+      </div>
+
       {error && (
-        <p className="text-xs mt-2" style={{ color: "#ff453a" }}>{error}</p>
+        <p className="text-xs" style={{ color: "#ff453a" }}>{error}</p>
       )}
     </div>
   );

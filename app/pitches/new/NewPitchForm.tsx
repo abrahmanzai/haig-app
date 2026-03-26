@@ -25,9 +25,31 @@ const EMPTY = {
 
 export default function NewPitchForm({ userId }: { userId: string }) {
   const router = useRouter();
-  const [form, setForm]       = useState({ ...EMPTY });
-  const [submitting, setSub]  = useState(false);
-  const [error, setError]     = useState<string | null>(null);
+  const [form, setForm]         = useState({ ...EMPTY });
+  const [submitting, setSub]    = useState(false);
+  const [error, setError]       = useState<string | null>(null);
+  const [fetchingPrice, setFP]  = useState(false);
+  const [priceError, setPriceErr] = useState<string | null>(null);
+
+  async function autofillPrice() {
+    const ticker = form.ticker.trim().toUpperCase();
+    if (!ticker) { setPriceErr("Enter a ticker first"); return; }
+    setFP(true);
+    setPriceErr(null);
+    try {
+      const res  = await fetch(`/api/portfolio/prices?tickers=${ticker}`);
+      const json = await res.json();
+      const price = json.prices?.[ticker];
+      if (price && price > 0) {
+        setForm((f) => ({ ...f, current_price: String(price) }));
+      } else {
+        setPriceErr("No price found for " + ticker);
+      }
+    } catch {
+      setPriceErr("Failed to fetch price");
+    }
+    setFP(false);
+  }
 
   function set<K extends keyof typeof EMPTY>(key: K) {
     return (v: string) => setForm((f) => ({ ...f, [key]: v }));
@@ -143,14 +165,29 @@ export default function NewPitchForm({ userId }: { userId: string }) {
       {/* Prices */}
       <div className="grid grid-cols-2 gap-4">
         <Field label="Current Price ($)">
-          <Input
-            type="number"
-            placeholder="0.00"
-            value={form.current_price}
-            onChange={(e) => set("current_price")(e.target.value)}
-            step="0.01"
-            min="0"
-          />
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              placeholder="0.00"
+              value={form.current_price}
+              onChange={(e) => set("current_price")(e.target.value)}
+              step="0.01"
+              min="0"
+            />
+            <button
+              type="button"
+              onClick={autofillPrice}
+              disabled={fetchingPrice}
+              title="Auto-fill from Finnhub"
+              className="flex-shrink-0 px-3 rounded-xl border border-[var(--border)] text-xs font-semibold disabled:opacity-50 hover:bg-[var(--bg-tertiary)] transition-colors"
+              style={{ color: "var(--accent-primary)" }}
+            >
+              {fetchingPrice ? "…" : "Live"}
+            </button>
+          </div>
+          {priceError && (
+            <p className="text-xs mt-1" style={{ color: "#ff453a" }}>{priceError}</p>
+          )}
         </Field>
         <Field label="Price Target ($)">
           <Input

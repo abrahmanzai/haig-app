@@ -63,7 +63,7 @@ export default async function PitchDetail({
       .single(),
     supabase
       .from("votes")
-      .select("voter_id, vote, voting_units_cast")
+      .select("voter_id, vote, voting_units_cast, profiles:voter_id(full_name)")
       .eq("pitch_id", params.id),
   ]);
 
@@ -71,7 +71,19 @@ export default async function PitchDetail({
 
   const profile = profileResult.data;
   const pitch   = pitchResult.data;
-  const votes   = votesResult.data ?? [];
+  const isAdmin = profile?.role === "admin";
+
+  // Normalize votes — attach voter_name for admin audit, strip it otherwise
+  const votes = (votesResult.data ?? []).map((v) => ({
+    voter_id:          v.voter_id,
+    vote:              v.vote,
+    voting_units_cast: v.voting_units_cast,
+    voter_name: isAdmin
+      ? (Array.isArray(v.profiles)
+          ? v.profiles[0]?.full_name
+          : (v.profiles as { full_name?: string } | null)?.full_name) ?? null
+      : null,
+  }));
 
   const submitterName =
     Array.isArray(pitch.profiles)
@@ -80,7 +92,6 @@ export default async function PitchDetail({
 
   const statusCfg = STATUS_CONFIG[pitch.status] ?? STATUS_CONFIG.pending;
   const typeCfg   = TYPE_CONFIG[pitch.pitch_type] ?? TYPE_CONFIG.buy;
-  const isAdmin   = profile?.role === "admin";
   const canVote   = (profile?.role === "authorized" || profile?.role === "admin") && pitch.status === "voting";
 
   const userVote = votes.find((v) => v.voter_id === user.id) ?? null;
@@ -203,7 +214,12 @@ export default async function PitchDetail({
 
           {/* ── Admin controls ─────────────────────────────────────────── */}
           {isAdmin && (
-            <StatusChanger pitchId={pitch.id} currentStatus={pitch.status} />
+            <StatusChanger
+              pitchId={pitch.id}
+              currentStatus={pitch.status}
+              voteThreshold={pitch.vote_threshold}
+              votes={votes}
+            />
           )}
 
           {/* ── Vote panel ─────────────────────────────────────────────── */}
@@ -212,6 +228,7 @@ export default async function PitchDetail({
             pitchStatus={pitch.status}
             voteThreshold={pitch.vote_threshold}
             canVote={canVote}
+            isAdmin={isAdmin}
             userVotingUnits={profile?.voting_units ?? 0}
             initialVotes={votes}
             userVote={userVote}
