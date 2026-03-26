@@ -12,7 +12,7 @@ const features = [
   {
     icon: BookOpen,
     title: "Learn Together",
-    body: "Structured financial literacy curriculum — workshops, speaker sessions with Omaha professionals, and biweekly market discussions.",
+    body: "Structured financial literacy curriculum — workshops, speaker sessions with finance professionals, and biweekly market discussions.",
     color: "#0a84ff",
   },
   {
@@ -40,7 +40,7 @@ const steps = [
     n: "02",
     icon: GraduationCap,
     title: "Learn Together",
-    body: "Attend biweekly meetings, workshops with Omaha finance professionals, and guest speaker sessions.",
+    body: "Attend biweekly meetings, workshops with finance professionals, and guest speaker sessions.",
   },
   {
     n: "03",
@@ -56,39 +56,8 @@ const steps = [
   },
 ];
 
-const founders = [
-  {
-    name: "Alex Rivera",
-    role: "President & Authorized Trader",
-    bio: "Finance major focused on value investing and executing the club's investment strategy.",
-    initials: "AR",
-    color: "#0a84ff",
-  },
-  {
-    name: "Jordan Kim",
-    role: "VP & Research Lead",
-    bio: "Computer Science student applying quantitative methods to equity research and stock screening.",
-    initials: "JK",
-    color: "#30d158",
-  },
-  {
-    name: "Sam Patel",
-    role: "Treasurer",
-    bio: "Accounting major responsible for capital accounts, bookkeeping, and K-1 tax reporting.",
-    initials: "SP",
-    color: "#bf5af2",
-  },
-  {
-    name: "Taylor Chen",
-    role: "Secretary & Education Director",
-    bio: "Business Administration student driving financial literacy workshops and club operations.",
-    initials: "TC",
-    color: "#ff9f0a",
-  },
-];
-
 const socials = [
-  { label: "Email",    href: "mailto:haig@unomaha.edu", icon: Mail,          color: "#0a84ff" },
+  { label: "Email",    href: "#",                       icon: Mail,          color: "#0a84ff" },
   { label: "Discord",  href: "#",                       icon: MessageCircle, color: "#bf5af2" },
   { label: "LinkedIn", href: "#",                       icon: Linkedin,      color: "#64d2ff" },
   { label: "GitHub",   href: "#",                       icon: Github,        color: "#8e8e93" },
@@ -125,7 +94,6 @@ export default function Home() {
             {[
               ["Mission",      "#mission"],
               ["How It Works", "#how"],
-              ["Team",         "#founders"],
               ["Contact",      "#contact"],
             ].map(([label, href]) => (
               <a
@@ -201,7 +169,7 @@ export default function Home() {
                 className="w-2 h-2 rounded-full bg-[var(--accent-green)]"
                 style={{ boxShadow: "0 0 6px #30d158" }}
               />
-              Student-Run Investment Club · University of Nebraska Omaha
+              Student-Run Investment Club
             </div>
 
             <h1
@@ -227,7 +195,7 @@ export default function Home() {
               className="text-lg mb-10 max-w-xl mx-auto"
               style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
             >
-              A UNO student general partnership where members pool capital, research
+              A student general partnership where members pool capital, research
               equities, and execute real trades together — turning financial theory
               into hands-on practice.
             </p>
@@ -250,24 +218,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Stats row */}
-          <div className="relative z-10 mt-20 flex flex-wrap justify-center gap-10 sm:gap-20">
-            {[
-              { value: "26+",     label: "Scheduled Events" },
-              { value: "4+",      label: "Founding Partners" },
-              { value: "FY 2026", label: "Fiscal Year" },
-              { value: "UNO",     label: "Omaha, Nebraska" },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <div className="text-3xl font-bold" style={{ color: "var(--accent-primary)" }}>
-                  {s.value}
-                </div>
-                <div className="text-sm mt-1" style={{ color: "var(--text-tertiary)" }}>
-                  {s.label}
-                </div>
-              </div>
-            ))}
-          </div>
 
           {/* Scroll hint */}
           <a
@@ -297,7 +247,7 @@ export default function Home() {
                 className="text-lg max-w-2xl mx-auto"
                 style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
               >
-                HAIG gives UNO students real-world investing experience. We pool
+                HAIG gives students real-world investing experience. We pool
                 capital, debate ideas, and execute as a team.
               </p>
             </div>
@@ -382,51 +332,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══ FOUNDERS ═════════════════════════════════════════════════════ */}
-        <section id="founders" className="py-24 px-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
-              <p
-                className="text-sm font-semibold uppercase tracking-widest mb-3"
-                style={{ color: "var(--accent-primary)" }}
-              >
-                The Team
-              </p>
-              <h2 className="text-4xl font-bold mb-4">Meet the Founders</h2>
-              <p style={{ color: "var(--text-secondary)" }}>
-                UNO students building something real.
-              </p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {founders.map((f) => (
-                <article
-                  key={f.name}
-                  className="rounded-2xl p-6 border border-[var(--border)] text-center hover:border-[var(--border-hover)] transition-colors"
-                  style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
-                >
-                  <div
-                    className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4"
-                    style={{ background: f.color + "20", color: f.color }}
-                  >
-                    {f.initials}
-                  </div>
-                  <h3 className="font-semibold mb-1">{f.name}</h3>
-                  <p className="text-xs font-medium mb-3" style={{ color: f.color }}>
-                    {f.role}
-                  </p>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    {f.bio}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* ═══ CONTACT ══════════════════════════════════════════════════════ */}
         <section
           id="contact"
@@ -466,7 +371,7 @@ export default function Home() {
             </div>
 
             <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
-              © 2026 High Agency Investment Group · University of Nebraska Omaha
+              © 2026 High Agency Investment Group
               <br />
               <span style={{ opacity: 0.6 }}>A student-run general partnership</span>
             </p>
