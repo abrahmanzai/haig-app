@@ -58,6 +58,50 @@ const EMPTY_FORM = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function buildGCalUrl(ev: CalendarEvent): string {
+  // Format: YYYYMMDDTHHMMSS (local) or YYYYMMDD (all-day)
+  const [year, month, day] = ev.event_date.split("-");
+  if (ev.event_time) {
+    const [hh, mm] = ev.event_time.split(":");
+    const pad = (s: string) => s.padStart(2, "0");
+    const start = `${year}${month}${day}T${pad(hh)}${pad(mm)}00`;
+    // Default 2-hour duration
+    const startDate = new Date(`${ev.event_date}T${ev.event_time}:00`);
+    const endDate   = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+    const ey = endDate.getFullYear();
+    const em = String(endDate.getMonth() + 1).padStart(2, "0");
+    const ed = String(endDate.getDate()).padStart(2, "0");
+    const eh = String(endDate.getHours()).padStart(2, "0");
+    const en = String(endDate.getMinutes()).padStart(2, "0");
+    const end = `${ey}${em}${ed}T${eh}${en}00`;
+    const params = new URLSearchParams({
+      action:   "TEMPLATE",
+      text:     ev.title,
+      dates:    `${start}/${end}`,
+      details:  ev.description ?? "",
+      location: ev.location ?? "",
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  } else {
+    // All-day event — next day as end (Google Calendar convention)
+    const startDate = new Date(`${ev.event_date}T00:00:00`);
+    const endDate   = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+    const ey = endDate.getFullYear();
+    const em = String(endDate.getMonth() + 1).padStart(2, "0");
+    const ed = String(endDate.getDate()).padStart(2, "0");
+    const start = `${year}${month}${day}`;
+    const end   = `${ey}${em}${ed}`;
+    const params = new URLSearchParams({
+      action:   "TEMPLATE",
+      text:     ev.title,
+      dates:    `${start}/${end}`,
+      details:  ev.description ?? "",
+      location: ev.location ?? "",
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+}
+
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
 }
@@ -324,9 +368,26 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId 
                         {ev.description}
                       </p>
                     )}
-                    <p className="text-xs mt-2" style={{ color: "var(--text-tertiary)" }}>
-                      📍 {ev.location}
-                    </p>
+                    <div className="flex items-center justify-between mt-2 gap-3 flex-wrap">
+                      <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+                        📍 {ev.location}
+                      </p>
+                      <a
+                        href={buildGCalUrl(ev)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-xs font-medium rounded-lg px-2.5 py-1 border border-[var(--border)] hover:bg-[var(--bg-secondary)] transition-colors flex-shrink-0"
+                        style={{ color: "var(--accent-primary)" }}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                          <line x1="16" y1="2" x2="16" y2="6"/>
+                          <line x1="8" y1="2" x2="8" y2="6"/>
+                          <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        Add to Google Calendar
+                      </a>
+                    </div>
                   </article>
                 );
               })}

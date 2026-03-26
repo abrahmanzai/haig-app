@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/date";
 import { redirect } from "next/navigation";
 import AppNav from "@/app/_components/AppNav";
+import PortfolioAdminControls from "./PortfolioAdminControls";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -85,7 +86,15 @@ export default async function Portfolio() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
           {/* ── Header ───────────────────────────────────────────────────── */}
-          <h1 className="text-3xl font-bold">Portfolio</h1>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <h1 className="text-3xl font-bold">Portfolio</h1>
+            {profile?.role === "admin" && (
+              <PortfolioAdminControls
+                cashOnHand={financials?.cash_on_hand ?? 0}
+                totalInvested={financials?.total_invested ?? 0}
+              />
+            )}
+          </div>
 
           {/* ── Overview cards ───────────────────────────────────────────── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

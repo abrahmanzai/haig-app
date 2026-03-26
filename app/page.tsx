@@ -313,6 +313,60 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ═══ FOUNDING PARTNERS ════════════════════════════════════════════ */}
+        <section className="py-24 px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-14">
+              <p
+                className="text-sm font-semibold uppercase tracking-widest mb-3"
+                style={{ color: "var(--accent-primary)" }}
+              >
+                Leadership
+              </p>
+              <h2 className="text-4xl font-bold">Founding Partners</h2>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-5">
+              {/* Slot 1 — named founder */}
+              <article
+                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
+                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
+              >
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
+                  style={{ background: "rgba(10,132,255,0.15)", color: "var(--accent-primary)" }}
+                >
+                  WH
+                </div>
+                <p className="font-semibold text-base mb-1">William Headlee</p>
+                <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
+                  President &amp; Authorized Trader
+                </p>
+              </article>
+
+              {/* Slots 2–3 — TBD */}
+              {[2, 3].map((n) => (
+                <article
+                  key={n}
+                  className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
+                  style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.55 }}
+                >
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+                    style={{ background: "var(--bg-tertiary)" }}
+                  >
+                    <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>?</span>
+                  </div>
+                  <p className="font-semibold text-base mb-1" style={{ color: "var(--text-secondary)" }}>
+                    Founding Partner
+                  </p>
+                  <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>TBD</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ═══ CONTACT ══════════════════════════════════════════════════════ */}
         <section
           id="contact"

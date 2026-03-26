@@ -2,11 +2,12 @@ import Link from "next/link";
 import SignOutButton from "./SignOutButton";
 
 const NAV_LINKS = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/calendar",  label: "Calendar" },
-  { href: "/pitches",   label: "Pitches" },
-  { href: "/portfolio", label: "Portfolio" },
-];
+  { href: "/dashboard", label: "Dashboard", roles: null },
+  { href: "/calendar",  label: "Calendar",  roles: null },
+  { href: "/pitches",   label: "Pitches",   roles: null },
+  { href: "/portfolio", label: "Portfolio", roles: null },
+  { href: "/research",  label: "Research",  roles: ["authorized", "admin"] },
+] as const;
 
 interface Props {
   name?: string | null;
@@ -37,7 +38,7 @@ export default function AppNav({ name, role, currentPath }: Props) {
               <rect x="-28" y="36" width="56" height="8" rx="3" fill="url(#nav-g)" opacity="0.9" />
             </svg>
           </Link>
-          {NAV_LINKS.map((link) => {
+          {NAV_LINKS.filter((link) => !link.roles || (role && (link.roles as readonly string[]).includes(role))).map((link) => {
             const active = currentPath.startsWith(link.href);
             return (
               <Link

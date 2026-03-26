@@ -16,16 +16,28 @@ const PITCH_TYPES = [
   { value: "hold", label: "HOLD", color: "#ff9f0a" },
 ] as const;
 
-const EMPTY = {
-  company_name: "", ticker: "", pitch_type: "buy",
-  thesis: "", financials: "", risks: "",
-  price_target: "", current_price: "",
-  vote_threshold: "simple",
-};
+interface Props {
+  userId: string;
+  prefill?: {
+    ticker?: string;
+    company_name?: string;
+    current_price?: string;
+  };
+}
 
-export default function NewPitchForm({ userId }: { userId: string }) {
+export default function NewPitchForm({ userId, prefill }: Props) {
   const router = useRouter();
-  const [form, setForm]         = useState({ ...EMPTY });
+  const [form, setForm]         = useState({
+    company_name:   prefill?.company_name   ?? "",
+    ticker:         prefill?.ticker         ?? "",
+    pitch_type:     "buy",
+    thesis:         "",
+    financials:     "",
+    risks:          "",
+    price_target:   "",
+    current_price:  prefill?.current_price  ?? "",
+    vote_threshold: "simple",
+  });
   const [submitting, setSub]    = useState(false);
   const [error, setError]       = useState<string | null>(null);
   const [fetchingPrice, setFP]  = useState(false);
@@ -51,7 +63,7 @@ export default function NewPitchForm({ userId }: { userId: string }) {
     setFP(false);
   }
 
-  function set<K extends keyof typeof EMPTY>(key: K) {
+  function set<K extends keyof typeof form>(key: K) {
     return (v: string) => setForm((f) => ({ ...f, [key]: v }));
   }
 
