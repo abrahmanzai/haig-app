@@ -146,14 +146,20 @@ html[data-splash]::before {
 
 /* ─── Hero elements controlled by [data-splash] on <html> ───────────────── */
 
-/* Watermark: hidden while splash overlay is showing.
-   Snaps to its class-defined 0.06 opacity the moment data-splash is removed,
-   seamlessly matching the splash mark's final opacity.                      */
+/* Global arrow watermark (fixed, in layout.tsx) — always centered in viewport.
+   Hidden during splash, snaps to 0.06 when data-splash is removed, matching
+   the splash mark's final opacity exactly for a seamless handoff.            */
 .hero-watermark {
   opacity: 0.06;
 }
 [data-splash] .hero-watermark {
   opacity: 0;
+}
+
+/* Ensure all page content stacks above the z-0 fixed watermark. */
+body > *:not(.hero-watermark) {
+  position: relative;
+  z-index: 1;
 }
 
 /* Hero text content: hidden while splash plays, slides in when it ends.
