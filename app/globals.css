@@ -53,71 +53,99 @@ main {
 
 /* ─── Splash screen ──────────────────────────────────────────────────────── */
 
+/* ── Overlay ── */
 .spl-wrap {
   position: fixed;
   inset: 0;
   z-index: 100;
+  overflow: hidden;
+  /* Phase 1: solid black. Phase 2: dissolves to transparent. */
   background: #000;
+  transition: background-color 1.8s ease-in-out 0.4s; /* 0.4s delay so texts start fading first */
+}
+.spl-wrap.spl-p2 {
+  background: rgba(0, 0, 0, 0);
+}
+
+/* ── Arrow mark positioner — always viewport-centered regardless of size ── */
+.spl-mark-pos {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ── Arrow SVG ──
+   Phase 1 : fades + slides up via keyframe (animation-fill-mode: both holds
+             opacity:0 before the animation starts).
+   Phase 2 : CSS transition grows height 22vh→65vh and fades to 0.06 opacity,
+             matching the static hero watermark's final state exactly.        */
+.spl-mark-svg {
+  display: block;
+  height: 22vh;
+  width: auto;
+  /* Transitions active after Phase 1 animation finishes */
+  transition: height 2s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 1.8s ease-in-out;
+  /* Phase 1 intro */
+  animation: splMarkIn 0.6s cubic-bezier(0.2, 0, 0.4, 1) 0.1s both;
+}
+.spl-wrap.spl-p2 .spl-mark-svg {
+  height: 65vh;
+  opacity: 0.06;
+}
+@keyframes splMarkIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Text block ──
+   Positioned just below the 22vh mark (center + half-mark-height + gap).
+   Phase 2: transitions to opacity 0 as a group.                            */
+.spl-texts {
+  position: absolute;
+  top: calc(50% + 14vh);
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  white-space: nowrap;
+  transition: opacity 0.45s ease-out;
 }
-
-.spl-svg {
-  width: min(80vw, 480px);
-  height: auto;
-}
-
-/* Whole-screen fade-out */
-.spl-exit {
-  animation: splExit 0.5s ease-in forwards;
-}
-@keyframes splExit {
-  to { opacity: 0; pointer-events: none; }
-}
-
-/* ── 1. Pillar: scale from its bottom edge upward ── */
-.spl-pillar {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;   /* center-x, bottom-y of the element */
-  transform: scaleY(0);
-  animation: splPillar 0.4s cubic-bezier(0.2, 0.6, 0.4, 1) 0s forwards;
-}
-@keyframes splPillar {
-  to { transform: scaleY(1); }
-}
-
-/* ── 2. Chevron: expand from its horizontal center outward ── */
-.spl-chev {
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
-  transform: scaleX(0);
-  animation: splChev 0.3s ease-out 0.4s forwards;
-}
-@keyframes splChev {
-  to { transform: scaleX(1); }
-}
-
-/* ── 3. Crossbar: simple opacity fade ── */
-.spl-cross {
-  opacity: 0;
-  animation: splFade 0.2s ease-out 0.7s forwards;
-}
-@keyframes splFade {
-  to { opacity: 1; }
-}
-
-/* ── 4-6. Text lines: fade + subtle upward slide ── */
-.spl-t1,
-.spl-t2,
-.spl-t3 {
+.spl-wrap.spl-p2 .spl-texts {
   opacity: 0;
 }
-.spl-t1 { animation: splSlide 0.3s ease-out 0.9s forwards; }
-.spl-t2 { animation: splSlide 0.3s ease-out 1.2s forwards; }
-.spl-t3 { animation: splSlide 0.3s ease-out 1.5s forwards; }
 
-@keyframes splSlide {
+/* ── Individual text lines: staggered fade+slide in during Phase 1 ── */
+.spl-t1, .spl-t2, .spl-t3 { opacity: 0; }
+.spl-t1 { animation: splTextIn 0.4s ease-out 0.8s forwards; }
+.spl-t2 { animation: splTextIn 0.4s ease-out 1.1s forwards; }
+.spl-t3 { animation: splTextIn 0.4s ease-out 1.4s forwards; }
+@keyframes splTextIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* ─── Hero elements controlled by [data-splash] on <html> ───────────────── */
+
+/* Watermark: hidden while splash overlay is showing.
+   Snaps to its class-defined 0.06 opacity the moment data-splash is removed,
+   seamlessly matching the splash mark's final opacity.                      */
+.hero-watermark {
+  opacity: 0.06;
+}
+[data-splash] .hero-watermark {
+  opacity: 0;
+}
+
+/* Hero text content: hidden while splash plays, slides in when it ends.
+   The CSS transition fires automatically when [data-splash] is removed.     */
+.lp-hero-content {
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+[data-splash] .lp-hero-content {
+  opacity: 0;
+  transform: translateY(16px);
 }

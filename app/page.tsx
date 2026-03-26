@@ -172,11 +172,12 @@ export default function Home() {
             />
           </div>
 
-          {/* Giant watermark arrow — fixed in hero, sits behind all content */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden" aria-hidden>
+          {/* Giant watermark arrow — opacity controlled by .hero-watermark CSS class
+               (hidden via [data-splash] while splash plays, then snaps to 0.06) */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden hero-watermark" aria-hidden>
             <svg
               viewBox="-46 -46 92 132"
-              style={{ height: "65vh", width: "auto", opacity: 0.06 }}
+              style={{ height: "65vh", width: "auto" }}
             >
               <defs>
                 <linearGradient id="wm-g" x1="0" y1="0" x2="1" y2="1">
@@ -190,7 +191,7 @@ export default function Home() {
             </svg>
           </div>
 
-          <div className="relative z-10 max-w-3xl">
+          <div className="relative z-10 max-w-3xl lp-hero-content">
             {/* Status badge */}
             <div
               className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-4 py-1.5 text-sm text-[var(--text-secondary)] mb-10"
