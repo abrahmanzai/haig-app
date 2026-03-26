@@ -156,11 +156,6 @@ html[data-splash]::before {
   opacity: 0;
 }
 
-/* Ensure all page content stacks above the z-0 fixed watermark. */
-body > *:not(.hero-watermark) {
-  position: relative;
-  z-index: 1;
-}
 
 /* Hero text content: hidden while splash plays, slides in when it ends.
    The CSS transition fires automatically when [data-splash] is removed.     */
