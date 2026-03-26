@@ -48,7 +48,7 @@ export default async function Portfolio() {
     const fetches = holdings.map((h) =>
       fetch(
         `https://finnhub.io/api/v1/quote?symbol=${h.ticker}&token=${apiKey}`,
-        { next: { revalidate: 60 } }
+        { cache: "no-store" }
       )
         .then((r) => r.json())
         .then((data) => ({ ticker: h.ticker, price: (data.c as number) || null }))
@@ -58,6 +58,7 @@ export default async function Portfolio() {
     for (const { ticker, price } of results) {
       livePrices[ticker] = price;
     }
+    console.log("[Portfolio] live prices:", livePrices);
   }
 
   // ── Merge live prices into holdings ────────────────────────────────────────
