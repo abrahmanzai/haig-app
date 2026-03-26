@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createClient } from "@/lib/supabase/server";
 import AppNav from "@/app/_components/AppNav";
 import CalendarClient from "./CalendarClient";
