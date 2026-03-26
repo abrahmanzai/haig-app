@@ -41,8 +41,33 @@ export default async function Portfolio() {
   const financials = financialsResult.data;
   const trades     = tradesResult.data ?? [];
 
+  // ── Fetch live prices from Finnhub (server-side, key never hits client) ──
+  let livePrices: Record<string, number | null> = {};
+  const apiKey = process.env.FINNHUB_API_KEY;
+  if (holdings.length > 0 && apiKey) {
+    const fetches = holdings.map((h) =>
+      fetch(
+        `https://finnhub.io/api/v1/quote?symbol=${h.ticker}&token=${apiKey}`,
+        { next: { revalidate: 60 } }
+      )
+        .then((r) => r.json())
+        .then((data) => ({ ticker: h.ticker, price: (data.c as number) || null }))
+        .catch(() => ({ ticker: h.ticker, price: null }))
+    );
+    const results = await Promise.all(fetches);
+    for (const { ticker, price } of results) {
+      livePrices[ticker] = price;
+    }
+  }
+
+  // ── Merge live prices into holdings ────────────────────────────────────────
+  const holdingsWithPrice = holdings.map((h) => ({
+    ...h,
+    current_price: livePrices[h.ticker] ?? h.current_price,
+  }));
+
   // ── Compute aggregates ─────────────────────────────────────────────────────
-  const holdingsValue = holdings.reduce(
+  const holdingsValue = holdingsWithPrice.reduce(
     (sum, h) => sum + h.shares * (h.current_price ?? h.avg_cost_basis), 0,
   );
   const totalValue  = holdingsValue + (financials?.cash_on_hand ?? 0);
@@ -112,7 +137,7 @@ export default async function Portfolio() {
               <h2 className="font-semibold">Holdings</h2>
             </div>
 
-            {holdings.length === 0 ? (
+            {holdingsWithPrice.length === 0 ? (
               <p className="px-6 py-8 text-sm text-center" style={{ color: "var(--text-tertiary)" }}>
                 No holdings on record.
               </p>
@@ -121,7 +146,7 @@ export default async function Portfolio() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[var(--border)]">
-                      {["Ticker", "Company", "Shares", "Avg Cost", "Current Price", "Market Value", "Gain / Loss"].map((h) => (
+                      {["Ticker", "Company", "Shares", "Avg Cost", "Live Price", "Market Value", "Gain / Loss"].map((h) => (
                         <th
                           key={h}
                           className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
@@ -133,7 +158,7 @@ export default async function Portfolio() {
                     </tr>
                   </thead>
                   <tbody>
-                    {holdings.map((holding) => {
+                    {holdingsWithPrice.map((holding) => {
                       const price      = holding.current_price ?? holding.avg_cost_basis;
                       const value      = holding.shares * price;
                       const costBasis  = holding.shares * holding.avg_cost_basis;
