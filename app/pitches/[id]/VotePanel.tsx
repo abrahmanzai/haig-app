@@ -1,0 +1,237 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface Vote {
+  voter_id: string;
+  vote: string;
+  voting_units_cast: number;
+}
+
+interface Props {
+  pitchId: string;
+  pitchStatus: string;
+  voteThreshold: string;
+  canVote: boolean;
+  userVotingUnits: number;
+  initialVotes: Vote[];
+  userVote: Vote | null;
+  userId: string;
+}
+
+// ─── Threshold helpers ────────────────────────────────────────────────────────
+
+const THRESHOLDS: Record<string, number> = {
+  simple:                       0.5,
+  supermajority_two_thirds:     2 / 3,
+  supermajority_three_quarters: 0.75,
+};
+
+function tally(votes: Vote[]) {
+  let yes = 0, no = 0, abstain = 0;
+  for (const v of votes) {
+    if (v.vote === "yes")     yes     += Number(v.voting_units_cast);
+    else if (v.vote === "no") no      += Number(v.voting_units_cast);
+    else                      abstain += Number(v.voting_units_cast);
+  }
+  return { yes, no, abstain, total: yes + no + abstain };
+}
+
+function passes(t: { yes: number; no: number }, threshold: string) {
+  const decisive = t.yes + t.no;
+  if (decisive === 0) return null;
+  const required = THRESHOLDS[threshold] ?? 0.5;
+  return t.yes / decisive > required;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export default function VotePanel({
+  pitchId, pitchStatus, voteThreshold,
+  canVote, userVotingUnits, initialVotes,
+  userVote: initialUserVote, userId,
+}: Props) {
+  const router  = useRouter();
+  const [votes, setVotes]       = useState<Vote[]>(initialVotes);
+  const [myVote, setMyVote]     = useState<Vote | null>(initialUserVote);
+  const [casting, setCasting]   = useState<string | null>(null);
+  const [error, setError]       = useState<string | null>(null);
+
+  const t      = tally(votes);
+  const result = passes(t, voteThreshold);
+
+  async function castVote(choice: "yes" | "no" | "abstain") {
+    if (!canVote) return;
+    setCasting(choice);
+    setError(null);
+
+    const supabase = createClient();
+    const units    = Number(userVotingUnits);
+
+    if (myVote) {
+      // Update existing vote
+      const { error: err } = await supabase
+        .from("votes")
+        .update({ vote: choice, voting_units_cast: units })
+        .eq("pitch_id", pitchId)
+        .eq("voter_id", userId);
+
+      if (err) { setError(err.message); setCasting(null); return; }
+
+      setVotes((prev) =>
+        prev.map((v) =>
+          v.voter_id === userId ? { ...v, vote: choice, voting_units_cast: units } : v,
+        ),
+      );
+    } else {
+      // Insert new vote
+      const { error: err } = await supabase
+        .from("votes")
+        .insert({
+          pitch_id:          pitchId,
+          voter_id:          userId,
+          vote:              choice,
+          voting_units_cast: units,
+        });
+
+      if (err) { setError(err.message); setCasting(null); return; }
+
+      setVotes((prev) => [...prev, { voter_id: userId, vote: choice, voting_units_cast: units }]);
+    }
+
+    setMyVote({ voter_id: userId, vote: choice, voting_units_cast: units });
+    setCasting(null);
+    router.refresh();
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
+  const showVotingUI = pitchStatus === "voting";
+
+  if (!showVotingUI && votes.length === 0) {
+    return (
+      <div
+        className="rounded-2xl border border-[var(--border)] p-6"
+        style={{ background: "var(--bg-secondary)" }}
+      >
+        <h2 className="font-semibold mb-2">Votes</h2>
+        <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
+          {pitchStatus === "pending"
+            ? "Voting hasn't opened yet — an admin will move this pitch to voting when ready."
+            : "No votes were cast."}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="rounded-2xl border border-[var(--border)] p-6 space-y-5"
+      style={{ background: "var(--bg-secondary)" }}
+    >
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h2 className="font-semibold">Votes</h2>
+        {result !== null && (
+          <span
+            className="text-xs font-semibold uppercase tracking-wider rounded-full px-3 py-1.5"
+            style={
+              result
+                ? { background: "rgba(48,209,88,0.15)", color: "#30d158" }
+                : { background: "rgba(255,69,58,0.15)", color: "#ff453a" }
+            }
+          >
+            {result ? "Passing" : "Failing"}
+          </span>
+        )}
+      </div>
+
+      {/* Tally bars */}
+      <div className="space-y-3">
+        {[
+          { label: "Yes",     value: t.yes,     color: "#30d158" },
+          { label: "No",      value: t.no,      color: "#ff453a" },
+          { label: "Abstain", value: t.abstain, color: "#8e8e93" },
+        ].map(({ label, value, color }) => {
+          const pct = t.total > 0 ? (value / t.total) * 100 : 0;
+          return (
+            <div key={label}>
+              <div className="flex justify-between text-xs mb-1">
+                <span style={{ color: "var(--text-secondary)" }}>{label}</span>
+                <span className="tabular-nums font-semibold" style={{ color }}>
+                  {value.toFixed(4)} units ({pct.toFixed(1)}%)
+                </span>
+              </div>
+              <div
+                className="h-2 rounded-full overflow-hidden"
+                style={{ background: "var(--bg-tertiary)" }}
+              >
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, background: color }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+        {votes.length} voter{votes.length !== 1 ? "s" : ""} · {t.total.toFixed(4)} total units cast
+      </p>
+
+      {/* Voting buttons */}
+      {canVote && showVotingUI && (
+        <div className="pt-2 border-t border-[var(--border)] space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+            {myVote ? "Change Your Vote" : "Cast Your Vote"}
+          </p>
+          {myVote && (
+            <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+              Your current vote: <strong style={{ color: "var(--accent-primary)" }}>{myVote.vote.toUpperCase()}</strong>
+              {" "}({Number(myVote.voting_units_cast).toFixed(4)} units)
+            </p>
+          )}
+          <div className="flex gap-3">
+            {(["yes", "no", "abstain"] as const).map((choice) => {
+              const colors  = { yes: "#30d158", no: "#ff453a", abstain: "#8e8e93" };
+              const mine    = myVote?.vote === choice;
+              const loading = casting === choice;
+              const color   = colors[choice];
+              return (
+                <button
+                  key={choice}
+                  onClick={() => castVote(choice)}
+                  disabled={!!casting}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold uppercase border transition-all disabled:opacity-50"
+                  style={
+                    mine
+                      ? { background: color + "25", color, borderColor: color + "70" }
+                      : { background: "transparent", color: "var(--text-tertiary)", borderColor: "var(--border)" }
+                  }
+                >
+                  {loading ? "…" : choice}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {!canVote && showVotingUI && (
+        <p className="text-xs pt-2 border-t border-[var(--border)]" style={{ color: "var(--text-tertiary)" }}>
+          Only Authorized Members can vote.
+        </p>
+      )}
+
+      {error && (
+        <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "#ff453a" }}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
