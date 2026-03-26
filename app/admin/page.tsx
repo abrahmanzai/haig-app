@@ -5,10 +5,6 @@ import { redirect } from "next/navigation";
 import AppNav from "@/app/_components/AppNav";
 import AdminClient from "./AdminClient";
 
-function usd(n: number) {
-  return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
 export default async function Admin() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -22,7 +18,7 @@ export default async function Admin() {
 
   if (self?.role !== "admin") redirect("/dashboard");
 
-  const [membersResult, eventsResult, pitchesResult, financialsResult] = await Promise.all([
+  const [membersResult, eventsResult, pitchesResult, financialsResult, holdingsResult, tradesResult] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, full_name, email, role, capital_contribution, voting_units, joined_at")
@@ -33,12 +29,16 @@ export default async function Admin() {
       .order("event_date", { ascending: true }),
     supabase.from("pitches").select("id, status"),
     supabase.from("club_financials").select("*").eq("id", 1).single(),
+    supabase.from("holdings").select("*").order("ticker"),
+    supabase.from("trades").select("*").order("trade_date", { ascending: false }),
   ]);
 
   const members    = membersResult.data ?? [];
   const events     = eventsResult.data ?? [];
   const pitches    = pitchesResult.data ?? [];
   const financials = financialsResult.data;
+  const holdings   = holdingsResult.data ?? [];
+  const trades     = tradesResult.data ?? [];
 
   const memberCount     = members.length;
   const authorizedCount = members.filter((m) => m.role === "authorized" || m.role === "admin").length;
@@ -81,31 +81,15 @@ export default async function Admin() {
             ))}
           </div>
 
-          {/* ── Club financials ───────────────────────────────────────────── */}
-          <div
-            className="rounded-2xl border border-[var(--border)] p-6"
-            style={{ background: "var(--bg-secondary)" }}
-          >
-            <h2 className="font-semibold mb-4">Club Financials</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[
-                { label: "Total Invested",     value: usd(financials?.total_invested ?? 0), color: "var(--text-primary)"   },
-                { label: "Cash on Hand",       value: usd(financials?.cash_on_hand ?? 0),   color: "var(--accent-green)"   },
-                { label: "Total Members",      value: String(memberCount),                   color: "var(--accent-primary)" },
-                { label: "Authorized Members", value: String(authorizedCount),               color: "var(--accent-green)"   },
-              ].map((row) => (
-                <div key={row.label}>
-                  <p className="text-xs uppercase tracking-wider mb-1" style={{ color: "var(--text-tertiary)" }}>
-                    {row.label}
-                  </p>
-                  <p className="font-semibold" style={{ color: row.color }}>{row.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── Interactive member + event CRUD ──────────────────────────── */}
-          <AdminClient members={members} events={events} adminId={user.id} />
+          {/* ── Interactive member + event + holdings + trades CRUD ──────── */}
+          <AdminClient
+            members={members}
+            events={events}
+            holdings={holdings}
+            trades={trades}
+            financials={financials ?? null}
+            adminId={user.id}
+          />
 
         </div>
       </main>

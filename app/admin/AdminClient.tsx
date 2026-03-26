@@ -25,9 +25,37 @@ interface CalEvent {
   location: string;
 }
 
+interface Holding {
+  id: string;
+  company_name: string;
+  ticker: string;
+  shares: number;
+  avg_cost_basis: number;
+  current_price: number | null;
+}
+
+interface Trade {
+  id: string;
+  company_name: string;
+  ticker: string;
+  trade_type: string;
+  shares: number;
+  price_per_share: number;
+  trade_date: string;
+  notes: string | null;
+}
+
+interface Financials {
+  cash_on_hand: number;
+  total_invested: number;
+}
+
 interface Props {
   members: Member[];
   events: CalEvent[];
+  holdings: Holding[];
+  trades: Trade[];
+  financials: Financials | null;
   adminId: string;
 }
 
@@ -49,7 +77,6 @@ const EVENT_COLORS: Record<string, string> = {
 function usd(n: number) {
   return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
-
 
 // ─── Event idea bank (reference only — not in the database) ──────────────────
 
@@ -89,29 +116,69 @@ const EMPTY_EVENT_FORM = {
   event_date: "", event_time: "", location: "",
 };
 
+const EMPTY_HOLDING_FORM = {
+  company_name: "", ticker: "", shares: "", avg_cost_basis: "",
+};
+
+const EMPTY_TRADE_FORM = {
+  company_name: "", ticker: "", trade_type: "buy",
+  shares: "", price_per_share: "", trade_date: "", notes: "",
+};
+
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
-export default function AdminClient({ members: initialMembers, events: initialEvents, adminId }: Props) {
+export default function AdminClient({
+  members: initialMembers,
+  events: initialEvents,
+  holdings: initialHoldings,
+  trades: initialTrades,
+  financials: initialFinancials,
+  adminId,
+}: Props) {
   const router = useRouter();
+
+  // ── Member state ────────────────────────────────────────────────────────────
   const [members, setMembers] = useState<Member[]>(initialMembers);
-  const [events,  setEvents]  = useState<CalEvent[]>(initialEvents);
-
-  // ── Event ideas state ───────────────────────────────────────────────────────
-  const [ideasOpen, setIdeasOpen] = useState(false);
-
-  // ── Member editing state ────────────────────────────────────────────────────
   const [editingMember, setEditingMember] = useState<string | null>(null);
   const [memberForm, setMemberForm] = useState<{ role: string; capital: string }>({ role: "", capital: "" });
   const [memberSaving, setMemberSaving] = useState(false);
   const [memberError, setMemberError]   = useState<string | null>(null);
 
-  // ── Event form state ────────────────────────────────────────────────────────
+  // ── Event state ─────────────────────────────────────────────────────────────
+  const [events, setEvents]         = useState<CalEvent[]>(initialEvents);
+  const [ideasOpen, setIdeasOpen]   = useState(false);
   const [addEventOpen, setAddEventOpen] = useState(false);
-  const [eventForm, setEventForm]       = useState({ ...EMPTY_EVENT_FORM });
-  const [eventSaving, setEventSaving]   = useState(false);
-  const [eventError, setEventError]     = useState<string | null>(null);
+  const [eventForm, setEventForm]   = useState({ ...EMPTY_EVENT_FORM });
+  const [eventSaving, setEventSaving] = useState(false);
+  const [eventError, setEventError] = useState<string | null>(null);
 
-  // ── Member handlers ─────────────────────────────────────────────────────────
+  // ── Holdings state ──────────────────────────────────────────────────────────
+  const [holdings, setHoldings]           = useState<Holding[]>(initialHoldings);
+  const [addHoldingOpen, setAddHoldingOpen] = useState(false);
+  const [holdingForm, setHoldingForm]     = useState({ ...EMPTY_HOLDING_FORM });
+  const [holdingSaving, setHoldingSaving] = useState(false);
+  const [holdingError, setHoldingError]   = useState<string | null>(null);
+  const [editingHolding, setEditingHolding] = useState<string | null>(null);
+  const [holdingEditForm, setHoldingEditForm] = useState({ shares: "", avg_cost_basis: "" });
+
+  // ── Trades state ────────────────────────────────────────────────────────────
+  const [trades, setTrades]           = useState<Trade[]>(initialTrades);
+  const [addTradeOpen, setAddTradeOpen] = useState(false);
+  const [tradeForm, setTradeForm]     = useState({ ...EMPTY_TRADE_FORM });
+  const [tradeSaving, setTradeSaving] = useState(false);
+  const [tradeError, setTradeError]   = useState<string | null>(null);
+
+  // ── Financials state ─────────────────────────────────────────────────────────
+  const [financials, setFinancials]         = useState<Financials | null>(initialFinancials);
+  const [editingFinancials, setEditingFinancials] = useState(false);
+  const [financialsForm, setFinancialsForm] = useState({
+    cash_on_hand:   String(initialFinancials?.cash_on_hand   ?? 0),
+    total_invested: String(initialFinancials?.total_invested ?? 0),
+  });
+  const [financialsSaving, setFinancialsSaving] = useState(false);
+  const [financialsError, setFinancialsError]   = useState<string | null>(null);
+
+  // ── Member handlers ──────────────────────────────────────────────────────────
 
   function startEditMember(m: Member) {
     setEditingMember(m.id);
@@ -157,7 +224,7 @@ export default function AdminClient({ members: initialMembers, events: initialEv
     router.refresh();
   }
 
-  // ── Event handlers ──────────────────────────────────────────────────────────
+  // ── Event handlers ───────────────────────────────────────────────────────────
 
   async function handleAddEvent(e: React.FormEvent) {
     e.preventDefault();
@@ -196,7 +263,166 @@ export default function AdminClient({ members: initialMembers, events: initialEv
     }
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // ── Holdings handlers ────────────────────────────────────────────────────────
+
+  function startEditHolding(h: Holding) {
+    setEditingHolding(h.id);
+    setHoldingEditForm({ shares: String(h.shares), avg_cost_basis: String(h.avg_cost_basis) });
+  }
+
+  async function saveHolding(id: string) {
+    setHoldingSaving(true);
+    setHoldingError(null);
+
+    const original = holdings.find((h) => h.id === id)!;
+    const body: Record<string, unknown> = {};
+    const newShares = parseFloat(holdingEditForm.shares);
+    const newCost   = parseFloat(holdingEditForm.avg_cost_basis);
+    if (!isNaN(newShares) && newShares !== original.shares) body.shares = newShares;
+    if (!isNaN(newCost)   && newCost   !== original.avg_cost_basis) body.avg_cost_basis = newCost;
+
+    if (Object.keys(body).length === 0) {
+      setEditingHolding(null);
+      setHoldingSaving(false);
+      return;
+    }
+
+    const res = await fetch(`/api/admin/holdings/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const json = await res.json();
+      setHoldingError(json.error ?? "Update failed");
+      setHoldingSaving(false);
+      return;
+    }
+
+    const { holding } = await res.json();
+    setHoldings((prev) => prev.map((h) => (h.id === id ? { ...h, ...holding } : h)));
+    setEditingHolding(null);
+    setHoldingSaving(false);
+    router.refresh();
+  }
+
+  async function handleAddHolding(e: React.FormEvent) {
+    e.preventDefault();
+    setHoldingSaving(true);
+    setHoldingError(null);
+
+    const res = await fetch("/api/admin/holdings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(holdingForm),
+    });
+
+    if (!res.ok) {
+      const json = await res.json();
+      setHoldingError(json.error ?? "Failed to add holding");
+      setHoldingSaving(false);
+      return;
+    }
+
+    const { holding } = await res.json();
+    setHoldings((prev) =>
+      [...prev, holding].sort((a, b) => a.ticker.localeCompare(b.ticker))
+    );
+    setAddHoldingOpen(false);
+    setHoldingForm({ ...EMPTY_HOLDING_FORM });
+    setHoldingSaving(false);
+    router.refresh();
+  }
+
+  async function handleDeleteHolding(id: string) {
+    if (!confirm("Remove this holding from the portfolio?")) return;
+    const res = await fetch(`/api/admin/holdings/${id}`, { method: "DELETE" });
+    if (res.ok || res.status === 204) {
+      setHoldings((prev) => prev.filter((h) => h.id !== id));
+      router.refresh();
+    }
+  }
+
+  // ── Trades handlers ──────────────────────────────────────────────────────────
+
+  async function handleAddTrade(e: React.FormEvent) {
+    e.preventDefault();
+    setTradeSaving(true);
+    setTradeError(null);
+
+    const res = await fetch("/api/admin/trades", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(tradeForm),
+    });
+
+    if (!res.ok) {
+      const json = await res.json();
+      setTradeError(json.error ?? "Failed to record trade");
+      setTradeSaving(false);
+      return;
+    }
+
+    const { trade } = await res.json();
+    setTrades((prev) =>
+      [trade, ...prev].sort((a, b) => b.trade_date.localeCompare(a.trade_date))
+    );
+    setAddTradeOpen(false);
+    setTradeForm({ ...EMPTY_TRADE_FORM });
+    setTradeSaving(false);
+    router.refresh();
+  }
+
+  async function handleDeleteTrade(id: string) {
+    if (!confirm("Delete this trade record?")) return;
+    const res = await fetch(`/api/admin/trades/${id}`, { method: "DELETE" });
+    if (res.ok || res.status === 204) {
+      setTrades((prev) => prev.filter((t) => t.id !== id));
+      router.refresh();
+    }
+  }
+
+  // ── Financials handlers ──────────────────────────────────────────────────────
+
+  function startEditFinancials() {
+    setFinancialsForm({
+      cash_on_hand:   String(financials?.cash_on_hand   ?? 0),
+      total_invested: String(financials?.total_invested ?? 0),
+    });
+    setFinancialsError(null);
+    setEditingFinancials(true);
+  }
+
+  async function saveFinancials(e: React.FormEvent) {
+    e.preventDefault();
+    setFinancialsSaving(true);
+    setFinancialsError(null);
+
+    const res = await fetch("/api/admin/financials", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        cash_on_hand:   parseFloat(financialsForm.cash_on_hand),
+        total_invested: parseFloat(financialsForm.total_invested),
+      }),
+    });
+
+    if (!res.ok) {
+      const json = await res.json();
+      setFinancialsError(json.error ?? "Update failed");
+      setFinancialsSaving(false);
+      return;
+    }
+
+    const { financials: updated } = await res.json();
+    setFinancials(updated);
+    setEditingFinancials(false);
+    setFinancialsSaving(false);
+    router.refresh();
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-8">
 
@@ -243,7 +469,6 @@ export default function AdminClient({ members: initialMembers, events: initialEv
                       {member.email}
                     </td>
 
-                    {/* Role cell */}
                     <td className="px-6 py-4">
                       {isEditing ? (
                         <select
@@ -266,7 +491,6 @@ export default function AdminClient({ members: initialMembers, events: initialEv
                       )}
                     </td>
 
-                    {/* Capital cell */}
                     <td className="px-6 py-4 tabular-nums" style={{ color: "var(--text-secondary)" }}>
                       {isEditing ? (
                         <input
@@ -290,7 +514,6 @@ export default function AdminClient({ members: initialMembers, events: initialEv
                       {member.joined_at ? formatDate(member.joined_at) : "—"}
                     </td>
 
-                    {/* Actions */}
                     <td className="px-4 py-4">
                       {isEditing ? (
                         <div className="flex items-center gap-2">
@@ -313,7 +536,6 @@ export default function AdminClient({ members: initialMembers, events: initialEv
                           </button>
                         </div>
                       ) : (
-                        // Don't allow editing yourself to avoid accidental lockout
                         member.id !== adminId && (
                           <button
                             onClick={() => startEditMember(member)}
@@ -337,6 +559,338 @@ export default function AdminClient({ members: initialMembers, events: initialEv
           <p className="px-6 py-3 text-sm" style={{ color: "var(--accent-red)" }}>
             {memberError}
           </p>
+        )}
+      </div>
+
+      {/* ── Club Financials ─────────────────────────────────────────────────── */}
+      <div
+        className="rounded-2xl border border-[var(--border)] p-6"
+        style={{ background: "var(--bg-secondary)" }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold">Club Financials</h2>
+          {!editingFinancials && (
+            <button
+              onClick={startEditFinancials}
+              className="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-tertiary)]"
+              style={{ color: "var(--text-tertiary)" }}
+              title="Edit financials"
+            >
+              <Pencil size={14} />
+            </button>
+          )}
+        </div>
+
+        {editingFinancials ? (
+          <form onSubmit={saveFinancials} className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs uppercase tracking-wider mb-1.5" style={{ color: "var(--text-tertiary)" }}>
+                Cash on Hand
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                value={financialsForm.cash_on_hand}
+                onChange={(e) => setFinancialsForm((f) => ({ ...f, cash_on_hand: e.target.value }))}
+                className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none tabular-nums"
+                style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+              />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-wider mb-1.5" style={{ color: "var(--text-tertiary)" }}>
+                Total Invested
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                value={financialsForm.total_invested}
+                onChange={(e) => setFinancialsForm((f) => ({ ...f, total_invested: e.target.value }))}
+                className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none tabular-nums"
+                style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+              />
+            </div>
+            {financialsError && (
+              <p className="sm:col-span-2 text-sm" style={{ color: "var(--accent-red)" }}>{financialsError}</p>
+            )}
+            <div className="sm:col-span-2 flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setEditingFinancials(false)}
+                className="px-4 py-2 rounded-xl text-sm border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={financialsSaving}
+                className="px-5 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 hover:brightness-110 transition-all"
+                style={{ background: "var(--accent-primary)" }}
+              >
+                {financialsSaving ? "Saving…" : "Save"}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: "Cash on Hand",   value: usd(financials?.cash_on_hand   ?? 0), color: "var(--accent-green)"   },
+              { label: "Total Invested", value: usd(financials?.total_invested ?? 0), color: "var(--text-primary)"   },
+            ].map((row) => (
+              <div key={row.label}>
+                <p className="text-xs uppercase tracking-wider mb-1" style={{ color: "var(--text-tertiary)" }}>
+                  {row.label}
+                </p>
+                <p className="font-semibold" style={{ color: row.color }}>{row.value}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Holdings table ──────────────────────────────────────────────────── */}
+      <div
+        className="rounded-2xl border border-[var(--border)] overflow-hidden"
+        style={{ background: "var(--bg-secondary)" }}
+      >
+        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
+          <div>
+            <h2 className="font-semibold">Holdings</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+              Click the pencil icon to update shares or cost basis
+            </p>
+          </div>
+          <button
+            onClick={() => { setAddHoldingOpen(true); setHoldingError(null); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:brightness-110 transition-all"
+            style={{ background: "var(--accent-primary)" }}
+          >
+            <Plus size={12} />
+            Add Holding
+          </button>
+        </div>
+
+        {holdings.length === 0 ? (
+          <p className="px-6 py-8 text-sm text-center" style={{ color: "var(--text-tertiary)" }}>
+            No holdings yet.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[var(--border)]">
+                  {["Ticker", "Company", "Shares", "Avg Cost", ""].map((h) => (
+                    <th
+                      key={h}
+                      className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-tertiary)" }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {holdings.map((holding) => {
+                  const isEditing = editingHolding === holding.id;
+                  return (
+                    <tr
+                      key={holding.id}
+                      className="border-b border-[var(--border)] last:border-0"
+                      style={isEditing ? { background: "rgba(10,132,255,0.05)" } : undefined}
+                    >
+                      <td className="px-6 py-4 font-bold" style={{ color: "var(--accent-primary)" }}>
+                        {holding.ticker}
+                      </td>
+                      <td className="px-6 py-4" style={{ color: "var(--text-primary)" }}>
+                        {holding.company_name}
+                      </td>
+                      <td className="px-6 py-4 tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            min="0.000001"
+                            step="0.000001"
+                            value={holdingEditForm.shares}
+                            onChange={(e) => setHoldingEditForm((f) => ({ ...f, shares: e.target.value }))}
+                            className="rounded-lg border border-[var(--border)] px-2 py-1 text-sm w-28 outline-none tabular-nums"
+                            style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                          />
+                        ) : (
+                          holding.shares
+                        )}
+                      </td>
+                      <td className="px-6 py-4 tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={holdingEditForm.avg_cost_basis}
+                            onChange={(e) => setHoldingEditForm((f) => ({ ...f, avg_cost_basis: e.target.value }))}
+                            className="rounded-lg border border-[var(--border)] px-2 py-1 text-sm w-28 outline-none tabular-nums"
+                            style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                          />
+                        ) : (
+                          usd(holding.avg_cost_basis)
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
+                        {isEditing ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => saveHolding(holding.id)}
+                              disabled={holdingSaving}
+                              className="p-1.5 rounded-lg transition-colors disabled:opacity-50"
+                              style={{ background: "rgba(48,209,88,0.15)", color: "#30d158" }}
+                              title="Save"
+                            >
+                              <Check size={14} />
+                            </button>
+                            <button
+                              onClick={() => setEditingHolding(null)}
+                              className="p-1.5 rounded-lg transition-colors"
+                              style={{ background: "rgba(255,69,58,0.12)", color: "#ff453a" }}
+                              title="Cancel"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => startEditHolding(holding)}
+                              className="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-tertiary)]"
+                              style={{ color: "var(--text-tertiary)" }}
+                              title="Edit"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteHolding(holding.id)}
+                              className="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-tertiary)]"
+                              style={{ color: "var(--text-tertiary)" }}
+                              title="Remove holding"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {holdingError && (
+          <p className="px-6 py-3 text-sm" style={{ color: "var(--accent-red)" }}>
+            {holdingError}
+          </p>
+        )}
+      </div>
+
+      {/* ── Trades log ──────────────────────────────────────────────────────── */}
+      <div
+        className="rounded-2xl border border-[var(--border)] overflow-hidden"
+        style={{ background: "var(--bg-secondary)" }}
+      >
+        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
+          <div>
+            <h2 className="font-semibold">Trade Log</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+              Full history — appears on the Portfolio page
+            </p>
+          </div>
+          <button
+            onClick={() => { setAddTradeOpen(true); setTradeError(null); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:brightness-110 transition-all"
+            style={{ background: "var(--accent-primary)" }}
+          >
+            <Plus size={12} />
+            Record Trade
+          </button>
+        </div>
+
+        {trades.length === 0 ? (
+          <p className="px-6 py-8 text-sm text-center" style={{ color: "var(--text-tertiary)" }}>
+            No trades recorded yet.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[var(--border)]">
+                  {["Date", "Type", "Ticker", "Company", "Shares", "Price", "Total", ""].map((h) => (
+                    <th
+                      key={h}
+                      className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "var(--text-tertiary)" }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {trades.map((trade) => {
+                  const isBuy  = trade.trade_type === "buy";
+                  const total  = trade.shares * trade.price_per_share;
+                  return (
+                    <tr
+                      key={trade.id}
+                      className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg-tertiary)] transition-colors"
+                    >
+                      <td className="px-6 py-4" style={{ color: "var(--text-secondary)" }}>
+                        {formatDate(trade.trade_date)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className="text-xs font-semibold uppercase rounded px-2 py-0.5"
+                          style={{
+                            background: isBuy ? "rgba(48,209,88,0.15)" : "rgba(255,69,58,0.15)",
+                            color: isBuy ? "#30d158" : "#ff453a",
+                          }}
+                        >
+                          {trade.trade_type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-bold" style={{ color: "var(--accent-primary)" }}>
+                        {trade.ticker}
+                      </td>
+                      <td className="px-6 py-4" style={{ color: "var(--text-primary)" }}>
+                        {trade.company_name}
+                      </td>
+                      <td className="px-6 py-4 tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                        {trade.shares}
+                      </td>
+                      <td className="px-6 py-4 tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                        {usd(trade.price_per_share)}
+                      </td>
+                      <td className="px-6 py-4 tabular-nums font-semibold" style={{ color: "var(--text-primary)" }}>
+                        {usd(total)}
+                      </td>
+                      <td className="px-4 py-4">
+                        <button
+                          onClick={() => handleDeleteTrade(trade.id)}
+                          className="p-1.5 rounded-lg transition-colors hover:bg-[var(--bg-tertiary)]"
+                          style={{ color: "var(--text-tertiary)" }}
+                          title="Delete trade"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -452,7 +1006,236 @@ export default function AdminClient({ members: initialMembers, events: initialEv
         )}
       </div>
 
-      {/* ── Add event modal ─────────────────────────────────────────────────── */}
+      {/* ── Add Holding modal ───────────────────────────────────────────────── */}
+      {addHoldingOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setAddHoldingOpen(false)}
+        >
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.6)" }} />
+          <div
+            className="relative rounded-2xl border border-[var(--border)] p-6 w-full max-w-md shadow-2xl"
+            style={{ background: "var(--bg-secondary)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-semibold text-lg">Add Holding</h3>
+              <button
+                onClick={() => setAddHoldingOpen(false)}
+                className="p-0.5 rounded hover:text-white transition-colors"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddHolding} className="grid gap-3">
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  required
+                  placeholder="Ticker (e.g. AAPL) *"
+                  value={holdingForm.ticker}
+                  onChange={(e) => setHoldingForm((f) => ({ ...f, ticker: e.target.value.toUpperCase() }))}
+                  className="rounded-lg border border-[var(--border)] p-3 text-sm outline-none uppercase"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                />
+                <input
+                  type="text"
+                  required
+                  placeholder="Company name *"
+                  value={holdingForm.company_name}
+                  onChange={(e) => setHoldingForm((f) => ({ ...f, company_name: e.target.value }))}
+                  className="rounded-lg border border-[var(--border)] p-3 text-sm outline-none"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs mb-1" style={{ color: "var(--text-tertiary)" }}>Shares *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0.000001"
+                    step="0.000001"
+                    placeholder="0.000000"
+                    value={holdingForm.shares}
+                    onChange={(e) => setHoldingForm((f) => ({ ...f, shares: e.target.value }))}
+                    className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none tabular-nums"
+                    style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs mb-1" style={{ color: "var(--text-tertiary)" }}>Avg Cost Basis *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={holdingForm.avg_cost_basis}
+                    onChange={(e) => setHoldingForm((f) => ({ ...f, avg_cost_basis: e.target.value }))}
+                    className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none tabular-nums"
+                    style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                  />
+                </div>
+              </div>
+
+              {holdingError && (
+                <p className="text-sm" style={{ color: "var(--accent-red)" }}>{holdingError}</p>
+              )}
+
+              <div className="flex gap-3 justify-end mt-2">
+                <button
+                  type="button"
+                  onClick={() => setAddHoldingOpen(false)}
+                  className="px-4 py-2 rounded-xl text-sm border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={holdingSaving}
+                  className="px-5 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 hover:brightness-110 transition-all"
+                  style={{ background: "var(--accent-primary)" }}
+                >
+                  {holdingSaving ? "Saving…" : "Add Holding"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Record Trade modal ──────────────────────────────────────────────── */}
+      {addTradeOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setAddTradeOpen(false)}
+        >
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.6)" }} />
+          <div
+            className="relative rounded-2xl border border-[var(--border)] p-6 w-full max-w-md shadow-2xl"
+            style={{ background: "var(--bg-secondary)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-semibold text-lg">Record Trade</h3>
+              <button
+                onClick={() => setAddTradeOpen(false)}
+                className="p-0.5 rounded hover:text-white transition-colors"
+                style={{ color: "var(--text-tertiary)" }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddTrade} className="grid gap-3">
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  required
+                  placeholder="Ticker *"
+                  value={tradeForm.ticker}
+                  onChange={(e) => setTradeForm((f) => ({ ...f, ticker: e.target.value.toUpperCase() }))}
+                  className="rounded-lg border border-[var(--border)] p-3 text-sm outline-none uppercase"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                />
+                <input
+                  type="text"
+                  required
+                  placeholder="Company name *"
+                  value={tradeForm.company_name}
+                  onChange={(e) => setTradeForm((f) => ({ ...f, company_name: e.target.value }))}
+                  className="rounded-lg border border-[var(--border)] p-3 text-sm outline-none"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <select
+                  value={tradeForm.trade_type}
+                  onChange={(e) => setTradeForm((f) => ({ ...f, trade_type: e.target.value }))}
+                  className="rounded-lg border border-[var(--border)] p-3 text-sm outline-none"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                >
+                  <option value="buy">Buy</option>
+                  <option value="sell">Sell</option>
+                </select>
+                <input
+                  type="date"
+                  required
+                  value={tradeForm.trade_date}
+                  onChange={(e) => setTradeForm((f) => ({ ...f, trade_date: e.target.value }))}
+                  className="rounded-lg border border-[var(--border)] p-3 text-sm outline-none"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)", colorScheme: "dark" }}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs mb-1" style={{ color: "var(--text-tertiary)" }}>Shares *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0.000001"
+                    step="0.000001"
+                    placeholder="0.000000"
+                    value={tradeForm.shares}
+                    onChange={(e) => setTradeForm((f) => ({ ...f, shares: e.target.value }))}
+                    className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none tabular-nums"
+                    style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs mb-1" style={{ color: "var(--text-tertiary)" }}>Price per Share *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={tradeForm.price_per_share}
+                    onChange={(e) => setTradeForm((f) => ({ ...f, price_per_share: e.target.value }))}
+                    className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none tabular-nums"
+                    style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                  />
+                </div>
+              </div>
+              <textarea
+                placeholder="Notes (optional)"
+                value={tradeForm.notes}
+                onChange={(e) => setTradeForm((f) => ({ ...f, notes: e.target.value }))}
+                rows={2}
+                className="w-full rounded-lg border border-[var(--border)] p-3 text-sm resize-none outline-none"
+                style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+              />
+
+              {tradeError && (
+                <p className="text-sm" style={{ color: "var(--accent-red)" }}>{tradeError}</p>
+              )}
+
+              <div className="flex gap-3 justify-end mt-2">
+                <button
+                  type="button"
+                  onClick={() => setAddTradeOpen(false)}
+                  className="px-4 py-2 rounded-xl text-sm border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={tradeSaving}
+                  className="px-5 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 hover:brightness-110 transition-all"
+                  style={{ background: "var(--accent-primary)" }}
+                >
+                  {tradeSaving ? "Saving…" : "Record Trade"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Add Event modal ─────────────────────────────────────────────────── */}
       {addEventOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
