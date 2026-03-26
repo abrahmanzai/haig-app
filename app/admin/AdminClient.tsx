@@ -51,6 +51,39 @@ function usd(n: number) {
 }
 
 
+// ─── Event idea bank (reference only — not in the database) ──────────────────
+
+const EVENT_IDEAS: { title: string; type: string; description: string }[] = [
+  { type: "founding", title: "Founding Meeting",                          description: "Sign partnership agreement. Elect Authorized Trader. Set initial capital contribution expectations. Establish communication channels." },
+  { type: "deadline", title: "Fiscal Year Begins",                        description: "Official start of FY1. Capital accounts open." },
+  { type: "meeting",  title: "Kickoff Meeting: Club Vision & Bylaws",     description: "Walk through the partnership agreement together. Q&A on voting, contributions, dissociation rules. Set meeting cadence." },
+  { type: "workshop", title: "Workshop: Brokerage Accounts 101",          description: "How to open a brokerage account. Difference between taxable, Roth IRA, traditional IRA. Live demo of placing a trade." },
+  { type: "meeting",  title: "Meeting: Index Funds & ETFs Deep Dive",     description: "What are index funds? SPY, VOO, VTI, SCHD comparisons. Dollar-cost averaging strategy. First pitch practice round (informal)." },
+  { type: "speaker",  title: "Speaker: Local Financial Advisor or CFA",   description: "Invite a financial professional to speak on portfolio construction and risk management. Q&A session." },
+  { type: "deadline", title: "Deadline: Initial Capital Contributions",    description: "All founding members submit initial capital contributions. Treasurer records capital accounts." },
+  { type: "meeting",  title: "Meeting: Reading Financial Statements",      description: "How to read a 10-K, income statement, balance sheet, cash flow. Practice with a real company." },
+  { type: "workshop", title: "Workshop: Stock Screeners & Research Tools", description: "Hands-on with Finviz, TradingView, SEC EDGAR. How to filter for value, growth, dividend stocks." },
+  { type: "meeting",  title: "First Investment Pitch Night",               description: "Members present stock/ETF pitches (5-10 min each). Thesis, financials, risks, price target. Vote on top picks." },
+  { type: "speaker",  title: "Speaker: Entrepreneurship & Investing",      description: "Invite a local entrepreneur to discuss building wealth through business ownership and market investing." },
+  { type: "review",   title: "Mid-Year Portfolio Review",                  description: "Review current holdings and performance. Discuss rebalancing. Open floor for new pitches or exits." },
+  { type: "social",   title: "Social: Investing Movie Night",              description: "Watch The Big Short or Margin Call together. Discussion afterward on lessons and market psychology." },
+  { type: "meeting",  title: "Fall Kickoff & New Member Orientation",      description: "Present club mission, partnership agreement overview, how to join. Recruit new members." },
+  { type: "workshop", title: "Workshop: Compound Interest & Time Value",   description: "The math behind financial freedom. Compound interest calculators, retirement projections." },
+  { type: "meeting",  title: "Investment Pitch Night #2",                  description: "Second round of formal pitches. Vote on new allocations. Review prior investments." },
+  { type: "speaker",  title: "Speaker: Real Estate Investing",             description: "Discuss REITs, rental properties, and real estate as a portfolio diversifier." },
+  { type: "workshop", title: "Workshop: Risk Management & Diversification", description: "Position sizing, asset allocation models, correlation. Why diverse perspectives improve decisions." },
+  { type: "meeting",  title: "Meeting: Tax Implications of Investing",     description: "Capital gains (short vs. long term), tax-loss harvesting, K-1 forms for partnerships." },
+  { type: "social",   title: "Social: Club Outing",                        description: "Team-building outing. Discuss investing philosophy and club goals in a relaxed setting." },
+  { type: "review",   title: "End-of-Year Portfolio Review",               description: "Full portfolio performance review. Compare against S&P 500 benchmark. Discuss wins, losses, lessons." },
+  { type: "workshop", title: "Workshop: Goal Setting & Personal Finance",  description: "Each member sets personal financial goals. Budgeting, emergency funds, debt payoff strategies." },
+  { type: "meeting",  title: "Spring Kickoff & Recruitment Drive",         description: "New semester, new members. Re-introduce club mission. Partnership agreement signing for new partners." },
+  { type: "meeting",  title: "Investment Pitch Night #3",                  description: "Fresh pitches for the new year. Sector rotation discussion. Vote on allocations." },
+  { type: "speaker",  title: "Speaker: Careers in Finance",                description: "Discuss career paths: investment banking, asset management, fintech, financial planning." },
+  { type: "workshop", title: "Workshop: Options & Derivatives Intro",      description: "Basics of options (calls, puts, covered calls). Educational only — not for club capital." },
+  { type: "review",   title: "Annual General Meeting & Year Wrap-Up",      description: "Full-year performance report. Vote on leadership for next FY. Set goals and contribution levels." },
+  { type: "deadline", title: "Fiscal Year End",                            description: "Close FY books. Treasurer finalizes capital account statements for all partners." },
+];
+
 const EMPTY_EVENT_FORM = {
   title: "", description: "", event_type: "meeting",
   event_date: "", event_time: "", location: "",
@@ -62,6 +95,9 @@ export default function AdminClient({ members: initialMembers, events: initialEv
   const router = useRouter();
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [events,  setEvents]  = useState<CalEvent[]>(initialEvents);
+
+  // ── Event ideas state ───────────────────────────────────────────────────────
+  const [ideasOpen, setIdeasOpen] = useState(false);
 
   // ── Member editing state ────────────────────────────────────────────────────
   const [editingMember, setEditingMember] = useState<string | null>(null);
@@ -358,6 +394,57 @@ export default function AdminClient({ members: initialMembers, events: initialEv
                   >
                     <Trash2 size={14} />
                   </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Event idea bank ────────────────────────────────────────────────── */}
+      <div
+        className="rounded-2xl border border-[var(--border)] overflow-hidden"
+        style={{ background: "var(--bg-secondary)" }}
+      >
+        <button
+          onClick={() => setIdeasOpen((o) => !o)}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-semibold">Event Idea Bank</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+              {EVENT_IDEAS.length} suggested events — click to expand and use as inspiration
+            </p>
+          </div>
+          <span style={{ color: "var(--text-tertiary)", fontSize: 18, lineHeight: 1 }}>
+            {ideasOpen ? "−" : "+"}
+          </span>
+        </button>
+
+        {ideasOpen && (
+          <div className="divide-y divide-[var(--border)] border-t border-[var(--border)]">
+            {EVENT_IDEAS.map((idea, i) => {
+              const color = EVENT_COLORS[idea.type] ?? "#888";
+              return (
+                <div key={i} className="flex items-start gap-3 px-6 py-3">
+                  <span
+                    className="w-2 h-2 rounded-full mt-[5px] flex-shrink-0"
+                    style={{ background: color }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-medium">{idea.title}</span>
+                      <span
+                        className="text-xs font-semibold rounded px-1.5 py-0.5 capitalize flex-shrink-0"
+                        style={{ background: color + "18", color }}
+                      >
+                        {idea.type}
+                      </span>
+                    </div>
+                    <p className="text-xs mt-0.5 leading-relaxed" style={{ color: "var(--text-tertiary)" }}>
+                      {idea.description}
+                    </p>
+                  </div>
                 </div>
               );
             })}
