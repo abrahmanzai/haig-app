@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { createClient } from "@/lib/supabase/server";
+import { formatDate, getTodayStr } from "@/lib/date";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import AppNav from "@/app/_components/AppNav";
@@ -27,11 +28,6 @@ function usd(n: number) {
   return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function fmtDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-  });
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -40,7 +36,7 @@ export default async function Dashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayStr();
 
   // Fetch all data in parallel
   const [
@@ -103,9 +99,9 @@ export default async function Dashboard() {
                 Welcome back{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
               </h1>
               <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                {fmtDate(today)}
+                {formatDate(today)}
                 {profile?.joined_at && (
-                  <> · Member since {fmtDate(profile.joined_at.split("T")[0])}</>
+                  <> · Member since {formatDate(profile.joined_at)}</>
                 )}
               </p>
             </div>
@@ -156,7 +152,7 @@ export default async function Dashboard() {
               },
               {
                 label: "Next Event",
-                value: nextEvent ? fmtDate(nextEvent.event_date) : "—",
+                value: nextEvent ? formatDate(nextEvent.event_date) : "—",
                 sub:   nextEvent?.title ?? "No upcoming events",
                 color: "var(--accent-green)",
               },
@@ -250,7 +246,7 @@ export default async function Dashboard() {
                             {ev.title}
                           </p>
                           <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
-                            {fmtDate(ev.event_date)} · {ev.location}
+                            {formatDate(ev.event_date)} · {ev.location}
                           </p>
                         </div>
                         <span

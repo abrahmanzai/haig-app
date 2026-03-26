@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { createClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/date";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import AppNav from "@/app/_components/AppNav";
@@ -21,11 +22,6 @@ const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   hold: { label: "HOLD", color: "#ff9f0a" },
 };
 
-function fmtDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-  });
-}
 
 const ALL_STATUSES = ["all", "pending", "voting", "approved", "rejected", "closed"];
 
@@ -217,7 +213,7 @@ export default async function Pitches({
                             </span>
                           )}
                           {submitterName && <span>By {submitterName}</span>}
-                          <span>{fmtDate(pitch.created_at)}</span>
+                          <span>{formatDate(pitch.created_at)}</span>
                         </div>
                       </div>
 

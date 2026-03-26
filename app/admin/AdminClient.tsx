@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Plus, Trash2, Check, Pencil } from "lucide-react";
+import { formatDate } from "@/lib/date";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,11 +50,6 @@ function usd(n: number) {
   return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function fmtDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-  });
-}
 
 const EMPTY_EVENT_FORM = {
   title: "", description: "", event_type: "meeting",
@@ -255,7 +251,7 @@ export default function AdminClient({ members: initialMembers, events: initialEv
                       {(member.voting_units ?? 0).toFixed(4)}
                     </td>
                     <td className="px-6 py-4" style={{ color: "var(--text-tertiary)" }}>
-                      {member.joined_at ? fmtDate(member.joined_at.split("T")[0]) : "—"}
+                      {member.joined_at ? formatDate(member.joined_at) : "—"}
                     </td>
 
                     {/* Actions */}
@@ -345,7 +341,7 @@ export default function AdminClient({ members: initialMembers, events: initialEv
                   <div className="flex-1 min-w-0">
                     <span className="text-sm font-medium">{ev.title}</span>
                     <span className="text-xs ml-2" style={{ color: "var(--text-tertiary)" }}>
-                      {fmtDate(ev.event_date)} · {ev.location}
+                      {formatDate(ev.event_date)} · {ev.location}
                     </span>
                   </div>
                   <span

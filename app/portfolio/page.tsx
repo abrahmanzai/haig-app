@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { createClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/date";
 import { redirect } from "next/navigation";
 import AppNav from "@/app/_components/AppNav";
 
@@ -15,11 +16,6 @@ function pct(n: number) {
   return sign + n.toFixed(2) + "%";
 }
 
-function fmtDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-  });
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -219,7 +215,7 @@ export default async function Portfolio() {
                           className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--bg-tertiary)] transition-colors"
                         >
                           <td className="px-6 py-4" style={{ color: "var(--text-secondary)" }}>
-                            {fmtDate(trade.trade_date)}
+                            {formatDate(trade.trade_date)}
                           </td>
                           <td className="px-6 py-4">
                             <span

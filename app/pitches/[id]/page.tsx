@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { createClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/date";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import AppNav from "@/app/_components/AppNav";
@@ -33,11 +34,6 @@ function usd(n: number) {
   return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function fmtDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "long", day: "numeric", year: "numeric",
-  });
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -136,7 +132,7 @@ export default async function PitchDetail({
             {/* Meta */}
             <div className="flex gap-4 text-xs mb-5 flex-wrap" style={{ color: "var(--text-tertiary)" }}>
               {submitterName && <span>By <strong style={{ color: "var(--text-secondary)" }}>{submitterName}</strong></span>}
-              <span>{fmtDate(pitch.created_at)}</span>
+              <span>{formatDate(pitch.created_at, { month: "long", day: "numeric", year: "numeric" })}</span>
               <span>Threshold: <strong style={{ color: "var(--text-secondary)" }}>{THRESHOLD_LABELS[pitch.vote_threshold]}</strong></span>
             </div>
 

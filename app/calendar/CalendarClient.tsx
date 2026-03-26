@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   ChevronLeft, ChevronRight, Plus, X, LayoutGrid, List,
 } from "lucide-react";
+import { formatDate, formatLongDate } from "@/lib/date";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -65,17 +66,6 @@ function getFirstDayOfMonth(year: number, month: number) {
   return new Date(year, month, 1).getDay();
 }
 
-function formatLongDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-    weekday: "long", month: "long", day: "numeric",
-  });
-}
-
-function formatShortDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-  });
-}
 
 // ─── Root component ───────────────────────────────────────────────────────────
 
@@ -670,7 +660,7 @@ function TimelineView({
 
                       <div className="text-right flex-shrink-0">
                         <div className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                          {formatShortDate(ev.event_date)}
+                          {formatDate(ev.event_date)}
                         </div>
                         {ev.event_time && (
                           <div className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
