@@ -3,22 +3,26 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #000000;
-  --bg-secondary: #1c1c1e;
-  --bg-tertiary: #2c2c2e;
-  --bg-glass: rgba(44, 44, 46, 0.72);
-  --text-primary: #ffffff;
-  --text-secondary: #8e8e93;
-  --text-tertiary: #636366;
+  --bg-primary:    #000000;
+  --bg-secondary:  #1c1c1e;
+  --bg-tertiary:   #2c2c2e;
+  --bg-glass:      rgba(44, 44, 46, 0.72);
+
+  /* Text hierarchy — all pass WCAG AA contrast on dark backgrounds */
+  --text-primary:   #ffffff;        /* 21:1 on black */
+  --text-secondary: #aeaeb2;        /* ~7.5:1 on black — up from #8e8e93 */
+  --text-tertiary:  #7c7c80;        /* ~4.6:1 on black — up from #636366 (was 3.7:1, failed AA) */
+
   --accent-primary: #0a84ff;
-  --accent-green: #30d158;
-  --accent-red: #ff453a;
-  --accent-orange: #ff9f0a;
-  --accent-purple: #bf5af2;
-  --accent-teal: #64d2ff;
-  --accent-gold: #ffd60a;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.16);
+  --accent-green:   #30d158;
+  --accent-red:     #ff453a;
+  --accent-orange:  #ff9f0a;
+  --accent-purple:  #bf5af2;
+  --accent-teal:    #64d2ff;
+  --accent-gold:    #ffd60a;
+
+  --border:         rgba(255, 255, 255, 0.12);   /* up from 0.08 — more visible card edges */
+  --border-hover:   rgba(255, 255, 255, 0.22);   /* up from 0.16 */
 }
 
 * {
@@ -49,6 +53,28 @@ main {
 .container {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+/* ─── Messages container — respects dynamic viewport on mobile ────────────── */
+
+/* calc(100dvh - 56px) avoids the address-bar jump on mobile browsers.
+   Falls back to 100vh on browsers that don't support dvh yet.             */
+.messages-container {
+  height: calc(100vh - 56px);
+}
+@supports (height: 100dvh) {
+  .messages-container {
+    height: calc(100dvh - 56px);
+  }
+}
+
+/* ─── Hide scrollbar (used on messages tab bar) ──────────────────────────── */
+.no-scrollbar {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / Edge legacy */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;                /* Chrome / Safari */
 }
 
 /* ─── Splash screen ──────────────────────────────────────────────────────── */

@@ -20,26 +20,19 @@ export default function SplashScreen({ onDone }: { onDone: () => void }) {
   return (
     <div className={`spl-wrap${p2 ? " spl-p2" : ""}`}>
 
-      {/* ── Arrow mark ─────────────────────────────────────────────────────
+      {/* ── Logo mark ──────────────────────────────────────────────────────
           Absolutely centered so it stays fixed in the viewport as it grows.
           Phase 1: fades + slides up (keyframe).
           Phase 2: transitions from 22vh → 65vh height, opacity 1 → 0.06.  */}
       <div className="spl-mark-pos">
-        <svg
-          viewBox="-46 -46 92 132"
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo-mark.svg"
+          alt=""
           className="spl-mark-svg"
           aria-hidden="true"
-        >
-          <defs>
-            <linearGradient id="spl-g" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%"   stopColor="#0A84FF" />
-              <stop offset="100%" stopColor="#30D158" />
-            </linearGradient>
-          </defs>
-          <rect    x="-16" y="0"  width="32" height="80" rx="4" fill="url(#spl-g)" />
-          <polygon points="-40,10 0,-40 40,10"                   fill="url(#spl-g)" />
-          <rect    x="-28" y="36" width="56" height="8"  rx="3" fill="url(#spl-g)" opacity="0.9" />
-        </svg>
+          style={{ width: "auto" }}
+        />
       </div>
 
       {/* ── Texts ──────────────────────────────────────────────────────────

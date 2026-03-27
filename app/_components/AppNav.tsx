@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
 import SignOutButton from "./SignOutButton";
 import UnreadBadge from "./UnreadBadge";
 
@@ -9,6 +13,7 @@ const NAV_LINKS = [
   { href: "/portfolio", label: "Portfolio", roles: null },
   { href: "/research",  label: "Research",  roles: ["authorized", "admin"] },
   { href: "/messages",  label: "Messages",  roles: ["authorized", "admin"] },
+  { href: "/info",      label: "Info",      roles: ["authorized", "admin"] },
 ] as const;
 
 interface Props {
@@ -18,48 +23,45 @@ interface Props {
 }
 
 export default function AppNav({ name, role, currentPath }: Props) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const visibleLinks = NAV_LINKS.filter(
+    (link) => !link.roles || (role && (link.roles as readonly string[]).includes(role))
+  );
+
   return (
     <nav
       className="sticky top-0 z-40 border-b border-[var(--border)]"
-      style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(20px)" }}
+      style={{ background: "rgba(0,0,0,0.88)", backdropFilter: "blur(20px)" }}
     >
+      {/* ── Main bar ──────────────────────────────────────────────────────── */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        {/* Left: brand + links */}
+
+        {/* Left: brand + desktop nav links */}
         <div className="flex items-center gap-1">
           <Link href="/dashboard" className="mr-3 flex-shrink-0" aria-label="HAIG home">
-            <svg viewBox="-46 -46 92 132" height={36} aria-hidden="true" style={{ display: "block" }}>
-              <defs>
-                <linearGradient id="nav-g" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%"   stopColor="#0A84FF" />
-                  <stop offset="100%" stopColor="#30D158" />
-                </linearGradient>
-              </defs>
-              <rect x="-16" y="0" width="32" height="80" rx="4" fill="url(#nav-g)" />
-              <polygon points="-40,10 0,-40 40,10" fill="url(#nav-g)" />
-              <rect x="-28" y="36" width="56" height="8" rx="3" fill="url(#nav-g)" opacity="0.9" />
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-mark.svg" alt="HAIG" width={36} height={36} style={{ display: "block" }} />
           </Link>
 
-          {NAV_LINKS
-            .filter((link) => !link.roles || (role && (link.roles as readonly string[]).includes(role)))
-            .map((link) => {
-              const active = currentPath.startsWith(link.href);
-              const isMessages = link.href === "/messages";
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors"
-                  style={{
-                    color: active ? "var(--text-primary)" : "var(--text-tertiary)",
-                    background: active ? "var(--bg-tertiary)" : "transparent",
-                  }}
-                >
-                  {link.label}
-                  {isMessages && <UnreadBadge />}
-                </Link>
-              );
-            })}
+          {visibleLinks.map((link) => {
+            const active = currentPath.startsWith(link.href);
+            const isMessages = link.href === "/messages";
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors"
+                style={{
+                  color: active ? "var(--text-primary)" : "var(--text-tertiary)",
+                  background: active ? "var(--bg-tertiary)" : "transparent",
+                }}
+              >
+                {link.label}
+                {isMessages && <UnreadBadge />}
+              </Link>
+            );
+          })}
 
           {role === "admin" && (
             <Link
@@ -75,16 +77,78 @@ export default function AppNav({ name, role, currentPath }: Props) {
           )}
         </div>
 
-        {/* Right: user name + sign out */}
-        <div className="flex items-center gap-3">
+        {/* Right: user name + sign out (desktop) + hamburger (mobile) */}
+        <div className="flex items-center gap-2">
           {name && (
             <span className="hidden sm:block text-sm" style={{ color: "var(--text-secondary)" }}>
               {name}
             </span>
           )}
-          <SignOutButton />
+          <div className="hidden sm:block">
+            <SignOutButton />
+          </div>
+          <button
+            className="sm:hidden p-2 rounded-lg transition-colors hover:bg-[var(--bg-tertiary)]"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen
+              ? <X    size={20} style={{ color: "var(--text-primary)" }} />
+              : <Menu size={20} style={{ color: "var(--text-primary)" }} />
+            }
+          </button>
         </div>
       </div>
+
+      {/* ── Mobile drawer ─────────────────────────────────────────────────── */}
+      {mobileOpen && (
+        <div
+          className="sm:hidden border-t border-[var(--border)] px-4 py-3 space-y-1"
+          style={{ background: "rgba(0,0,0,0.96)" }}
+        >
+          {visibleLinks.map((link) => {
+            const active = currentPath.startsWith(link.href);
+            const isMessages = link.href === "/messages";
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm transition-colors"
+                style={{
+                  color: active ? "var(--text-primary)" : "var(--text-secondary)",
+                  background: active ? "var(--bg-tertiary)" : "transparent",
+                }}
+              >
+                {link.label}
+                {isMessages && <UnreadBadge />}
+              </Link>
+            );
+          })}
+
+          {role === "admin" && (
+            <Link
+              href="/admin"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center w-full px-3 py-2.5 rounded-xl text-sm transition-colors"
+              style={{
+                color: currentPath.startsWith("/admin") ? "var(--accent-gold)" : "var(--text-secondary)",
+                background: currentPath.startsWith("/admin") ? "rgba(255,214,10,0.10)" : "transparent",
+              }}
+            >
+              Admin
+            </Link>
+          )}
+
+          <div className="pt-3 mt-1 border-t border-[var(--border)] flex items-center justify-between">
+            {name && (
+              <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{name}</span>
+            )}
+            <SignOutButton />
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

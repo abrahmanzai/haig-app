@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { DirectMessage, MemberBasic } from "./types";
 
@@ -178,9 +179,17 @@ export default function DirectMessagesTab({ userId, userName, members, initialDM
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* ── Left sidebar: member list ─────────────────────────────────── */}
+
+      {/* ── Left sidebar: member list ────────────────────────────────────── */}
+      {/* On mobile: full-width when no chat selected, hidden when chat open  */}
+      {/* On sm+: always visible as fixed-width column                        */}
       <div
-        className="w-64 flex-shrink-0 border-r border-[var(--border)] flex flex-col overflow-hidden"
+        className={[
+          "flex-col overflow-hidden border-r border-[var(--border)]",
+          selectedId
+            ? "hidden sm:flex sm:w-64 sm:flex-shrink-0"
+            : "flex w-full sm:w-64 sm:flex-shrink-0",
+        ].join(" ")}
         style={{ background: "var(--bg-secondary)" }}
       >
         <div className="px-4 py-4 border-b border-[var(--border)]">
@@ -236,8 +245,15 @@ export default function DirectMessagesTab({ userId, userName, members, initialDM
         </div>
       </div>
 
-      {/* ── Right panel: conversation ─────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* ── Right panel: conversation ──────────────────────────────────────── */}
+      {/* On mobile: full-width when chat selected, hidden when no chat open   */}
+      {/* On sm+: always visible, fills remaining space                        */}
+      <div
+        className={[
+          "flex-col overflow-hidden",
+          selectedId ? "flex flex-1" : "hidden sm:flex sm:flex-1",
+        ].join(" ")}
+      >
         {!selectedId ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div
@@ -256,7 +272,15 @@ export default function DirectMessagesTab({ userId, userName, members, initialDM
         ) : (
           <>
             {/* Convo header */}
-            <div className="px-5 py-4 border-b border-[var(--border)] flex items-center gap-3 flex-shrink-0">
+            <div className="px-4 sm:px-5 py-4 border-b border-[var(--border)] flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              {/* Back button — mobile only */}
+              <button
+                className="sm:hidden p-1.5 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors flex-shrink-0"
+                onClick={() => setSelectedId(null)}
+                aria-label="Back to conversations"
+              >
+                <ArrowLeft size={18} style={{ color: "var(--text-secondary)" }} />
+              </button>
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                 style={{ background: "var(--accent-primary)", color: "#fff" }}
@@ -286,7 +310,7 @@ export default function DirectMessagesTab({ userId, userName, members, initialDM
                 const showTime = i === convo.length - 1 || next?.sender_id !== msg.sender_id;
                 return (
                   <div key={msg.id} className={`flex items-end gap-2 ${isMine ? "flex-row-reverse" : "flex-row"}`}>
-                    <div className={`flex flex-col max-w-[72%] ${isMine ? "items-end" : "items-start"}`}>
+                    <div className={`flex flex-col max-w-[80%] sm:max-w-[72%] ${isMine ? "items-end" : "items-start"}`}>
                       <div
                         className="px-4 py-2.5 text-sm leading-relaxed break-words"
                         style={{

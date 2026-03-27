@@ -73,11 +73,6 @@ export default async function Dashboard() {
 
   const profile        = profileResult.data;
 
-  // ── DIAGNOSTIC — remove after debugging ──────────────────────────────────
-  console.log("[DEBUG] user.id        :", user.id);
-  console.log("[DEBUG] profileResult  :", JSON.stringify(profileResult, null, 2));
-  // ─────────────────────────────────────────────────────────────────────────
-
   const upcomingEvents = upcomingResult.data ?? [];
   const activeVotes    = votingCountResult.count ?? 0;
   const financials     = financialsResult.data;

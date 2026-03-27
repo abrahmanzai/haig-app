@@ -49,10 +49,10 @@ export default function MessagesClient({
   ];
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden" style={{ height: "calc(100vh - 56px)" }}>
-      {/* Tab bar */}
+    <div className="flex flex-col flex-1 overflow-hidden messages-container">
+      {/* Tab bar — scrollable on mobile so labels never wrap or clip */}
       <div
-        className="flex items-center gap-1 px-4 pt-4 pb-0 border-b border-[var(--border)] flex-shrink-0"
+        className="flex items-center gap-1 px-4 pt-4 pb-0 border-b border-[var(--border)] flex-shrink-0 overflow-x-auto no-scrollbar"
         style={{ background: "var(--bg-primary)" }}
       >
         {TABS.map((tab) => {
@@ -61,7 +61,7 @@ export default function MessagesClient({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors rounded-t-xl"
+              className="relative flex items-center gap-1.5 px-3 sm:px-4 py-2.5 text-sm font-medium transition-colors rounded-t-xl flex-shrink-0 whitespace-nowrap"
               style={{
                 color: active ? "var(--text-primary)" : "var(--text-tertiary)",
                 borderBottom: active ? "2px solid var(--accent-primary)" : "2px solid transparent",

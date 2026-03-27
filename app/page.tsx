@@ -1,5 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import SplashGate from "./_components/SplashGate";
+import { createClient } from "@/lib/supabase/server";
+import { Calendar } from "lucide-react";
 import {
   BookOpen, TrendingUp, BarChart2,
   UserPlus, GraduationCap, Mic, ThumbsUp,
@@ -63,9 +67,38 @@ const socials = [
   { label: "GitHub",   href: "#",                       icon: Github,        color: "#8e8e93" },
 ];
 
+const EVENT_COLORS: Record<string, string> = {
+  founding: "#ffd60a",
+  meeting:  "#0a84ff",
+  workshop: "#30d158",
+  speaker:  "#bf5af2",
+  social:   "#ff9f0a",
+  deadline: "#ff453a",
+  review:   "#64d2ff",
+};
+
+function formatEventDate(dateStr: string) {
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function Home() {
+export default async function Home() {
+  const supabase = createClient();
+  const today = new Date().toISOString().split("T")[0];
+  const { data: events } = await supabase
+    .from("events")
+    .select("id, title, event_type, event_date, location, description")
+    .gte("event_date", today)
+    .order("event_date", { ascending: true })
+    .limit(5);
+
+  const upcomingEvents = events ?? [];
+
   return (
     <div style={{ minHeight: "100vh" }}>
       <SplashGate />
@@ -75,26 +108,18 @@ export default function Home() {
         className="fixed top-0 inset-x-0 z-50 border-b border-[var(--border)]"
         style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(20px)" }}
       >
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <a href="#hero" className="flex-shrink-0" aria-label="HAIG home">
-            <svg viewBox="-46 -46 92 132" height={36} aria-hidden="true" style={{ display: "block" }}>
-              <defs>
-                <linearGradient id="lp-nav-g" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%"   stopColor="#0A84FF" />
-                  <stop offset="100%" stopColor="#30D158" />
-                </linearGradient>
-              </defs>
-              <rect x="-16" y="0" width="32" height="80" rx="4" fill="url(#lp-nav-g)" />
-              <polygon points="-40,10 0,-40 40,10" fill="url(#lp-nav-g)" />
-              <rect x="-28" y="36" width="56" height="8" rx="3" fill="url(#lp-nav-g)" opacity="0.9" />
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-mark.svg" alt="HAIG" width={36} height={36} style={{ display: "block" }} />
           </a>
 
-          <div className="hidden sm:flex gap-6 text-sm text-[var(--text-secondary)]">
+          <div className="hidden sm:flex gap-6 text-sm" style={{ color: "var(--text-secondary)" }}>
             {[
-              ["Mission",      "#mission"],
-              ["How It Works", "#how"],
-              ["Contact",      "#contact"],
+              ["Mission",        "#mission"],
+              ["Events",         "#events"],
+              ["How It Works",   "#how"],
+              ["Contact",        "#contact"],
             ].map(([label, href]) => (
               <a
                 key={label}
@@ -140,7 +165,7 @@ export default function Home() {
             />
           </div>
 
-<div className="relative z-10 max-w-3xl lp-hero-content">
+          <div className="relative z-10 max-w-3xl lp-hero-content">
             <h1
               className="font-extrabold tracking-tight leading-none mb-5"
               style={{ fontSize: "clamp(2.6rem, 8vw, 5rem)" }}
@@ -186,7 +211,6 @@ export default function Home() {
               </Link>
             </div>
           </div>
-
 
           {/* Scroll hint */}
           <a
@@ -251,10 +275,97 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ═══ UPCOMING EVENTS ══════════════════════════════════════════════ */}
+        <section
+          id="events"
+          className="py-24 px-6 border-y border-[var(--border)]"
+          style={{ background: "rgba(10,132,255,0.03)" }}
+        >
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-14">
+              <p
+                className="text-sm font-semibold uppercase tracking-widest mb-3"
+                style={{ color: "var(--accent-primary)" }}
+              >
+                What&apos;s Coming
+              </p>
+              <h2 className="text-4xl font-bold mb-4">Upcoming Events</h2>
+              <p
+                className="text-lg max-w-2xl mx-auto"
+                style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
+              >
+                All members and prospective partners are welcome. Meetings are held bi-weekly.
+              </p>
+            </div>
+
+            {upcomingEvents.length === 0 ? (
+              <div
+                className="rounded-2xl border border-[var(--border)] p-10 text-center"
+                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
+              >
+                <Calendar size={32} className="mx-auto mb-4" style={{ color: "var(--text-tertiary)" }} />
+                <p className="font-semibold mb-1">No upcoming events scheduled</p>
+                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                  Check back soon — we meet bi-weekly.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {upcomingEvents.map((ev) => {
+                  const color = EVENT_COLORS[ev.event_type] ?? "#888";
+                  return (
+                    <div
+                      key={ev.id}
+                      className="rounded-2xl border border-[var(--border)] p-5 flex items-start gap-4 hover:border-[var(--border-hover)] transition-colors"
+                      style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
+                    >
+                      <div
+                        className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{ background: color + "20" }}
+                      >
+                        <Calendar size={20} style={{ color }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <p className="font-semibold leading-snug">{ev.title}</p>
+                          <span
+                            className="text-xs font-semibold rounded-lg px-2 py-0.5 capitalize flex-shrink-0"
+                            style={{ background: color + "20", color }}
+                          >
+                            {ev.event_type}
+                          </span>
+                        </div>
+                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                          {formatEventDate(ev.event_date)}
+                          {ev.location && ev.location !== "TBD" && (
+                            <> &middot; {ev.location}</>
+                          )}
+                        </p>
+                        {ev.description && (
+                          <p className="text-sm mt-1.5" style={{ color: "var(--text-tertiary)" }}>
+                            {ev.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <p className="text-center mt-8 text-sm" style={{ color: "var(--text-tertiary)" }}>
+              Already a member?{" "}
+              <Link href="/login" className="hover:underline" style={{ color: "var(--accent-primary)" }}>
+                Log in to RSVP →
+              </Link>
+            </p>
+          </div>
+        </section>
+
         {/* ═══ HOW IT WORKS ═════════════════════════════════════════════════ */}
         <section
           id="how"
-          className="py-24 px-6 border-y border-[var(--border)]"
+          className="py-24 px-6"
           style={{ background: "rgba(28,28,30,0.4)" }}
         >
           <div className="max-w-5xl mx-auto">
@@ -366,21 +477,19 @@ export default function Home() {
                 <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Treasurer</p>
               </article>
 
-              {/* Slot 4 — Secretary TBD */}
+              {/* Slot 4 — Secretary */}
               <article
                 className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.55 }}
+                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
               >
                 <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-                  style={{ background: "var(--bg-tertiary)" }}
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
+                  style={{ background: "rgba(48,209,88,0.15)", color: "var(--accent-green)" }}
                 >
-                  <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>?</span>
+                  D
                 </div>
-                <p className="font-semibold text-base mb-1" style={{ color: "var(--text-secondary)" }}>
-                  Founding Partner — TBD
-                </p>
-                <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Secretary</p>
+                <p className="font-semibold text-base mb-1">Dawson</p>
+                <p className="text-sm" style={{ color: "var(--accent-green)" }}>Secretary</p>
               </article>
             </div>
           </div>
