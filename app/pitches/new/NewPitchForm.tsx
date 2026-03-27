@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import type { SearchResult } from "@/app/api/stocks/search/route";
 
 const VOTE_THRESHOLDS = [
-  { value: "simple",                      label: "Simple majority (>50%)" },
-  { value: "supermajority_two_thirds",    label: "Supermajority (>66.7%)" },
-  { value: "supermajority_three_quarters",label: "Supermajority (>75%)" },
+  { value: "simple",                       label: "Simple majority (>50%)" },
+  { value: "supermajority_two_thirds",     label: "Supermajority (>66.7%)" },
+  { value: "supermajority_three_quarters", label: "Supermajority (>75%)" },
 ];
 
 const PITCH_TYPES = [
@@ -27,21 +28,111 @@ interface Props {
 
 export default function NewPitchForm({ userId, prefill }: Props) {
   const router = useRouter();
-  const [form, setForm]         = useState({
-    company_name:   prefill?.company_name   ?? "",
-    ticker:         prefill?.ticker         ?? "",
+
+  const [form, setForm] = useState({
+    company_name:   prefill?.company_name  ?? "",
+    ticker:         prefill?.ticker        ?? "",
     pitch_type:     "buy",
     thesis:         "",
     financials:     "",
     risks:          "",
     price_target:   "",
-    current_price:  prefill?.current_price  ?? "",
+    current_price:  prefill?.current_price ?? "",
     vote_threshold: "simple",
   });
-  const [submitting, setSub]    = useState(false);
-  const [error, setError]       = useState<string | null>(null);
-  const [fetchingPrice, setFP]  = useState(false);
-  const [priceError, setPriceErr] = useState<string | null>(null);
+  const [submitting, setSub]        = useState(false);
+  const [error, setError]           = useState<string | null>(null);
+  const [fetchingPrice, setFP]      = useState(false);
+  const [priceError, setPriceErr]   = useState<string | null>(null);
+
+  // ── Autocomplete state ────────────────────────────────────────────────────
+  const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
+  const [sugLoading,  setSugLoading]  = useState(false);
+  const [showSug,     setShowSug]     = useState(false);
+  const [activeSug,   setActiveSug]   = useState(-1);
+
+  const debounceRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dropdownRef  = useRef<HTMLDivElement>(null);
+  const tickerRef    = useRef<HTMLInputElement>(null);
+  const companyRef   = useRef<HTMLInputElement>(null);
+
+  const fetchSuggestions = useCallback(async (q: string) => {
+    if (!q || q.length < 1) { setSuggestions([]); setShowSug(false); return; }
+    setSugLoading(true);
+    try {
+      const res  = await fetch(`/api/stocks/search?q=${encodeURIComponent(q)}`);
+      const json = await res.json();
+      if (res.ok) {
+        setSuggestions(json.results ?? []);
+        setShowSug((json.results ?? []).length > 0);
+      }
+    } catch { /* silently ignore */ }
+    finally { setSugLoading(false); }
+  }, []);
+
+  function handleFieldChange(field: "ticker" | "company_name", value: string) {
+    const normalized = field === "ticker" ? value.toUpperCase() : value;
+    setForm((f) => ({ ...f, [field]: normalized }));
+    setActiveSug(-1);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchSuggestions(value), 300);
+  }
+
+  async function handleSuggestionSelect(result: SearchResult) {
+    setForm((f) => ({ ...f, ticker: result.symbol, company_name: result.description }));
+    setSuggestions([]);
+    setShowSug(false);
+    setActiveSug(-1);
+    // Auto-fetch live price
+    setFP(true);
+    setPriceErr(null);
+    try {
+      const res  = await fetch(`/api/portfolio/prices?tickers=${result.symbol}`);
+      const json = await res.json();
+      const price = json.prices?.[result.symbol];
+      if (price && price > 0) {
+        setForm((f) => ({ ...f, current_price: String(price) }));
+      }
+    } catch { /* price fetch failure is non-fatal */ }
+    finally { setFP(false); }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (!showSug || suggestions.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveSug((i) => Math.min(i + 1, suggestions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveSug((i) => Math.max(i - 1, -1));
+    } else if (e.key === "Enter" && activeSug >= 0) {
+      e.preventDefault();
+      handleSuggestionSelect(suggestions[activeSug]);
+    } else if (e.key === "Escape") {
+      setShowSug(false);
+      setActiveSug(-1);
+    }
+  }
+
+  // Close on outside click
+  useEffect(() => {
+    function onMouseDown(e: MouseEvent) {
+      const target = e.target as Node;
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(target) &&
+        tickerRef.current   && !tickerRef.current.contains(target)   &&
+        companyRef.current  && !companyRef.current.contains(target)
+      ) {
+        setShowSug(false);
+      }
+    }
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, []);
+
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+
+  // ── Existing manual price fetch ───────────────────────────────────────────
 
   async function autofillPrice() {
     const ticker = form.ticker.trim().toUpperCase();
@@ -66,6 +157,8 @@ export default function NewPitchForm({ userId, prefill }: Props) {
   function set<K extends keyof typeof form>(key: K) {
     return (v: string) => setForm((f) => ({ ...f, [key]: v }));
   }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -95,30 +188,95 @@ export default function NewPitchForm({ userId, prefill }: Props) {
     router.push(`/pitches/${data.id}`);
   }
 
+  // ── Render ────────────────────────────────────────────────────────────────
+
   return (
     <form
       onSubmit={handleSubmit}
       className="rounded-2xl border border-[var(--border)] p-6 space-y-5"
       style={{ background: "var(--bg-secondary)" }}
     >
-      {/* Company + Ticker */}
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="Company Name *">
-          <Input
-            placeholder="e.g. Apple Inc."
-            value={form.company_name}
-            onChange={(e) => set("company_name")(e.target.value)}
-            required
-          />
-        </Field>
-        <Field label="Ticker *">
-          <Input
-            placeholder="e.g. AAPL"
-            value={form.ticker}
-            onChange={(e) => set("ticker")(e.target.value)}
-            required
-          />
-        </Field>
+      {/* ── Company + Ticker (with shared autocomplete dropdown) ── */}
+      <div className="relative">
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Company Name *">
+            <input
+              ref={companyRef}
+              placeholder="e.g. Apple Inc."
+              value={form.company_name}
+              onChange={(e) => handleFieldChange("company_name", e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => { if (suggestions.length > 0) setShowSug(true); }}
+              required
+              autoComplete="off"
+              className="w-full rounded-xl border border-[var(--border)] p-3 text-sm outline-none transition-colors"
+              style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+              onFocusCapture={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
+              onBlurCapture={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
+            />
+          </Field>
+          <Field label="Ticker *">
+            <input
+              ref={tickerRef}
+              placeholder="e.g. AAPL"
+              value={form.ticker}
+              onChange={(e) => handleFieldChange("ticker", e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => { if (suggestions.length > 0) setShowSug(true); }}
+              required
+              autoComplete="off"
+              autoCapitalize="characters"
+              className="w-full rounded-xl border border-[var(--border)] p-3 text-sm outline-none transition-colors"
+              style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+              onFocusCapture={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
+              onBlurCapture={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
+            />
+          </Field>
+        </div>
+
+        {/* Dropdown */}
+        {(showSug || sugLoading) && (
+          <div
+            ref={dropdownRef}
+            className="absolute left-0 right-0 top-full mt-1.5 rounded-xl border border-[var(--border)] overflow-hidden z-50"
+            style={{ background: "var(--bg-secondary)", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}
+          >
+            {sugLoading && (
+              <div className="px-4 py-3 text-xs" style={{ color: "var(--text-tertiary)" }}>
+                Searching…
+              </div>
+            )}
+            {!sugLoading && suggestions.map((result, i) => (
+              <button
+                key={result.symbol}
+                type="button"
+                onMouseDown={() => handleSuggestionSelect(result)}
+                onMouseEnter={() => setActiveSug(i)}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors"
+                style={{ background: i === activeSug ? "var(--bg-tertiary)" : "transparent" }}
+              >
+                <span
+                  className="text-sm font-bold w-16 flex-shrink-0 tabular-nums"
+                  style={{ color: "var(--accent-primary)" }}
+                >
+                  {result.symbol}
+                </span>
+                <span
+                  className="text-sm truncate"
+                  style={{ color: i === activeSug ? "var(--text-primary)" : "var(--text-secondary)" }}
+                >
+                  {result.description}
+                </span>
+                <span
+                  className="ml-auto text-xs flex-shrink-0 px-1.5 py-0.5 rounded"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-tertiary)" }}
+                >
+                  {result.type === "ETP" ? "ETF" : "Stock"}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Pitch type */}
@@ -180,7 +338,7 @@ export default function NewPitchForm({ userId, prefill }: Props) {
           <div className="flex gap-2">
             <Input
               type="number"
-              placeholder="0.00"
+              placeholder={fetchingPrice ? "Fetching…" : "0.00"}
               value={form.current_price}
               onChange={(e) => set("current_price")(e.target.value)}
               step="0.01"
