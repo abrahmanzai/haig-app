@@ -804,7 +804,7 @@ function AttendancePanel({ eventId, members }: { eventId: string; members: Membe
   async function toggle(memberId: string) {
     const was = attendance[memberId] ?? false;
     const now = !was;
-    setSaving((prev) => new Set([...prev, memberId]));
+    setSaving((prev) => new Set([...Array.from(prev), memberId]));
     setAttendance((prev) => ({ ...prev, [memberId]: now }));
 
     const { error } = await supabase
@@ -815,7 +815,7 @@ function AttendancePanel({ eventId, members }: { eventId: string; members: Membe
       );
 
     if (error) setAttendance((prev) => ({ ...prev, [memberId]: was }));
-    setSaving((prev) => { const next = new Set(prev); next.delete(memberId); return next; });
+    setSaving((prev) => { const next = new Set(Array.from(prev)); next.delete(memberId); return next; });
   }
 
   const presentCount = Object.values(attendance).filter(Boolean).length;
