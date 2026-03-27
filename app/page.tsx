@@ -7,7 +7,7 @@ import { Calendar } from "lucide-react";
 import {
   BookOpen, TrendingUp, BarChart2,
   UserPlus, GraduationCap, Mic, ThumbsUp,
-  Mail, MessageCircle, Linkedin, Github,
+  Mail, Linkedin,
 } from "lucide-react";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -61,10 +61,8 @@ const steps = [
 ];
 
 const socials = [
-  { label: "Email",    href: "#",                       icon: Mail,          color: "#0a84ff" },
-  { label: "Discord",  href: "#",                       icon: MessageCircle, color: "#bf5af2" },
-  { label: "LinkedIn", href: "#",                       icon: Linkedin,      color: "#64d2ff" },
-  { label: "GitHub",   href: "#",                       icon: Github,        color: "#8e8e93" },
+  { label: "Email",    href: "mailto:highagencyinvesting@gmail.com",              icon: Mail,     color: "#0a84ff" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/haig-undefined-a204a53ba/", icon: Linkedin, color: "#64d2ff" },
 ];
 
 const EVENT_COLORS: Record<string, string> = {

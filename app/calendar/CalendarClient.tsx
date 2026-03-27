@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
-  ChevronLeft, ChevronRight, Plus, X, LayoutGrid, List,
+  ChevronLeft, ChevronRight, ChevronDown, Plus, X, LayoutGrid, List,
 } from "lucide-react";
+import type { MemberProfile } from "./page";
 import { formatDate, formatLongDate } from "@/lib/date";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -23,6 +24,7 @@ interface Props {
   events: CalendarEvent[];
   isAdmin: boolean;
   userId?: string;
+  members: MemberProfile[];
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -113,7 +115,7 @@ function getFirstDayOfMonth(year: number, month: number) {
 
 // ─── Root component ───────────────────────────────────────────────────────────
 
-export default function CalendarClient({ events: initialEvents, isAdmin, userId }: Props) {
+export default function CalendarClient({ events: initialEvents, isAdmin, userId, members }: Props) {
   const today = new Date();
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
@@ -124,10 +126,19 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId 
   const [selectedDate,    setSelectedDate]   = useState<string | null>(null);
   const [activeFilters,   setActiveFilters]  = useState<Set<string>>(new Set(Object.keys(EVENT_CONFIG)));
   const [events,          setEvents]         = useState<CalendarEvent[]>(initialEvents);
-  const [addOpen,         setAddOpen]        = useState(false);
-  const [form,            setForm]           = useState({ ...EMPTY_FORM });
-  const [saving,          setSaving]         = useState(false);
-  const [saveError,       setSaveError]      = useState<string | null>(null);
+  const [addOpen,           setAddOpen]          = useState(false);
+  const [form,              setForm]             = useState({ ...EMPTY_FORM });
+  const [saving,            setSaving]           = useState(false);
+  const [saveError,         setSaveError]        = useState<string | null>(null);
+  const [attendanceOpenIds, setAttendanceOpenIds] = useState<Set<string>>(new Set());
+
+  function toggleAttendancePanel(evId: string) {
+    setAttendanceOpenIds((prev) => {
+      const next = new Set(prev);
+      next.has(evId) ? next.delete(evId) : next.add(evId);
+      return next;
+    });
+  }
 
   // ── Derived data ───────────────────────────────────────────────────────────
   const filteredEvents = useMemo(
@@ -388,6 +399,33 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId 
                         Add to Google Calendar
                       </a>
                     </div>
+
+                    {/* ── Attendance (admin only) ─────────────────────── */}
+                    {isAdmin && members.length > 0 && (
+                      <div className="mt-3">
+                        <button
+                          onClick={() => toggleAttendancePanel(ev.id)}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors border"
+                          style={{
+                            background: attendanceOpenIds.has(ev.id) ? "rgba(48,209,88,0.08)" : "var(--bg-secondary)",
+                            color: attendanceOpenIds.has(ev.id) ? "var(--accent-green)" : "var(--text-secondary)",
+                            borderColor: attendanceOpenIds.has(ev.id) ? "rgba(48,209,88,0.35)" : "var(--border)",
+                          }}
+                        >
+                          <span>Take Attendance</span>
+                          <ChevronDown
+                            size={14}
+                            style={{
+                              transform: attendanceOpenIds.has(ev.id) ? "rotate(180deg)" : "rotate(0deg)",
+                              transition: "transform 0.2s",
+                            }}
+                          />
+                        </button>
+                        {attendanceOpenIds.has(ev.id) && (
+                          <AttendancePanel eventId={ev.id} members={members} />
+                        )}
+                      </div>
+                    )}
                   </article>
                 );
               })}
@@ -737,6 +775,111 @@ function TimelineView({
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ─── Attendance panel ─────────────────────────────────────────────────────────
+
+function AttendancePanel({ eventId, members }: { eventId: string; members: MemberProfile[] }) {
+  const supabase = createClient();
+  const [attendance, setAttendance] = useState<Record<string, boolean>>({});
+  const [loading,    setLoading]    = useState(true);
+  const [saving,     setSaving]     = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    supabase
+      .from("attendance")
+      .select("member_id, present")
+      .eq("event_id", eventId)
+      .then(({ data }) => {
+        const map: Record<string, boolean> = {};
+        for (const row of data ?? []) map[row.member_id] = row.present ?? false;
+        setAttendance(map);
+        setLoading(false);
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId]);
+
+  async function toggle(memberId: string) {
+    const was = attendance[memberId] ?? false;
+    const now = !was;
+    setSaving((prev) => new Set([...prev, memberId]));
+    setAttendance((prev) => ({ ...prev, [memberId]: now }));
+
+    const { error } = await supabase
+      .from("attendance")
+      .upsert(
+        { event_id: eventId, member_id: memberId, present: now },
+        { onConflict: "event_id,member_id" },
+      );
+
+    if (error) setAttendance((prev) => ({ ...prev, [memberId]: was }));
+    setSaving((prev) => { const next = new Set(prev); next.delete(memberId); return next; });
+  }
+
+  const presentCount = Object.values(attendance).filter(Boolean).length;
+
+  return (
+    <div
+      className="mt-2 rounded-xl border border-[var(--border)] overflow-hidden"
+      style={{ background: "var(--bg-secondary)" }}
+    >
+      {/* Summary row */}
+      <div
+        className="px-3 py-2 border-b border-[var(--border)] flex items-center justify-between"
+        style={{ background: "var(--bg-tertiary)" }}
+      >
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+          Members
+        </span>
+        {!loading && (
+          <span className="text-xs font-semibold tabular-nums" style={{ color: "var(--accent-green)" }}>
+            {presentCount} / {members.length} present
+          </span>
+        )}
+      </div>
+
+      {loading ? (
+        <p className="px-3 py-4 text-sm text-center" style={{ color: "var(--text-tertiary)" }}>
+          Loading…
+        </p>
+      ) : (
+        <div>
+          {members.map((member, i) => {
+            const present  = attendance[member.id] ?? false;
+            const isSaving = saving.has(member.id);
+            return (
+              <button
+                key={member.id}
+                onClick={() => toggle(member.id)}
+                disabled={isSaving}
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-tertiary)] disabled:opacity-50"
+                style={i > 0 ? { borderTop: "1px solid var(--border)" } : undefined}
+              >
+                {/* Checkbox */}
+                <div
+                  className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 border transition-all"
+                  style={{
+                    background:  present ? "var(--accent-green)" : "transparent",
+                    borderColor: present ? "var(--accent-green)" : "var(--border)",
+                  }}
+                >
+                  {present && (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-sm font-medium flex-1">{member.full_name}</span>
+                <span className="text-xs capitalize" style={{ color: "var(--text-tertiary)" }}>
+                  {member.role}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -4,6 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import AppNav from "@/app/_components/AppNav";
 import CalendarClient from "./CalendarClient";
 
+export interface MemberProfile {
+  id: string;
+  full_name: string;
+  role: string;
+}
+
 export default async function CalendarPage() {
   const supabase = createClient();
 
@@ -17,6 +23,7 @@ export default async function CalendarPage() {
 
   let profile: { full_name: string; role: string } | null = null;
   let userId: string | undefined;
+  let members: MemberProfile[] = [];
 
   if (user) {
     userId = user.id;
@@ -26,6 +33,15 @@ export default async function CalendarPage() {
       .eq("id", user.id)
       .single();
     profile = data;
+
+    // Fetch all members so admin can take attendance
+    if (data?.role === "admin") {
+      const { data: membersData } = await supabase
+        .from("profiles")
+        .select("id, full_name, role")
+        .order("full_name");
+      members = (membersData ?? []) as MemberProfile[];
+    }
   }
 
   return (
@@ -35,6 +51,7 @@ export default async function CalendarPage() {
         events={events}
         isAdmin={profile?.role === "admin"}
         userId={userId}
+        members={members}
       />
     </div>
   );
