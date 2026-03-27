@@ -26,6 +26,17 @@ export async function POST(req: NextRequest) {
       preview: string;
     };
 
+    // Only notify on the first unread message — skip if they already have unread DMs from this sender
+    const { count } = await admin
+      .from("direct_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("sender_id", user.id)
+      .eq("recipient_id", recipientId)
+      .eq("read", false);
+
+    // count > 1 means this isn't the first unread, skip
+    if ((count ?? 0) > 1) return NextResponse.json({ ok: true });
+
     // Get recipient's email from auth
     const { data: userData } = await admin.auth.admin.getUserById(recipientId);
     const recipientEmail = userData?.user?.email;
