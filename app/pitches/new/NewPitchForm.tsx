@@ -371,20 +371,6 @@ export default function NewPitchForm({ userId, prefill }: Props) {
         </Field>
       </div>
 
-      {/* Threshold */}
-      <Field label="Vote Threshold *">
-        <select
-          value={form.vote_threshold}
-          onChange={(e) => set("vote_threshold")(e.target.value)}
-          className="w-full rounded-xl border border-[var(--border)] p-3 text-sm outline-none"
-          style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-        >
-          {VOTE_THRESHOLDS.map((t) => (
-            <option key={t.value} value={t.value}>{t.label}</option>
-          ))}
-        </select>
-      </Field>
-
       {error && (
         <p
           className="text-sm rounded-xl p-3"
