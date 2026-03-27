@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SignOutButton from "./SignOutButton";
+import UnreadBadge from "./UnreadBadge";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard", roles: null },
@@ -7,6 +8,7 @@ const NAV_LINKS = [
   { href: "/pitches",   label: "Pitches",   roles: null },
   { href: "/portfolio", label: "Portfolio", roles: null },
   { href: "/research",  label: "Research",  roles: ["authorized", "admin"] },
+  { href: "/messages",  label: "Messages",  roles: ["authorized", "admin"] },
 ] as const;
 
 interface Props {
@@ -25,7 +27,6 @@ export default function AppNav({ name, role, currentPath }: Props) {
         {/* Left: brand + links */}
         <div className="flex items-center gap-1">
           <Link href="/dashboard" className="mr-3 flex-shrink-0" aria-label="HAIG home">
-            {/* Arrow mark only — viewBox spans local mark coords with a small pad */}
             <svg viewBox="-46 -46 92 132" height={36} aria-hidden="true" style={{ display: "block" }}>
               <defs>
                 <linearGradient id="nav-g" x1="0" y1="0" x2="1" y2="1">
@@ -38,22 +39,28 @@ export default function AppNav({ name, role, currentPath }: Props) {
               <rect x="-28" y="36" width="56" height="8" rx="3" fill="url(#nav-g)" opacity="0.9" />
             </svg>
           </Link>
-          {NAV_LINKS.filter((link) => !link.roles || (role && (link.roles as readonly string[]).includes(role))).map((link) => {
-            const active = currentPath.startsWith(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="hidden sm:block px-3 py-1.5 rounded-lg text-sm transition-colors"
-                style={{
-                  color: active ? "var(--text-primary)" : "var(--text-tertiary)",
-                  background: active ? "var(--bg-tertiary)" : "transparent",
-                }}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+
+          {NAV_LINKS
+            .filter((link) => !link.roles || (role && (link.roles as readonly string[]).includes(role)))
+            .map((link) => {
+              const active = currentPath.startsWith(link.href);
+              const isMessages = link.href === "/messages";
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors"
+                  style={{
+                    color: active ? "var(--text-primary)" : "var(--text-tertiary)",
+                    background: active ? "var(--bg-tertiary)" : "transparent",
+                  }}
+                >
+                  {link.label}
+                  {isMessages && <UnreadBadge />}
+                </Link>
+              );
+            })}
+
           {role === "admin" && (
             <Link
               href="/admin"

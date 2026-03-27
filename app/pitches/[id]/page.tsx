@@ -7,6 +7,7 @@ import Link from "next/link";
 import AppNav from "@/app/_components/AppNav";
 import VotePanel from "./VotePanel";
 import StatusChanger from "./StatusChanger";
+import PitchComments from "./PitchComments";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -46,7 +47,7 @@ export default async function PitchDetail({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [profileResult, pitchResult, votesResult] = await Promise.all([
+  const [profileResult, pitchResult, votesResult, commentsResult] = await Promise.all([
     supabase
       .from("profiles")
       .select("full_name, role, voting_units")
@@ -65,13 +66,21 @@ export default async function PitchDetail({
       .from("votes")
       .select("voter_id, vote, voting_units_cast, profiles:voter_id(full_name)")
       .eq("pitch_id", params.id),
+
+    supabase
+      .from("pitch_comments")
+      .select("*, author:profiles!author_id(full_name)")
+      .eq("pitch_id", params.id)
+      .order("created_at", { ascending: true }),
   ]);
 
   if (pitchResult.error || !pitchResult.data) notFound();
 
-  const profile = profileResult.data;
-  const pitch   = pitchResult.data;
-  const isAdmin = profile?.role === "admin";
+  const profile   = profileResult.data;
+  const pitch     = pitchResult.data;
+  const isAdmin   = profile?.role === "admin";
+  const comments  = commentsResult.data ?? [];
+  const canComment = profile?.role === "authorized" || profile?.role === "admin";
 
   // Normalize votes — attach voter_name for admin audit, strip it otherwise
   const votes = (votesResult.data ?? []).map((v) => ({
@@ -233,6 +242,15 @@ export default async function PitchDetail({
             initialVotes={votes}
             userVote={userVote}
             userId={user.id}
+          />
+
+          {/* ── Pitch comments ─────────────────────────────────────────── */}
+          <PitchComments
+            pitchId={pitch.id}
+            userId={user.id}
+            userName={profile?.full_name ?? "Member"}
+            canComment={canComment}
+            initialComments={comments as Parameters<typeof PitchComments>[0]["initialComments"]}
           />
 
         </div>
