@@ -314,7 +314,7 @@ export default function Home() {
               <h2 className="text-4xl font-bold">Founding Partners</h2>
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-5">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {/* Slot 1 — named founder */}
               <article
                 className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
@@ -345,11 +345,11 @@ export default function Home() {
                 </div>
                 <p className="font-semibold text-base mb-1">Abdul Hameed Rahmanzai</p>
                 <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
-                  Founding Partner
+                  Vice President &amp; Authorized Trader
                 </p>
               </article>
 
-              {/* Slot 3 — TBD */}
+              {/* Slot 3 — Treasurer TBD */}
               <article
                 className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
                 style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.55 }}
@@ -361,9 +361,26 @@ export default function Home() {
                   <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>?</span>
                 </div>
                 <p className="font-semibold text-base mb-1" style={{ color: "var(--text-secondary)" }}>
-                  Founding Partner
+                  Founding Partner — TBD
                 </p>
-                <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>TBD</p>
+                <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Treasurer</p>
+              </article>
+
+              {/* Slot 4 — Secretary TBD */}
+              <article
+                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
+                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.55 }}
+              >
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+                  style={{ background: "var(--bg-tertiary)" }}
+                >
+                  <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>?</span>
+                </div>
+                <p className="font-semibold text-base mb-1" style={{ color: "var(--text-secondary)" }}>
+                  Founding Partner — TBD
+                </p>
+                <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Secretary</p>
               </article>
             </div>
           </div>
