@@ -165,6 +165,18 @@ export default function DirectMessagesTab({ userId, userName, members, initialDM
           m.id === optimistic.id ? { ...m, id: data.id } : m
         ),
       }));
+
+      // Fire-and-forget email notification to recipient
+      fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type:        "dm",
+          recipientId: selectedId,
+          senderName:  userName,
+          preview:     text.length > 200 ? text.slice(0, 200) + "…" : text,
+        }),
+      }).catch(() => {});
     } else {
       setConversations((prev) => ({
         ...prev,

@@ -88,12 +88,29 @@ export default function AnnouncementsTab({ userId, isAdmin, initialAnnouncements
     e.preventDefault();
     if (!title.trim() || !body.trim()) return;
     setSaving(true);
+
+    // Get poster's name for the email
+    const { data: me } = await supabase.from("profiles").select("full_name").eq("id", userId).single();
+
     await supabase.from("announcements").insert({
       title: title.trim(),
-      body: body.trim(),
+      body:  body.trim(),
       pinned,
       created_by: userId,
     });
+
+    // Fire-and-forget email notification to all members
+    fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type:       "announcement",
+        title:      title.trim(),
+        body:       body.trim(),
+        authorName: me?.full_name ?? "Admin",
+      }),
+    }).catch(() => {});
+
     setTitle(""); setBody(""); setPinned(false); setShowForm(false);
     setSaving(false);
   }
