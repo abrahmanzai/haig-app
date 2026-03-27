@@ -141,18 +141,6 @@ export default function Home() {
           </div>
 
 <div className="relative z-10 max-w-3xl lp-hero-content">
-            {/* Status badge */}
-            <div
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-4 py-1.5 text-sm text-[var(--text-secondary)] mb-10"
-              style={{ background: "rgba(44,44,46,0.6)", backdropFilter: "blur(12px)" }}
-            >
-              <span
-                className="w-2 h-2 rounded-full bg-[var(--accent-green)]"
-                style={{ boxShadow: "0 0 6px #30d158" }}
-              />
-              Student-Run Investment Club
-            </div>
-
             <h1
               className="font-extrabold tracking-tight leading-none mb-5"
               style={{ fontSize: "clamp(2.6rem, 8vw, 5rem)" }}
