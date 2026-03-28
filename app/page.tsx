@@ -486,7 +486,7 @@ export default async function Home() {
                 >
                   D
                 </div>
-                <p className="font-semibold text-base mb-1">Dawson</p>
+                <p className="font-semibold text-base mb-1">Dawson Gibbons</p>
                 <p className="text-sm" style={{ color: "var(--accent-green)" }}>Secretary</p>
               </article>
             </div>
@@ -515,7 +515,7 @@ export default async function Home() {
               out through any of these channels.
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-12">
+            <div className="flex flex-wrap justify-center gap-4 mb-12">
               {socials.map((s) => (
                 <a
                   key={s.label}
