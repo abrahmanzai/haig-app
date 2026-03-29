@@ -37,8 +37,8 @@ const steps = [
   {
     n: "01",
     icon: UserPlus,
-    title: "Sign Up & Contribute",
-    body: "Become a limited partner. Sign the partnership agreement and make your initial capital contribution.",
+    title: "Get Invited & Onboard",
+    body: "Membership is by invitation through existing member relationships. Once admitted, complete your onboarding paperwork and join the club.",
   },
   {
     n: "02",
@@ -134,15 +134,15 @@ export default async function Home() {
               href="/login"
               className="text-sm px-3 py-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
             >
-              Login
+              Member Login
             </Link>
-            <Link
-              href="/signup"
+            <a
+              href="#contact"
               className="text-sm px-3 py-1.5 rounded-lg font-semibold hover:brightness-110 transition-all"
               style={{ background: "var(--accent-primary)" }}
             >
-              Join
-            </Link>
+              Contact Us
+            </a>
           </div>
         </div>
       </nav>
@@ -193,13 +193,13 @@ export default async function Home() {
             </p>
 
             <div className="flex gap-3 justify-center flex-wrap">
-              <Link
-                href="/signup"
+              <a
+                href="#contact"
                 className="rounded-xl font-semibold text-base px-8 py-3.5 hover:brightness-110 hover:scale-[1.02] transition-all"
                 style={{ background: "var(--accent-primary)" }}
               >
-                Become a Partner →
-              </Link>
+                Get in Touch →
+              </a>
               <Link
                 href="/login"
                 className="rounded-xl font-semibold text-base px-8 py-3.5 border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
@@ -292,7 +292,7 @@ export default async function Home() {
                 className="text-lg max-w-2xl mx-auto"
                 style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
               >
-                All members and prospective partners are welcome. Meetings are held bi-weekly.
+                Open to current members. Meetings are held bi-weekly.
               </p>
             </div>
 
@@ -511,7 +511,7 @@ export default async function Home() {
               className="text-lg mb-10"
               style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
             >
-              Interested in joining HAIG or learning more about the club? Reach
+              Want to learn more about our work or connect with the team? Reach
               out through any of these channels.
             </p>
 
