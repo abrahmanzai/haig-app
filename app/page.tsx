@@ -155,15 +155,40 @@ export default async function Home() {
           className="relative flex flex-col items-center justify-center text-center px-6 pt-14"
           style={{ minHeight: "100vh" }}
         >
-          {/* Glow bg */}
+          {/* Grid bg — fades out radially */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            aria-hidden
+            style={{
+              backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
+              backgroundSize: "72px 72px",
+              WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 50%, transparent 100%)",
+              maskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 50%, transparent 100%)",
+            }}
+          />
+          {/* Blue glow */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
             <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
-              style={{ background: "radial-gradient(circle, rgba(10,132,255,0.10) 0%, transparent 65%)" }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full"
+              style={{ background: "radial-gradient(ellipse, rgba(10,132,255,0.08) 0%, transparent 65%)" }}
             />
           </div>
 
           <div className="relative z-10 max-w-3xl lp-hero-content">
+            {/* Eyebrow pill */}
+            <div className="flex justify-center mb-7">
+              <span
+                className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full"
+                style={{
+                  background: "rgba(255,214,10,0.08)",
+                  border: "1px solid rgba(255,214,10,0.20)",
+                  color: "var(--accent-gold)",
+                }}
+              >
+                Student Investment Partnership
+              </span>
+            </div>
+
             <h1
               className="font-extrabold tracking-tight leading-none mb-5"
               style={{ fontSize: "clamp(2.6rem, 8vw, 5rem)" }}
@@ -174,7 +199,7 @@ export default async function Home() {
             <p
               className="font-bold mb-6"
               style={{
-                fontSize: "clamp(1.5rem, 5vw, 2.5rem)",
+                fontSize: "clamp(1.4rem, 4vw, 2.2rem)",
                 background: "linear-gradient(135deg, #0a84ff 0%, #64d2ff 50%, #30d158 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -185,7 +210,7 @@ export default async function Home() {
 
             <p
               className="text-lg mb-10 max-w-xl mx-auto"
-              style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
+              style={{ color: "var(--text-secondary)", lineHeight: 1.75 }}
             >
               A student general partnership where members pool capital, research
               equities, and execute real trades together — turning financial theory
@@ -195,15 +220,21 @@ export default async function Home() {
             <div className="flex gap-3 justify-center flex-wrap">
               <Link
                 href="/signup"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 hover:brightness-110 hover:scale-[1.02] transition-all"
+                className="rounded-xl font-semibold text-base px-8 py-3.5 transition-all"
                 style={{ background: "var(--accent-primary)" }}
+                onMouseEnter={(e) => { e.currentTarget.style.filter = "brightness(1.12)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.filter = ""; e.currentTarget.style.transform = ""; }}
               >
                 Become a Partner →
               </Link>
               <Link
                 href="/login"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
-                style={{ background: "rgba(44,44,46,0.5)", backdropFilter: "blur(12px)" }}
+                className="rounded-xl font-semibold text-base px-8 py-3.5 transition-colors"
+                style={{
+                  background: "rgba(15,15,17,0.6)",
+                  backdropFilter: "blur(12px)",
+                  border: "1px solid var(--border)",
+                }}
               >
                 Member Login
               </Link>

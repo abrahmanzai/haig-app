@@ -103,35 +103,39 @@ export default async function Portfolio() {
                 label: "Total Value",
                 value: usd(totalValue),
                 color: "var(--text-primary)",
+                accent: "var(--accent-primary)",
               },
               {
                 label: "Cash on Hand",
                 value: usd(financials?.cash_on_hand ?? 0),
                 color: "var(--accent-green)",
+                accent: "var(--accent-green)",
               },
               {
                 label: "Invested",
                 value: usd(totalCost),
                 color: "var(--text-secondary)",
+                accent: "var(--text-tertiary)",
               },
               {
                 label: "Equity Gain / Loss",
-                value: usd(totalGainLoss) + "  (" + pct(totalGainPct) + ")",
+                value: `${usd(totalGainLoss)}  (${pct(totalGainPct)})`,
                 color: totalGainLoss >= 0 ? "var(--accent-green)" : "var(--accent-red)",
+                accent: totalGainLoss >= 0 ? "var(--accent-green)" : "var(--accent-red)",
               },
             ].map((card) => (
               <div
                 key={card.label}
-                className="rounded-2xl border border-[var(--border)] p-5"
-                style={{ background: "var(--bg-secondary)" }}
+                className="stat-card"
+                style={{ borderTop: `2px solid ${card.accent}22` }}
               >
                 <p
-                  className="text-xs font-medium uppercase tracking-wider mb-2"
+                  className="text-xs font-semibold uppercase tracking-wider mb-2.5"
                   style={{ color: "var(--text-tertiary)" }}
                 >
                   {card.label}
                 </p>
-                <p className="text-xl font-bold leading-snug" style={{ color: card.color }}>
+                <p className="text-lg font-bold leading-snug num" style={{ color: card.color }}>
                   {card.value}
                 </p>
               </div>
@@ -141,10 +145,13 @@ export default async function Portfolio() {
           {/* ── Holdings table ────────────────────────────────────────────── */}
           <div
             className="rounded-2xl border border-[var(--border)] overflow-hidden"
-            style={{ background: "var(--bg-secondary)" }}
+            style={{ background: "var(--bg-secondary)", boxShadow: "var(--shadow-card)" }}
           >
-            <div className="px-6 py-4 border-b border-[var(--border)]">
+            <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
               <h2 className="font-semibold">Holdings</h2>
+              <span className="text-xs num" style={{ color: "var(--text-tertiary)" }}>
+                {holdingsWithPrice.length} position{holdingsWithPrice.length !== 1 ? "s" : ""}
+              </span>
             </div>
 
             {holdingsWithPrice.length === 0 ? (
@@ -187,19 +194,19 @@ export default async function Portfolio() {
                           <td className="px-6 py-4" style={{ color: "var(--text-primary)" }}>
                             {holding.company_name}
                           </td>
-                          <td className="px-6 py-4 tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                          <td className="px-6 py-4 num" style={{ color: "var(--text-secondary)" }}>
                             {holding.shares}
                           </td>
-                          <td className="px-6 py-4 tabular-nums" style={{ color: "var(--text-secondary)" }}>
+                          <td className="px-6 py-4 num" style={{ color: "var(--text-secondary)" }}>
                             {usd(holding.avg_cost_basis)}
                           </td>
-                          <td className="px-6 py-4 tabular-nums" style={{ color: "var(--text-primary)" }}>
+                          <td className="px-6 py-4 num" style={{ color: "var(--text-primary)" }}>
                             {holding.current_price ? usd(holding.current_price) : "—"}
                           </td>
-                          <td className="px-6 py-4 tabular-nums font-semibold" style={{ color: "var(--text-primary)" }}>
+                          <td className="px-6 py-4 num font-semibold" style={{ color: "var(--text-primary)" }}>
                             {usd(value)}
                           </td>
-                          <td className="px-6 py-4 tabular-nums font-semibold" style={{ color: gainColor }}>
+                          <td className="px-6 py-4 num font-semibold" style={{ color: gainColor }}>
                             {usd(gainLoss)} ({pct(gainPct)})
                           </td>
                         </tr>

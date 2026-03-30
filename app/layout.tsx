@@ -1,8 +1,13 @@
-import { DM_Sans } from "next/font/google";
+import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import type { Metadata } from "next";
 
-const dmSans = DM_Sans({ subsets: ["latin"] });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-sans" });
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "500"],
+});
 
 export const metadata: Metadata = {
   title: "High Agency Investment Group",
@@ -17,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: `(function(){if(!sessionStorage.getItem('haig_splash_seen')){document.documentElement.dataset.splash='1';}})();` }} />
       </head>
-      <body className={dmSans.className}>
+      <body className={`${dmSans.variable} ${jetbrainsMono.variable} ${dmSans.className}`}>
         {/* Global logo watermark — fixed and viewport-centered on every page.
             Opacity controlled by .hero-watermark: 0.06 normally, 0 while splash plays. */}
         <div

@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/date";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import AppNav from "@/app/_components/AppNav";
+import { FileText } from "lucide-react";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -126,7 +127,12 @@ export default async function Pitches({
               className="rounded-2xl border border-[var(--border)] p-12 text-center"
               style={{ background: "var(--bg-secondary)" }}
             >
-              <p className="text-2xl mb-3">📋</p>
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                style={{ background: "var(--bg-tertiary)" }}
+              >
+                <FileText size={22} style={{ color: "var(--text-tertiary)" }} />
+              </div>
               <p className="font-semibold mb-1">No pitches yet</p>
               <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
                 {canSubmit
@@ -136,7 +142,7 @@ export default async function Pitches({
               {canSubmit && (
                 <Link
                   href="/pitches/new"
-                  className="mt-4 inline-block px-4 py-2 rounded-xl text-sm font-semibold hover:brightness-110 transition-all"
+                  className="mt-5 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold hover:brightness-110 transition-all"
                   style={{ background: "var(--accent-primary)" }}
                 >
                   Submit First Pitch

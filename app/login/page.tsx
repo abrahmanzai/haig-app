@@ -39,36 +39,38 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-3">
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        autoComplete="email"
-        className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
-        style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-        onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
-        onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        autoComplete="current-password"
-        className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
-        style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-        onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
-        onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
-      />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="field">
+        <label htmlFor="email">Email address</label>
+        <input
+          id="email"
+          type="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+        />
+      </div>
+
+      <div className="field">
+        <label htmlFor="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="current-password"
+        />
+      </div>
 
       {error && (
         <p
-          className="text-sm rounded-lg px-3 py-2"
-          style={{ background: "rgba(255,69,58,0.12)", color: "var(--accent-red)" }}
+          className="text-sm rounded-xl px-4 py-3"
+          role="alert"
+          style={{ background: "rgba(255,69,58,0.10)", color: "var(--accent-red)", border: "1px solid rgba(255,69,58,0.20)" }}
         >
           {error}
         </p>
@@ -77,8 +79,7 @@ function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg py-3 font-semibold text-sm disabled:opacity-50 hover:brightness-110 transition-all mt-1"
-        style={{ background: "var(--accent-primary)" }}
+        className="btn-primary w-full mt-1"
       >
         {loading ? "Signing in…" : "Sign In"}
       </button>
@@ -91,26 +92,47 @@ function LoginForm() {
 export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div
-        className="w-full max-w-sm rounded-2xl border border-[var(--border)] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
-        style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
-      >
-        <div className="text-center mb-8">
-          <div className="text-2xl font-bold tracking-tight mb-1">HAIG</div>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            Sign in to your account
+      <div className="w-full max-w-sm">
+        {/* Card */}
+        <div
+          className="rounded-2xl p-8"
+          style={{
+            background: "var(--bg-secondary)",
+            border: "1px solid var(--border)",
+            boxShadow: "var(--shadow-elevated)",
+          }}
+        >
+          {/* Header */}
+          <div className="text-center mb-8">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-mark.svg"
+              alt="HAIG"
+              width={40}
+              height={40}
+              className="mx-auto mb-4 opacity-90"
+            />
+            <h1 className="text-xl font-bold tracking-tight mb-1">Welcome back</h1>
+            <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
+              Sign in to your HAIG account
+            </p>
+          </div>
+
+          <Suspense fallback={<div className="h-48" />}>
+            <LoginForm />
+          </Suspense>
+
+          <p className="mt-6 text-center text-sm" style={{ color: "var(--text-tertiary)" }}>
+            Need an account?{" "}
+            <Link href="/signup" className="font-semibold hover:underline" style={{ color: "var(--accent-primary)" }}>
+              Sign Up
+            </Link>
           </p>
         </div>
 
-        <Suspense fallback={<div className="h-48" />}>
-          <LoginForm />
-        </Suspense>
-
-        <p className="mt-6 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
-          Need an account?{" "}
-          <Link href="/signup" className="font-medium hover:underline" style={{ color: "var(--accent-primary)" }}>
-            Sign Up
-          </Link>
+        {/* Footer */}
+        <p className="mt-6 text-center text-xs" style={{ color: "var(--text-tertiary)" }}>
+          High Agency Investment Group
         </p>
       </div>
     </div>

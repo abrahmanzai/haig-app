@@ -138,38 +138,42 @@ export default async function Dashboard() {
                 value: usd(profile?.capital_contribution ?? 0),
                 sub:   "Your partnership stake",
                 color: "var(--accent-primary)",
+                accent: "var(--accent-primary)",
               },
               {
                 label: "Voting Units",
                 value: (profile?.voting_units ?? 0).toFixed(4),
                 sub:   "Weighted vote power",
                 color: "var(--accent-purple)",
+                accent: "var(--accent-purple)",
               },
               {
                 label: "Active Votes",
                 value: String(activeVotes),
                 sub:   activeVotes > 0 ? "Votes open now" : "No open votes",
                 color: activeVotes > 0 ? "var(--accent-orange)" : "var(--text-tertiary)",
+                accent: activeVotes > 0 ? "var(--accent-orange)" : "var(--bg-tertiary)",
               },
               {
                 label: "Next Event",
                 value: nextEvent ? formatDate(nextEvent.event_date) : "—",
                 sub:   nextEvent?.title ?? "No upcoming events",
                 color: "var(--accent-green)",
+                accent: "var(--accent-green)",
               },
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-2xl border border-[var(--border)] p-5"
-                style={{ background: "var(--bg-secondary)" }}
+                className="stat-card"
+                style={{ borderTop: `2px solid ${stat.accent}33` }}
               >
                 <p
-                  className="text-xs font-medium uppercase tracking-wider mb-2"
+                  className="text-xs font-semibold uppercase tracking-wider mb-2.5"
                   style={{ color: "var(--text-tertiary)" }}
                 >
                   {stat.label}
                 </p>
-                <p className="text-2xl font-bold mb-1 truncate" style={{ color: stat.color }}>
+                <p className="text-2xl font-bold mb-1 truncate num" style={{ color: stat.color }}>
                   {stat.value}
                 </p>
                 <p className="text-xs truncate" style={{ color: "var(--text-tertiary)" }}>
@@ -183,10 +187,7 @@ export default async function Dashboard() {
           <div className="grid lg:grid-cols-3 gap-6">
 
             {/* Portfolio snapshot */}
-            <div
-              className="rounded-2xl border border-[var(--border)] p-6"
-              style={{ background: "var(--bg-secondary)" }}
-            >
+            <div className="stat-card p-6">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-semibold">Portfolio</h2>
                 <Link
@@ -203,9 +204,9 @@ export default async function Dashboard() {
                   { label: "Invested",     value: usd(financials?.total_invested ?? 0),   color: "var(--text-secondary)" },
                   { label: "Cash on Hand", value: usd(financials?.cash_on_hand ?? 0),     color: "var(--accent-green)"   },
                 ].map((row) => (
-                  <div key={row.label} className="flex justify-between items-center text-sm">
+                  <div key={row.label} className="flex justify-between items-center text-sm py-0.5">
                     <span style={{ color: "var(--text-secondary)" }}>{row.label}</span>
-                    <span className="font-semibold tabular-nums" style={{ color: row.color }}>
+                    <span className="font-semibold num" style={{ color: row.color }}>
                       {row.value}
                     </span>
                   </div>
@@ -215,8 +216,7 @@ export default async function Dashboard() {
 
             {/* Upcoming events */}
             <div
-              className="lg:col-span-2 rounded-2xl border border-[var(--border)] p-6"
-              style={{ background: "var(--bg-secondary)" }}
+              className="lg:col-span-2 stat-card p-6"
             >
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-semibold">Upcoming Events</h2>
@@ -267,20 +267,20 @@ export default async function Dashboard() {
           {/* ── Quick-nav tiles ──────────────────────────────────────────── */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { href: "/calendar",  label: "Calendar",  desc: "Events & schedule",    show: true },
-              { href: "/pitches",   label: "Pitches",   desc: "Investment ideas",      show: true },
-              { href: "/portfolio", label: "Portfolio", desc: "Holdings & trades",     show: true },
-              { href: "/admin",     label: "Admin",     desc: "Manage members",        show: profile?.role === "admin" },
+              { href: "/calendar",  label: "Calendar",  desc: "Events & schedule",  color: "var(--accent-primary)",  show: true },
+              { href: "/pitches",   label: "Pitches",   desc: "Investment ideas",    color: "var(--accent-green)",    show: true },
+              { href: "/portfolio", label: "Portfolio", desc: "Holdings & trades",   color: "var(--accent-teal)",     show: true },
+              { href: "/admin",     label: "Admin",     desc: "Manage members",      color: "var(--accent-gold)",     show: profile?.role === "admin" },
             ]
               .filter((l) => l.show)
               .map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="rounded-xl border border-[var(--border)] p-4 hover:border-[var(--border-hover)] transition-colors"
-                  style={{ background: "var(--bg-secondary)" }}
+                  className="glass-card p-4 block transition-all"
+                  style={{ borderTop: `2px solid ${link.color}22` }}
                 >
-                  <p className="font-semibold text-sm mb-1">{link.label}</p>
+                  <p className="font-semibold text-sm mb-1" style={{ color: link.color }}>{link.label}</p>
                   <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
                     {link.desc}
                   </p>
