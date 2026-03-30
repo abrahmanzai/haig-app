@@ -103,6 +103,38 @@ main {
   margin: 0 auto;
 }
 
+/* ─── Reusable card components ───────────────────────────────────────────── */
+
+.stat-card {
+  background:    var(--bg-secondary);
+  border:        1px solid var(--border);
+  border-radius: 16px;
+  padding:       20px;
+  transition:    border-color 0.2s;
+}
+.stat-card:hover {
+  border-color: var(--border-hover);
+}
+
+.glass-card {
+  background:    var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border:        1px solid var(--border);
+  border-radius: 16px;
+  padding:       20px;
+  transition:    border-color 0.2s;
+}
+.glass-card:hover {
+  border-color: var(--border-hover);
+}
+
+/* Monospace numbers */
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
 /* ─── Messages container — respects dynamic viewport on mobile ────────────── */
 
 /* calc(100dvh - 56px) avoids the address-bar jump on mobile browsers.
