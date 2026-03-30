@@ -209,7 +209,7 @@ export default function ResearchClient() {
             <div
               ref={dropdownRef}
               className="absolute top-full left-0 right-0 mt-1.5 rounded-xl border border-[var(--border)] overflow-hidden z-50"
-              style={{ background: "var(--bg-secondary)", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}
+              style={{ background: "var(--bg-secondary)", boxShadow: "var(--shadow-card)" }}
               role="listbox"
             >
               {sugLoading && (
@@ -257,7 +257,7 @@ export default function ResearchClient() {
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className="rounded-xl px-5 py-3 text-sm font-semibold transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ background: "var(--accent-primary)" }}
         >
           {loading ? "Loading…" : "Search"}

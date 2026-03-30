@@ -2,12 +2,13 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import SplashGate from "./_components/SplashGate";
+import ThemeToggle from "./_components/ThemeToggle";
+import ThemeLogo from "./_components/ThemeLogo";
 import { createClient } from "@/lib/supabase/server";
 import { Calendar } from "lucide-react";
 import {
   BookOpen, TrendingUp, BarChart2,
   UserPlus, GraduationCap, Mic, ThumbsUp,
-  Mail, Linkedin,
 } from "lucide-react";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -60,10 +61,6 @@ const steps = [
   },
 ];
 
-const socials = [
-  { label: "Email",    href: "mailto:highagencyinvesting@gmail.com",              icon: Mail,     color: "#0a84ff" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/haig-undefined-a204a53ba/", icon: Linkedin, color: "#64d2ff" },
-];
 
 const EVENT_COLORS: Record<string, string> = {
   founding: "#ffd60a",
@@ -104,12 +101,11 @@ export default async function Home() {
       {/* ═══ NAV ══════════════════════════════════════════════════════════════ */}
       <nav
         className="fixed top-0 inset-x-0 z-50 border-b border-[var(--border)]"
-        style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(20px)" }}
+        style={{ background: "var(--bg-nav)", backdropFilter: "blur(20px)" }}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <a href="#hero" className="flex-shrink-0" aria-label="HAIG home">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.svg" alt="HAIG" width={36} height={36} style={{ display: "block" }} />
+            <ThemeLogo width={36} height={36} />
           </a>
 
           <div className="hidden sm:flex gap-6 text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -122,7 +118,8 @@ export default async function Home() {
               <a
                 key={label}
                 href={href}
-                className="hover:text-white transition-colors"
+                className="transition-colors"
+                style={{ color: "var(--text-secondary)" }}
               >
                 {label}
               </a>
@@ -130,6 +127,7 @@ export default async function Home() {
           </div>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link
               href="/login"
               className="text-sm px-3 py-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
@@ -138,7 +136,7 @@ export default async function Home() {
             </Link>
             <a
               href="#contact"
-              className="text-sm px-3 py-1.5 rounded-lg font-semibold hover:brightness-110 transition-all"
+              className="text-sm px-3 py-1.5 rounded-lg font-semibold hover:brightness-110 transition-all text-white"
               style={{ background: "var(--accent-primary)" }}
             >
               Contact Us
@@ -195,7 +193,7 @@ export default async function Home() {
             <div className="flex gap-3 justify-center flex-wrap">
               <a
                 href="#contact"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 hover:brightness-110 hover:scale-[1.02] transition-all"
+                className="rounded-xl font-semibold text-base px-8 py-3.5 hover:brightness-110 hover:scale-[1.02] transition-all text-white"
                 style={{ background: "var(--accent-primary)" }}
               >
                 Get in Touch →
@@ -203,7 +201,7 @@ export default async function Home() {
               <Link
                 href="/login"
                 className="rounded-xl font-semibold text-base px-8 py-3.5 border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
-                style={{ background: "rgba(44,44,46,0.5)", backdropFilter: "blur(12px)" }}
+                style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)" }}
               >
                 Member Login
               </Link>
@@ -251,7 +249,7 @@ export default async function Home() {
                   style={{
                     background: "var(--bg-glass)",
                     backdropFilter: "blur(20px)",
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+                    boxShadow: "var(--shadow-card)",
                   }}
                 >
                   <div
@@ -364,7 +362,7 @@ export default async function Home() {
         <section
           id="how"
           className="py-24 px-6"
-          style={{ background: "rgba(28,28,30,0.4)" }}
+          style={{ background: "var(--bg-secondary)" }}
         >
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-14">
@@ -387,7 +385,7 @@ export default async function Home() {
                   {/* Ghost step number */}
                   <div
                     className="text-7xl font-black select-none leading-none mb-3"
-                    style={{ color: "rgba(255,255,255,0.04)" }}
+                    style={{ color: "var(--ghost-text)" }}
                   >
                     {step.n}
                   </div>
@@ -437,7 +435,7 @@ export default async function Home() {
                 </div>
                 <p className="font-semibold text-base mb-1">William Headlee</p>
                 <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
-                  President &amp; Authorized Trader
+                  President
                 </p>
               </article>
 
@@ -454,23 +452,23 @@ export default async function Home() {
                 </div>
                 <p className="font-semibold text-base mb-1">Abdul Hameed Rahmanzai</p>
                 <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
-                  Vice President &amp; Authorized Trader
+                  Vice President
                 </p>
               </article>
 
-              {/* Slot 3 — Treasurer TBD */}
+              {/* Slot 3 — Treasurer open */}
               <article
                 className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.55 }}
+                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.65 }}
               >
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
                   style={{ background: "var(--bg-tertiary)" }}
                 >
-                  <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>?</span>
+                  <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>+</span>
                 </div>
                 <p className="font-semibold text-base mb-1" style={{ color: "var(--text-secondary)" }}>
-                  Founding Partner — TBD
+                  Open Position
                 </p>
                 <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Treasurer</p>
               </article>
@@ -497,7 +495,7 @@ export default async function Home() {
         <section
           id="contact"
           className="py-24 px-6 border-t border-[var(--border)]"
-          style={{ background: "rgba(28,28,30,0.3)" }}
+          style={{ background: "var(--bg-secondary)" }}
         >
           <div className="max-w-xl mx-auto text-center">
             <p
@@ -515,26 +513,18 @@ export default async function Home() {
               out through any of these channels.
             </p>
 
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              {socials.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target={s.href.startsWith("http") ? "_blank" : undefined}
-                  rel="noreferrer"
-                  className="rounded-2xl p-4 border border-[var(--border)] flex flex-col items-center gap-2 hover:border-[var(--border-hover)] hover:bg-[var(--bg-tertiary)] transition-colors"
-                  style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)" }}
-                >
-                  <s.icon size={22} style={{ color: s.color }} />
-                  <span className="text-sm font-medium">{s.label}</span>
-                </a>
-              ))}
-            </div>
+            <a
+              href="mailto:highagencyinvesting@gmail.com"
+              className="inline-block text-lg sm:text-xl font-medium tracking-wide mb-12 transition-colors hover:opacity-80"
+              style={{ color: "var(--accent-primary)" }}
+            >
+              highagencyinvesting@gmail.com
+            </a>
 
             <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
-              © 2026 High Agency Investment Group
+              2026 High Agency Investment Group
               <br />
-              <span style={{ opacity: 0.6 }}>A student-run general partnership</span>
+              <span style={{ color: "var(--text-tertiary)" }}>A student-run general partnership</span>
             </p>
           </div>
         </section>

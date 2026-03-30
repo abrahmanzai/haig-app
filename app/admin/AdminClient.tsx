@@ -628,7 +628,7 @@ export default function AdminClient({
                 type="submit"
                 disabled={financialsSaving}
                 className="px-5 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 hover:brightness-110 transition-all"
-                style={{ background: "var(--accent-primary)" }}
+                style={{ background: "var(--accent-primary)", color: "#fff" }}
               >
                 {financialsSaving ? "Saving…" : "Save"}
               </button>
@@ -666,7 +666,7 @@ export default function AdminClient({
           <button
             onClick={() => { setAddHoldingOpen(true); setHoldingError(null); }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:brightness-110 transition-all"
-            style={{ background: "var(--accent-primary)" }}
+            style={{ background: "var(--accent-primary)", color: "#fff" }}
           >
             <Plus size={12} />
             Add Holding
@@ -810,7 +810,7 @@ export default function AdminClient({
           <button
             onClick={() => { setAddTradeOpen(true); setTradeError(null); }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:brightness-110 transition-all"
-            style={{ background: "var(--accent-primary)" }}
+            style={{ background: "var(--accent-primary)", color: "#fff" }}
           >
             <Plus size={12} />
             Record Trade
@@ -904,7 +904,7 @@ export default function AdminClient({
           <button
             onClick={() => { setAddEventOpen(true); setEventError(null); }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:brightness-110 transition-all"
-            style={{ background: "var(--accent-primary)" }}
+            style={{ background: "var(--accent-primary)", color: "#fff" }}
           >
             <Plus size={12} />
             Add Event
@@ -918,7 +918,7 @@ export default function AdminClient({
         ) : (
           <div className="divide-y divide-[var(--border)]">
             {events.map((ev) => {
-              const color = EVENT_COLORS[ev.event_type] ?? "#888";
+              const color = EVENT_COLORS[ev.event_type] ?? "var(--text-secondary)";
               return (
                 <div
                   key={ev.id}
@@ -978,7 +978,7 @@ export default function AdminClient({
         {ideasOpen && (
           <div className="divide-y divide-[var(--border)] border-t border-[var(--border)]">
             {EVENT_IDEAS.map((idea, i) => {
-              const color = EVENT_COLORS[idea.type] ?? "#888";
+              const color = EVENT_COLORS[idea.type] ?? "var(--text-secondary)";
               return (
                 <div key={i} className="flex items-start gap-3 px-6 py-3">
                   <span
@@ -1012,7 +1012,7 @@ export default function AdminClient({
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           onClick={() => setAddHoldingOpen(false)}
         >
-          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.6)" }} />
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "var(--bg-modal-backdrop)" }} />
           <div
             className="relative rounded-2xl border border-[var(--border)] p-6 w-full max-w-md shadow-2xl"
             style={{ background: "var(--bg-secondary)" }}
@@ -1097,7 +1097,7 @@ export default function AdminClient({
                   type="submit"
                   disabled={holdingSaving}
                   className="px-5 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 hover:brightness-110 transition-all"
-                  style={{ background: "var(--accent-primary)" }}
+                  style={{ background: "var(--accent-primary)", color: "#fff" }}
                 >
                   {holdingSaving ? "Saving…" : "Add Holding"}
                 </button>
@@ -1113,7 +1113,7 @@ export default function AdminClient({
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           onClick={() => setAddTradeOpen(false)}
         >
-          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.6)" }} />
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "var(--bg-modal-backdrop)" }} />
           <div
             className="relative rounded-2xl border border-[var(--border)] p-6 w-full max-w-md shadow-2xl"
             style={{ background: "var(--bg-secondary)" }}
@@ -1225,7 +1225,7 @@ export default function AdminClient({
                   type="submit"
                   disabled={tradeSaving}
                   className="px-5 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 hover:brightness-110 transition-all"
-                  style={{ background: "var(--accent-primary)" }}
+                  style={{ background: "var(--accent-primary)", color: "#fff" }}
                 >
                   {tradeSaving ? "Saving…" : "Record Trade"}
                 </button>
@@ -1241,7 +1241,7 @@ export default function AdminClient({
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           onClick={() => setAddEventOpen(false)}
         >
-          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.6)" }} />
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "var(--bg-modal-backdrop)" }} />
           <div
             className="relative rounded-2xl border border-[var(--border)] p-6 w-full max-w-md shadow-2xl"
             style={{ background: "var(--bg-secondary)" }}
@@ -1332,7 +1332,7 @@ export default function AdminClient({
                   type="submit"
                   disabled={eventSaving}
                   className="px-5 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 hover:brightness-110 transition-all"
-                  style={{ background: "var(--accent-primary)" }}
+                  style={{ background: "var(--accent-primary)", color: "#fff" }}
                 >
                   {eventSaving ? "Saving…" : "Add Event"}
                 </button>

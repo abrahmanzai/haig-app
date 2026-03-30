@@ -77,7 +77,7 @@ function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg py-3 font-semibold text-sm disabled:opacity-50 hover:brightness-110 transition-all mt-1"
+        className="w-full rounded-lg py-3 font-semibold text-sm text-white disabled:opacity-50 hover:brightness-110 transition-all mt-1"
         style={{ background: "var(--accent-primary)" }}
       >
         {loading ? "Signing in…" : "Sign In"}
@@ -92,8 +92,8 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div
-        className="w-full max-w-sm rounded-2xl border border-[var(--border)] p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
-        style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
+        className="w-full max-w-sm rounded-2xl border border-[var(--border)] p-8"
+        style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", boxShadow: "var(--shadow-card)" }}
       >
         <div className="text-center mb-8">
           <div className="text-2xl font-bold tracking-tight mb-1">HAIG</div>

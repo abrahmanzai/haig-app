@@ -72,6 +72,19 @@ export default function StatusChanger({ pitchId, currentStatus, voteThreshold, v
     await updateStatus(outcome);
   }
 
+  async function deletePitch() {
+    if (!confirm("Permanently delete this pitch and all its votes and comments? This cannot be undone.")) return;
+    setSaving(true);
+    setError(null);
+
+    const supabase = createClient();
+    const { error: err } = await supabase.from("pitches").delete().eq("id", pitchId);
+
+    if (err) { setError(err.message); setSaving(false); return; }
+
+    router.push("/pitches");
+  }
+
   const required = THRESHOLD_LABELS[voteThreshold] ?? ">50%";
 
   return (
@@ -88,7 +101,7 @@ export default function StatusChanger({ pitchId, currentStatus, voteThreshold, v
           {message && (
             <span
               className="text-xs font-semibold"
-              style={{ color: message.includes("Approved") ? "#30d158" : message.includes("Rejected") ? "#ff453a" : "#30d158" }}
+              style={{ color: message.includes("Approved") ? "var(--accent-green)" : message.includes("Rejected") ? "var(--accent-red)" : "var(--accent-green)" }}
             >
               {message}
             </span>
@@ -149,8 +162,21 @@ export default function StatusChanger({ pitchId, currentStatus, voteThreshold, v
         )}
       </div>
 
+      {/* Delete */}
+      <div className="pt-3 mt-1 border-t border-[var(--border)] flex items-center justify-between">
+        <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Danger zone</p>
+        <button
+          onClick={deletePitch}
+          disabled={saving}
+          className="px-4 py-2 rounded-xl text-sm font-semibold border transition-all disabled:opacity-50 hover:brightness-110"
+          style={{ background: "rgba(255,69,58,0.12)", color: "var(--accent-red)", borderColor: "rgba(255,69,58,0.3)" }}
+        >
+          Delete Pitch
+        </button>
+      </div>
+
       {error && (
-        <p className="text-xs" style={{ color: "#ff453a" }}>{error}</p>
+        <p className="text-xs" style={{ color: "var(--accent-red)" }}>{error}</p>
       )}
     </div>
   );

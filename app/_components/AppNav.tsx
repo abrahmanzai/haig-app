@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import SignOutButton from "./SignOutButton";
 import UnreadBadge from "./UnreadBadge";
+import ThemeToggle from "./ThemeToggle";
+import ThemeLogo from "./ThemeLogo";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard", roles: null },
@@ -32,7 +34,7 @@ export default function AppNav({ name, role, currentPath }: Props) {
   return (
     <nav
       className="sticky top-0 z-40 border-b border-[var(--border)]"
-      style={{ background: "rgba(0,0,0,0.88)", backdropFilter: "blur(20px)" }}
+      style={{ background: "var(--bg-nav)", backdropFilter: "blur(20px)" }}
     >
       {/* ── Main bar ──────────────────────────────────────────────────────── */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
@@ -40,8 +42,7 @@ export default function AppNav({ name, role, currentPath }: Props) {
         {/* Left: brand + desktop nav links */}
         <div className="flex items-center gap-1">
           <Link href="/dashboard" className="mr-3 flex-shrink-0" aria-label="HAIG home">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.svg" alt="HAIG" width={36} height={36} style={{ display: "block" }} />
+            <ThemeLogo width={36} height={36} />
           </Link>
 
           {visibleLinks.map((link) => {
@@ -85,6 +86,9 @@ export default function AppNav({ name, role, currentPath }: Props) {
             </span>
           )}
           <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
+          <div className="hidden sm:block">
             <SignOutButton />
           </div>
           <button
@@ -105,7 +109,7 @@ export default function AppNav({ name, role, currentPath }: Props) {
       {mobileOpen && (
         <div
           className="sm:hidden border-t border-[var(--border)] px-4 py-3 space-y-1"
-          style={{ background: "rgba(0,0,0,0.96)" }}
+          style={{ background: "var(--bg-secondary)" }}
         >
           {visibleLinks.map((link) => {
             const active = currentPath.startsWith(link.href);
@@ -145,7 +149,10 @@ export default function AppNav({ name, role, currentPath }: Props) {
             {name && (
               <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{name}</span>
             )}
-            <SignOutButton />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <SignOutButton />
+            </div>
           </div>
         </div>
       )}

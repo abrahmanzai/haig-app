@@ -6,6 +6,12 @@ type Phase = "p1" | "p2";
 
 export default function SplashScreen({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Phase>("p1");
+  const [logoSrc, setLogoSrc] = useState("/logo-mark.svg");
+
+  useEffect(() => {
+    const theme = document.documentElement.dataset.theme;
+    setLogoSrc(theme === "light" ? "/logo-mark-dark.svg" : "/logo-mark.svg");
+  }, []);
 
   useEffect(() => {
     // Phase 2 starts at 2.5s — texts fade, mark grows + fades, bg dissolves
@@ -27,7 +33,7 @@ export default function SplashScreen({ onDone }: { onDone: () => void }) {
       <div className="spl-mark-pos">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/logo-mark.svg"
+          src={logoSrc}
           alt=""
           className="spl-mark-svg"
           aria-hidden="true"
@@ -47,7 +53,7 @@ export default function SplashScreen({ onDone }: { onDone: () => void }) {
             fontSize: 28,
             fontWeight: 700,
             letterSpacing: "3px",
-            color: "#ffffff",
+            color: "var(--text-primary)",
             margin: 0,
           }}
         >HIGH AGENCY</p>
@@ -59,7 +65,7 @@ export default function SplashScreen({ onDone }: { onDone: () => void }) {
             fontSize: 14,
             fontWeight: 500,
             letterSpacing: "8px",
-            color: "#8E8E93",
+            color: "var(--text-secondary)",
             margin: 0,
           }}
         >INVESTMENT GROUP</p>
@@ -70,7 +76,7 @@ export default function SplashScreen({ onDone }: { onDone: () => void }) {
             fontFamily: "'JetBrains Mono', 'SF Mono', 'Courier New', monospace",
             fontSize: 10,
             letterSpacing: "4px",
-            color: "#636366",
+            color: "var(--text-tertiary)",
             margin: 0,
           }}
         >LEARN · INVEST · BUILD</p>

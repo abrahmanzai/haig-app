@@ -48,7 +48,7 @@ function MinuteCard({ minute }: { minute: MeetingMinute }) {
         className="w-full flex items-center justify-between px-5 py-4 text-left transition-colors hover:bg-[var(--bg-tertiary)]"
       >
         <div className="flex items-center gap-3">
-          <FileText size={18} style={{ color: "var(--accent-blue)", flexShrink: 0 }} />
+          <FileText size={18} style={{ color: "var(--accent-primary)", flexShrink: 0 }} />
           <div>
             <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
               {minute.title}

@@ -18,7 +18,7 @@ function Modal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
+      style={{ background: "var(--bg-modal-backdrop)", backdropFilter: "blur(8px)" }}
       onClick={onClose}
     >
       <div
@@ -152,13 +152,13 @@ function AddHoldingModal({ onClose }: { onClose: () => void }) {
           />
         </Field>
         {error && (
-          <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "#ff453a" }}>
+          <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "var(--accent-red)" }}>
             {error}
           </p>
         )}
         <button
           type="submit" disabled={loading}
-          className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110 disabled:opacity-40"
+          className="w-full py-3 rounded-xl font-semibold text-sm text-white transition-all hover:brightness-110 disabled:opacity-40"
           style={{ background: "var(--accent-primary)" }}
         >
           {loading ? "Saving…" : "Add Holding"}
@@ -274,13 +274,13 @@ function LogTradeModal({ onClose }: { onClose: () => void }) {
           />
         </Field>
         {error && (
-          <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "#ff453a" }}>
+          <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "var(--accent-red)" }}>
             {error}
           </p>
         )}
         <button
           type="submit" disabled={loading}
-          className="w-full py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110 disabled:opacity-40"
+          className="w-full py-3 rounded-xl font-semibold text-sm text-white transition-all hover:brightness-110 disabled:opacity-40"
           style={{ background: form.trade_type === "buy" ? "var(--accent-green)" : "var(--accent-red)" }}
         >
           {loading ? "Saving…" : `Log ${form.trade_type === "buy" ? "Buy" : "Sell"}`}
@@ -344,7 +344,7 @@ function UpdateCashModal({
           />
         </Field>
         {error && (
-          <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "#ff453a" }}>
+          <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "var(--accent-red)" }}>
             {error}
           </p>
         )}
