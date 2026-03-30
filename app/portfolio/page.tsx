@@ -59,7 +59,6 @@ export default async function Portfolio() {
     for (const { ticker, price } of results) {
       livePrices[ticker] = price;
     }
-    console.log("[Portfolio] live prices:", livePrices);
   }
 
   // ── Merge live prices into holdings ────────────────────────────────────────

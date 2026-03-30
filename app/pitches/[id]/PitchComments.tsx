@@ -167,7 +167,7 @@ export default function PitchComments({ pitchId, userId, userName, canComment, i
               type="submit"
               disabled={!input.trim() || sending}
               className="self-end rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:brightness-110 disabled:opacity-40"
-              style={{ background: "var(--accent-primary)" }}
+              style={{ background: "var(--accent-primary)", color: "#fff" }}
             >
               {sending ? "…" : "Post"}
             </button>

@@ -239,7 +239,7 @@ export default function NewPitchForm({ userId, prefill }: Props) {
           <div
             ref={dropdownRef}
             className="absolute left-0 right-0 top-full mt-1.5 rounded-xl border border-[var(--border)] overflow-hidden z-50"
-            style={{ background: "var(--bg-secondary)", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}
+            style={{ background: "var(--bg-secondary)", boxShadow: "var(--shadow-card)" }}
           >
             {sugLoading && (
               <div className="px-4 py-3 text-xs" style={{ color: "var(--text-tertiary)" }}>
@@ -356,7 +356,7 @@ export default function NewPitchForm({ userId, prefill }: Props) {
             </button>
           </div>
           {priceError && (
-            <p className="text-xs mt-1" style={{ color: "#ff453a" }}>{priceError}</p>
+            <p className="text-xs mt-1" style={{ color: "var(--accent-red)" }}>{priceError}</p>
           )}
         </Field>
         <Field label="Price Target ($)">
@@ -374,7 +374,7 @@ export default function NewPitchForm({ userId, prefill }: Props) {
       {error && (
         <p
           className="text-sm rounded-xl p-3"
-          style={{ background: "rgba(255,69,58,0.10)", color: "#ff453a" }}
+          style={{ background: "rgba(255,69,58,0.10)", color: "var(--accent-red)" }}
         >
           {error}
         </p>
@@ -392,7 +392,7 @@ export default function NewPitchForm({ userId, prefill }: Props) {
         <button
           type="submit"
           disabled={submitting}
-          className="flex-1 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50 hover:brightness-110 transition-all"
+          className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50 hover:brightness-110 transition-all"
           style={{ background: "var(--accent-primary)" }}
         >
           {submitting ? "Submitting…" : "Submit Pitch"}

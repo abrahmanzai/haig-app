@@ -7,20 +7,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "bg-primary": "#000000",
-        "bg-secondary": "#1C1C1E",
-        "bg-tertiary": "#2C2C2E",
-        "bg-glass": "rgba(44,44,46,0.72)",
-        "text-primary": "#FFFFFF",
-        "text-secondary": "#8E8E93",
-        "text-tertiary": "#636366",
-        "accent-primary": "#0A84FF",
-        "accent-green": "#30D158",
-        "accent-red": "#FF453A",
-        "accent-orange": "#FF9F0A",
-        "accent-purple": "#BF5AF2",
-        "accent-teal": "#64D2FF",
-        "accent-gold": "#FFD60A"
+        "bg-primary": "var(--bg-primary)",
+        "bg-secondary": "var(--bg-secondary)",
+        "bg-tertiary": "var(--bg-tertiary)",
+        "bg-glass": "var(--bg-glass)",
+        "text-primary": "var(--text-primary)",
+        "text-secondary": "var(--text-secondary)",
+        "text-tertiary": "var(--text-tertiary)",
+        "accent-primary": "var(--accent-primary)",
+        "accent-green": "var(--accent-green)",
+        "accent-red": "var(--accent-red)",
+        "accent-orange": "var(--accent-orange)",
+        "accent-purple": "var(--accent-purple)",
+        "accent-teal": "var(--accent-teal)",
+        "accent-gold": "var(--accent-gold)"
       }
     }
   },

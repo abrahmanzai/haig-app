@@ -133,8 +133,8 @@ export default function VotePanel({
             className="text-xs font-semibold uppercase tracking-wider rounded-full px-3 py-1.5"
             style={
               result
-                ? { background: "rgba(48,209,88,0.15)", color: "#30d158" }
-                : { background: "rgba(255,69,58,0.15)", color: "#ff453a" }
+                ? { background: "rgba(48,209,88,0.15)", color: "var(--accent-green)" }
+                : { background: "rgba(255,69,58,0.15)", color: "var(--accent-red)" }
             }
           >
             {result ? "Passing" : "Failing"}
@@ -152,7 +152,7 @@ export default function VotePanel({
               : { background: "rgba(255,69,58,0.08)", borderColor: "rgba(255,69,58,0.3)" }
           }
         >
-          <p className="font-semibold text-sm mb-1" style={{ color: pitchStatus === "approved" ? "#30d158" : "#ff453a" }}>
+          <p className="font-semibold text-sm mb-1" style={{ color: pitchStatus === "approved" ? "var(--accent-green)" : "var(--accent-red)" }}>
             {pitchStatus === "approved" ? "✓ Pitch Approved" : "✗ Pitch Rejected"}
           </p>
           <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
@@ -276,7 +276,7 @@ export default function VotePanel({
       )}
 
       {error && (
-        <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "#ff453a" }}>
+        <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "var(--accent-red)" }}>
           {error}
         </p>
       )}

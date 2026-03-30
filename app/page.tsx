@@ -2,12 +2,13 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import SplashGate from "./_components/SplashGate";
+import ThemeToggle from "./_components/ThemeToggle";
+import ThemeLogo from "./_components/ThemeLogo";
 import { createClient } from "@/lib/supabase/server";
 import { Calendar } from "lucide-react";
 import {
   BookOpen, TrendingUp, BarChart2,
   UserPlus, GraduationCap, Mic, ThumbsUp,
-  Mail, Linkedin,
 } from "lucide-react";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -37,8 +38,8 @@ const steps = [
   {
     n: "01",
     icon: UserPlus,
-    title: "Sign Up & Contribute",
-    body: "Become a limited partner. Sign the partnership agreement and make your initial capital contribution.",
+    title: "Get Invited & Onboard",
+    body: "Membership is by invitation through existing member relationships. Once admitted, complete your onboarding paperwork and join the club.",
   },
   {
     n: "02",
@@ -60,10 +61,6 @@ const steps = [
   },
 ];
 
-const socials = [
-  { label: "Email",    href: "mailto:highagencyinvesting@gmail.com",              icon: Mail,     color: "#0a84ff" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/haig-undefined-a204a53ba/", icon: Linkedin, color: "#64d2ff" },
-];
 
 const EVENT_COLORS: Record<string, string> = {
   founding: "#ffd60a",
@@ -104,12 +101,11 @@ export default async function Home() {
       {/* ═══ NAV ══════════════════════════════════════════════════════════════ */}
       <nav
         className="fixed top-0 inset-x-0 z-50 border-b border-[var(--border)]"
-        style={{ background: "rgba(0,0,0,0.72)", backdropFilter: "blur(20px)" }}
+        style={{ background: "var(--bg-nav)", backdropFilter: "blur(20px)" }}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <a href="#hero" className="flex-shrink-0" aria-label="HAIG home">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-mark.svg" alt="HAIG" width={36} height={36} style={{ display: "block" }} />
+            <ThemeLogo width={36} height={36} />
           </a>
 
           <div className="hidden sm:flex gap-6 text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -122,7 +118,8 @@ export default async function Home() {
               <a
                 key={label}
                 href={href}
-                className="hover:text-white transition-colors"
+                className="transition-colors"
+                style={{ color: "var(--text-secondary)" }}
               >
                 {label}
               </a>
@@ -130,19 +127,20 @@ export default async function Home() {
           </div>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Link
               href="/login"
               className="text-sm px-3 py-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
             >
-              Login
+              Member Login
             </Link>
-            <Link
-              href="/signup"
-              className="text-sm px-3 py-1.5 rounded-lg font-semibold hover:brightness-110 transition-all"
+            <a
+              href="#contact"
+              className="text-sm px-3 py-1.5 rounded-lg font-semibold hover:brightness-110 transition-all text-white"
               style={{ background: "var(--accent-primary)" }}
             >
-              Join
-            </Link>
+              Contact Us
+            </a>
           </div>
         </div>
       </nav>
@@ -155,40 +153,15 @@ export default async function Home() {
           className="relative flex flex-col items-center justify-center text-center px-6 pt-14"
           style={{ minHeight: "100vh" }}
         >
-          {/* Grid bg — fades out radially */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            aria-hidden
-            style={{
-              backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
-              backgroundSize: "72px 72px",
-              WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 50%, transparent 100%)",
-              maskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 50%, transparent 100%)",
-            }}
-          />
-          {/* Blue glow */}
+          {/* Glow bg */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
             <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full"
-              style={{ background: "radial-gradient(ellipse, rgba(10,132,255,0.08) 0%, transparent 65%)" }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
+              style={{ background: "radial-gradient(circle, rgba(10,132,255,0.10) 0%, transparent 65%)" }}
             />
           </div>
 
           <div className="relative z-10 max-w-3xl lp-hero-content">
-            {/* Eyebrow pill */}
-            <div className="flex justify-center mb-7">
-              <span
-                className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full"
-                style={{
-                  background: "rgba(255,214,10,0.08)",
-                  border: "1px solid rgba(255,214,10,0.20)",
-                  color: "var(--accent-gold)",
-                }}
-              >
-                Student Investment Partnership
-              </span>
-            </div>
-
             <h1
               className="font-extrabold tracking-tight leading-none mb-5"
               style={{ fontSize: "clamp(2.6rem, 8vw, 5rem)" }}
@@ -199,7 +172,7 @@ export default async function Home() {
             <p
               className="font-bold mb-6"
               style={{
-                fontSize: "clamp(1.4rem, 4vw, 2.2rem)",
+                fontSize: "clamp(1.5rem, 5vw, 2.5rem)",
                 background: "linear-gradient(135deg, #0a84ff 0%, #64d2ff 50%, #30d158 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -210,7 +183,7 @@ export default async function Home() {
 
             <p
               className="text-lg mb-10 max-w-xl mx-auto"
-              style={{ color: "var(--text-secondary)", lineHeight: 1.75 }}
+              style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
             >
               A student general partnership where members pool capital, research
               equities, and execute real trades together — turning financial theory
@@ -218,21 +191,17 @@ export default async function Home() {
             </p>
 
             <div className="flex gap-3 justify-center flex-wrap">
-              <Link
-                href="/signup"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 transition-all hover:brightness-110 hover:-translate-y-px"
+              <a
+                href="#contact"
+                className="rounded-xl font-semibold text-base px-8 py-3.5 hover:brightness-110 hover:scale-[1.02] transition-all text-white"
                 style={{ background: "var(--accent-primary)" }}
               >
-                Become a Partner →
-              </Link>
+                Get in Touch →
+              </a>
               <Link
                 href="/login"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 transition-colors"
-                style={{
-                  background: "rgba(15,15,17,0.6)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid var(--border)",
-                }}
+                className="rounded-xl font-semibold text-base px-8 py-3.5 border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)" }}
               >
                 Member Login
               </Link>
@@ -280,7 +249,7 @@ export default async function Home() {
                   style={{
                     background: "var(--bg-glass)",
                     backdropFilter: "blur(20px)",
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+                    boxShadow: "var(--shadow-card)",
                   }}
                 >
                   <div
@@ -321,7 +290,7 @@ export default async function Home() {
                 className="text-lg max-w-2xl mx-auto"
                 style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
               >
-                All members and prospective partners are welcome. Meetings are held bi-weekly.
+                Open to current members. Meetings are held bi-weekly.
               </p>
             </div>
 
@@ -393,7 +362,7 @@ export default async function Home() {
         <section
           id="how"
           className="py-24 px-6"
-          style={{ background: "rgba(28,28,30,0.4)" }}
+          style={{ background: "var(--bg-secondary)" }}
         >
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-14">
@@ -416,7 +385,7 @@ export default async function Home() {
                   {/* Ghost step number */}
                   <div
                     className="text-7xl font-black select-none leading-none mb-3"
-                    style={{ color: "rgba(255,255,255,0.04)" }}
+                    style={{ color: "var(--ghost-text)" }}
                   >
                     {step.n}
                   </div>
@@ -466,7 +435,7 @@ export default async function Home() {
                 </div>
                 <p className="font-semibold text-base mb-1">William Headlee</p>
                 <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
-                  President &amp; Authorized Trader
+                  President
                 </p>
               </article>
 
@@ -483,23 +452,23 @@ export default async function Home() {
                 </div>
                 <p className="font-semibold text-base mb-1">Abdul Hameed Rahmanzai</p>
                 <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
-                  Vice President &amp; Authorized Trader
+                  Vice President
                 </p>
               </article>
 
-              {/* Slot 3 — Treasurer TBD */}
+              {/* Slot 3 — Treasurer open */}
               <article
                 className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.55 }}
+                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.65 }}
               >
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
                   style={{ background: "var(--bg-tertiary)" }}
                 >
-                  <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>?</span>
+                  <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>+</span>
                 </div>
                 <p className="font-semibold text-base mb-1" style={{ color: "var(--text-secondary)" }}>
-                  Founding Partner — TBD
+                  Open Position
                 </p>
                 <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Treasurer</p>
               </article>
@@ -515,7 +484,7 @@ export default async function Home() {
                 >
                   D
                 </div>
-                <p className="font-semibold text-base mb-1">Dawson</p>
+                <p className="font-semibold text-base mb-1">Dawson Gibbons</p>
                 <p className="text-sm" style={{ color: "var(--accent-green)" }}>Secretary</p>
               </article>
             </div>
@@ -526,7 +495,7 @@ export default async function Home() {
         <section
           id="contact"
           className="py-24 px-6 border-t border-[var(--border)]"
-          style={{ background: "rgba(28,28,30,0.3)" }}
+          style={{ background: "var(--bg-secondary)" }}
         >
           <div className="max-w-xl mx-auto text-center">
             <p
@@ -540,30 +509,22 @@ export default async function Home() {
               className="text-lg mb-10"
               style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
             >
-              Interested in joining HAIG or learning more about the club? Reach
+              Want to learn more about our work or connect with the team? Reach
               out through any of these channels.
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-12">
-              {socials.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target={s.href.startsWith("http") ? "_blank" : undefined}
-                  rel="noreferrer"
-                  className="rounded-2xl p-4 border border-[var(--border)] flex flex-col items-center gap-2 hover:border-[var(--border-hover)] hover:bg-[var(--bg-tertiary)] transition-colors"
-                  style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)" }}
-                >
-                  <s.icon size={22} style={{ color: s.color }} />
-                  <span className="text-sm font-medium">{s.label}</span>
-                </a>
-              ))}
-            </div>
+            <a
+              href="mailto:highagencyinvesting@gmail.com"
+              className="inline-block text-lg sm:text-xl font-medium tracking-wide mb-12 transition-colors hover:opacity-80"
+              style={{ color: "var(--accent-primary)" }}
+            >
+              highagencyinvesting@gmail.com
+            </a>
 
             <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
-              © 2026 High Agency Investment Group
+              2026 High Agency Investment Group
               <br />
-              <span style={{ opacity: 0.6 }}>A student-run general partnership</span>
+              <span style={{ color: "var(--text-tertiary)" }}>A student-run general partnership</span>
             </p>
           </div>
         </section>

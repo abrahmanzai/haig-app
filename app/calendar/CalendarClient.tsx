@@ -278,7 +278,7 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId,
               <button
                 onClick={() => setAddOpen(true)}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold hover:brightness-110 transition-all"
-                style={{ background: "var(--accent-primary)" }}
+                style={{ background: "var(--accent-primary)", color: "#fff" }}
               >
                 <Plus size={14} />
                 Add Event
@@ -304,7 +304,7 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId,
               >
                 <span
                   className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ background: active ? cfg.color : "#555" }}
+                  style={{ background: active ? cfg.color : "var(--text-tertiary)" }}
                 />
                 {cfg.label}
               </button>
@@ -349,7 +349,7 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId,
           ) : (
             <div className="space-y-3">
               {selectedEvents.map((ev) => {
-                const color = EVENT_CONFIG[ev.event_type]?.color ?? "#888";
+                const color = EVENT_CONFIG[ev.event_type]?.color ?? "var(--text-secondary)";
                 return (
                   <article
                     key={ev.id}
@@ -526,7 +526,7 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId,
                 type="submit"
                 disabled={saving}
                 className="px-5 py-2 rounded-xl text-sm font-semibold disabled:opacity-50 hover:brightness-110 transition-all"
-                style={{ background: "var(--accent-primary)" }}
+                style={{ background: "var(--accent-primary)", color: "#fff" }}
               >
                 {saving ? "Saving…" : "Add Event"}
               </button>
@@ -625,7 +625,7 @@ function GridView({
                   : undefined,
               }}
               onMouseEnter={(e) => {
-                if (hasEvents) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
+                if (hasEvents) (e.currentTarget as HTMLElement).style.background = "var(--ghost-text)";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLElement).style.background = isSelected
@@ -652,7 +652,7 @@ function GridView({
                     <span
                       key={ev.id}
                       className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ background: EVENT_CONFIG[ev.event_type]?.color ?? "#888" }}
+                      style={{ background: EVENT_CONFIG[ev.event_type]?.color ?? "var(--text-secondary)" }}
                     />
                   ))}
                   {dayEvents.length > 3 && (
@@ -711,7 +711,7 @@ function TimelineView({
 
             <div className="space-y-3">
               {phase.events.map((ev) => {
-                const color = EVENT_CONFIG[ev.event_type]?.color ?? "#888";
+                const color = EVENT_CONFIG[ev.event_type]?.color ?? "var(--text-secondary)";
                 return (
                   <article
                     key={ev.id}
@@ -892,7 +892,7 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
-      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.6)" }} />
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: "var(--bg-modal-backdrop)" }} />
       <div
         className="relative rounded-2xl border border-[var(--border)] p-6 w-full max-w-md shadow-2xl max-h-[85vh] overflow-y-auto"
         style={{ background: "var(--bg-secondary)" }}
