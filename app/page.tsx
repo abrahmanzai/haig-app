@@ -220,10 +220,8 @@ export default async function Home() {
             <div className="flex gap-3 justify-center flex-wrap">
               <Link
                 href="/signup"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 transition-all"
+                className="rounded-xl font-semibold text-base px-8 py-3.5 transition-all hover:brightness-110 hover:-translate-y-px"
                 style={{ background: "var(--accent-primary)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.filter = "brightness(1.12)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.filter = ""; e.currentTarget.style.transform = ""; }}
               >
                 Become a Partner →
               </Link>
