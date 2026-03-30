@@ -18,7 +18,7 @@ const features = [
     icon: BookOpen,
     title: "Learn Together",
     body: "Structured financial literacy curriculum — workshops, speaker sessions with finance professionals, and biweekly market discussions.",
-    color: "#0a84ff",
+    color: "var(--accent-primary)",
   },
   {
     icon: TrendingUp,
@@ -64,7 +64,7 @@ const steps = [
 
 const EVENT_COLORS: Record<string, string> = {
   founding: "#ffd60a",
-  meeting:  "#0a84ff",
+  meeting:  "#5E6AD2",
   workshop: "#30d158",
   speaker:  "#bf5af2",
   social:   "#ff9f0a",
@@ -145,7 +145,7 @@ export default async function Home() {
         </div>
       </nav>
 
-      <main style={{ padding: 0 }}>
+      <main style={{ padding: 0, marginLeft: 0 }}>
 
         {/* ═══ HERO ═════════════════════════════════════════════════════════ */}
         <section
@@ -157,7 +157,7 @@ export default async function Home() {
           <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
             <div
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
-              style={{ background: "radial-gradient(circle, rgba(10,132,255,0.10) 0%, transparent 65%)" }}
+              style={{ background: "radial-gradient(circle, rgba(94,106,210,0.12) 0%, transparent 65%)" }}
             />
           </div>
 
@@ -173,7 +173,7 @@ export default async function Home() {
               className="font-bold mb-6"
               style={{
                 fontSize: "clamp(1.5rem, 5vw, 2.5rem)",
-                background: "linear-gradient(135deg, #0a84ff 0%, #64d2ff 50%, #30d158 100%)",
+                background: "linear-gradient(135deg, var(--accent-primary) 0%, #64d2ff 50%, #30d158 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
@@ -275,7 +275,7 @@ export default async function Home() {
         <section
           id="events"
           className="py-24 px-6 border-y border-[var(--border)]"
-          style={{ background: "rgba(10,132,255,0.03)" }}
+          style={{ background: "rgba(94,106,210,0.03)" }}
         >
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-14">
@@ -429,7 +429,7 @@ export default async function Home() {
               >
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
-                  style={{ background: "rgba(10,132,255,0.15)", color: "var(--accent-primary)" }}
+                  style={{ background: "rgba(94,106,210,0.15)", color: "var(--accent-primary)" }}
                 >
                   WH
                 </div>
@@ -446,7 +446,7 @@ export default async function Home() {
               >
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
-                  style={{ background: "rgba(10,132,255,0.15)", color: "var(--accent-primary)" }}
+                  style={{ background: "rgba(94,106,210,0.15)", color: "var(--accent-primary)" }}
                 >
                   AH
                 </div>

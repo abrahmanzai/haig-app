@@ -5,13 +5,13 @@ import { formatDate } from "@/lib/date";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import AppNav from "@/app/_components/AppNav";
-import { FileText } from "lucide-react";
+import { FileText, ChevronRight } from "lucide-react";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   pending:  { label: "Pending",  color: "#8e8e93" },
-  voting:   { label: "Voting",   color: "#ff9f0a" },
+  voting:   { label: "Voting",   color: "#5E6AD2" },
   approved: { label: "Approved", color: "#30d158" },
   rejected: { label: "Rejected", color: "#ff453a" },
   closed:   { label: "Closed",   color: "#636366" },
@@ -22,7 +22,6 @@ const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   sell: { label: "SELL", color: "#ff453a" },
   hold: { label: "HOLD", color: "#ff9f0a" },
 };
-
 
 const ALL_STATUSES = ["all", "pending", "voting", "approved", "rejected", "closed"];
 
@@ -49,7 +48,7 @@ export default async function Pitches({
       .order("created_at", { ascending: false }),
   ]);
 
-  const profile  = profileResult.data;
+  const profile    = profileResult.data;
   const allPitches = pitchesResult.data ?? [];
 
   const activeStatus = ALL_STATUSES.includes(searchParams.status ?? "")
@@ -69,51 +68,62 @@ export default async function Pitches({
       <AppNav name={profile?.full_name} role={profile?.role} currentPath="/pitches" />
 
       <main style={{ padding: 0 }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 py-8 space-y-6">
 
           {/* ── Header ───────────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-end justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Investment Pitches</h1>
+              <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--text-primary)" }}>
+                Pitches
+              </h1>
               <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-                {allPitches.length} pitch{allPitches.length !== 1 ? "es" : ""} total
+                Active investment proposals and community voting pipeline.
               </p>
             </div>
             {canSubmit && (
               <Link
                 href="/pitches/new"
-                className="px-4 py-2 rounded-xl text-sm font-semibold hover:brightness-110 transition-all"
-                style={{ background: "var(--accent-primary)" }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all active:scale-95 hover:opacity-90"
+                style={{
+                  background: "#5E6AD2",
+                  boxShadow: "0 4px 16px rgba(94,106,210,0.25)",
+                }}
               >
-                + Submit Pitch
+                + New Pitch
               </Link>
             )}
           </div>
 
           {/* ── Status filter tabs ───────────────────────────────────────── */}
-          <div className="flex gap-2 flex-wrap">
+          <div
+            className="flex gap-2 flex-wrap pb-4 border-b"
+            style={{ borderColor: "var(--border)" }}
+          >
             {ALL_STATUSES.map((s) => {
               const active = s === activeStatus;
               const cfg    = s !== "all" ? STATUS_CONFIG[s] : null;
+              const count  = s !== "all" ? allPitches.filter((p) => p.status === s).length : null;
               return (
                 <Link
                   key={s}
                   href={s === "all" ? "/pitches" : `/pitches?status=${s}`}
-                  className="px-3 py-1.5 rounded-full text-xs font-medium border transition-all capitalize"
+                  className="px-4 py-1.5 rounded-full text-sm font-medium transition-all capitalize flex items-center gap-2"
                   style={
                     active
                       ? {
-                          background: cfg ? cfg.color + "20" : "var(--bg-tertiary)",
-                          color: cfg ? cfg.color : "var(--text-primary)",
-                          borderColor: cfg ? cfg.color + "55" : "var(--border-hover)",
+                          background: cfg ? cfg.color + "18" : "var(--bg-tertiary)",
+                          color: cfg ? cfg.color : "#EDEDEF",
                         }
-                      : { background: "transparent", color: "var(--text-tertiary)", borderColor: "var(--border)" }
+                      : { background: "transparent", color: "var(--text-secondary)" }
                   }
                 >
                   {s}
-                  {s !== "all" && (
-                    <span className="ml-1 opacity-70">
-                      ({allPitches.filter((p) => p.status === s).length})
+                  {count !== null && count > 0 && (
+                    <span
+                      className="text-[10px] px-1.5 py-0.5 rounded-full font-bold geist-mono"
+                      style={{ background: "#5E6AD2", color: "#fff" }}
+                    >
+                      {count}
                     </span>
                   )}
                 </Link>
@@ -124,17 +134,17 @@ export default async function Pitches({
           {/* ── Pitch cards ──────────────────────────────────────────────── */}
           {pitches.length === 0 ? (
             <div
-              className="rounded-2xl border border-[var(--border)] p-12 text-center"
-              style={{ background: "var(--bg-secondary)" }}
+              className="rounded-2xl border p-12 text-center"
+              style={{ background: "var(--bg-glass)", borderColor: "var(--border)" }}
             >
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
                 style={{ background: "var(--bg-tertiary)" }}
               >
-                <FileText size={22} style={{ color: "var(--text-tertiary)" }} />
+                <FileText size={22} style={{ color: "var(--text-secondary)" }} />
               </div>
-              <p className="font-semibold mb-1">No pitches yet</p>
-              <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
+              <p className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>No pitches yet</p>
+              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                 {canSubmit
                   ? "Be the first to submit an investment pitch."
                   : "Pitches will appear here once authorized members submit them."}
@@ -142,94 +152,130 @@ export default async function Pitches({
               {canSubmit && (
                 <Link
                   href="/pitches/new"
-                  className="mt-5 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold hover:brightness-110 transition-all"
-                  style={{ background: "var(--accent-primary)" }}
+                  className="mt-5 inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition-all"
+                  style={{ background: "#5E6AD2" }}
                 >
                   Submit First Pitch
                 </Link>
               )}
             </div>
           ) : (
-            <div className="grid gap-4">
+            <div className="space-y-3">
               {pitches.map((pitch) => {
                 const statusCfg = STATUS_CONFIG[pitch.status] ?? STATUS_CONFIG.pending;
                 const typeCfg   = TYPE_CONFIG[pitch.pitch_type] ?? TYPE_CONFIG.buy;
-                // profiles is a joined object — Supabase returns it as an object or array
                 const submitterName =
                   Array.isArray(pitch.profiles)
                     ? pitch.profiles[0]?.full_name
                     : (pitch.profiles as { full_name?: string } | null)?.full_name;
 
+                // Voting progress: treat approved as 100%, rejected as 0, others unknown
+                const isApproved = pitch.status === "approved";
+                const isRejected = pitch.status === "rejected";
+                const showBar    = pitch.status === "voting" || isApproved || isRejected;
+                const barPct     = isApproved ? 100 : isRejected ? 100 : 50;
+
                 return (
                   <Link
                     key={pitch.id}
                     href={`/pitches/${pitch.id}`}
-                    className="block rounded-2xl border border-[var(--border)] p-5 hover:border-[var(--border-hover)] transition-colors"
-                    style={{ background: "var(--bg-secondary)" }}
+                    className="group relative overflow-hidden flex flex-col md:flex-row md:items-center gap-4 p-4 rounded-xl transition-all"
+                    style={{
+                      background: "var(--bg-glass)",
+                      border: "1px solid var(--border)",
+                      backdropFilter: "blur(12px)",
+                      borderLeft: `4px solid ${statusCfg.color}`,
+                    }}
                   >
-                    <div className="flex items-start gap-4 flex-wrap">
-                      <div className="flex-1 min-w-0">
-                        {/* Badges row */}
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <span
-                            className="text-xs font-bold uppercase tracking-wider rounded px-2 py-0.5"
-                            style={{ background: typeCfg.color + "20", color: typeCfg.color }}
-                          >
-                            {typeCfg.label}
-                          </span>
-                          <span
-                            className="font-bold text-lg"
-                            style={{ color: "var(--accent-primary)" }}
-                          >
-                            {pitch.ticker}
-                          </span>
-                          <span className="text-base font-semibold">
-                            {pitch.company_name}
-                          </span>
-                        </div>
-
-                        {/* Thesis */}
-                        <p
-                          className="text-sm leading-relaxed mb-3"
-                          style={{
-                            color: "var(--text-secondary)",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
+                    {/* Ticker + type + company */}
+                    <div className="min-w-[160px] flex-shrink-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg font-bold geist-mono" style={{ color: "var(--text-primary)" }}>
+                          {pitch.ticker}
+                        </span>
+                        <span
+                          className="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-tight geist-mono"
+                          style={{ background: typeCfg.color + "20", color: typeCfg.color }}
                         >
-                          {pitch.thesis}
-                        </p>
+                          {typeCfg.label}
+                        </span>
+                      </div>
+                      <p className="text-sm truncate" style={{ color: "var(--text-secondary)" }}>
+                        {pitch.company_name}
+                      </p>
+                    </div>
 
-                        {/* Meta row */}
-                        <div className="flex gap-4 text-xs flex-wrap" style={{ color: "var(--text-tertiary)" }}>
-                          {pitch.price_target && (
-                            <span>
-                              Target: <strong style={{ color: "var(--text-secondary)" }}>
-                                ${Number(pitch.price_target).toFixed(2)}
-                              </strong>
-                            </span>
-                          )}
-                          {pitch.current_price && (
-                            <span>
-                              Price: <strong style={{ color: "var(--text-secondary)" }}>
-                                ${Number(pitch.current_price).toFixed(2)}
-                              </strong>
-                            </span>
-                          )}
-                          {submitterName && <span>By {submitterName}</span>}
-                          <span>{formatDate(pitch.created_at)}</span>
-                        </div>
+                    {/* Data grid */}
+                    <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 items-center">
+                      {/* Current price */}
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider geist-mono mb-1 font-bold" style={{ color: "var(--text-secondary)" }}>
+                          Current Price
+                        </p>
+                        <p className="text-sm geist-mono" style={{ color: "var(--text-primary)" }}>
+                          {pitch.current_price ? `$${Number(pitch.current_price).toFixed(2)}` : "—"}
+                        </p>
                       </div>
 
-                      {/* Status badge */}
-                      <span
-                        className="text-xs font-semibold uppercase tracking-wider rounded-full px-3 py-1.5 flex-shrink-0"
-                        style={{ background: statusCfg.color + "20", color: statusCfg.color }}
-                      >
-                        {statusCfg.label}
-                      </span>
+                      {/* Target */}
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider geist-mono mb-1 font-bold" style={{ color: "var(--text-secondary)" }}>
+                          Target
+                        </p>
+                        <p className="text-sm geist-mono" style={{ color: "var(--text-primary)" }}>
+                          {pitch.price_target ? `$${Number(pitch.price_target).toFixed(2)}` : "—"}
+                        </p>
+                      </div>
+
+                      {/* Progress / status bar — spans 2 cols */}
+                      <div className="md:col-span-2">
+                        <div className="flex justify-between text-[10px] uppercase tracking-wider geist-mono mb-1 font-bold" style={{ color: "var(--text-secondary)" }}>
+                          <span>{showBar ? (isApproved ? "Outcome" : isRejected ? "Outcome" : "Voting Progress") : "Thesis"}</span>
+                          <span style={{ color: isApproved ? "#30d158" : isRejected ? "#ff453a" : "#EDEDEF" }}>
+                            {isApproved ? "APPROVED" : isRejected ? "REJECTED" : pitch.status.toUpperCase()}
+                          </span>
+                        </div>
+                        {showBar ? (
+                          <div
+                            className="w-full h-1.5 rounded-full overflow-hidden"
+                            style={{ background: isApproved ? "rgba(48,209,88,0.15)" : isRejected ? "rgba(255,69,58,0.15)" : "var(--bg-tertiary)" }}
+                          >
+                            <div
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${barPct}%`,
+                                background: isApproved ? "#30d158" : isRejected ? "#ff453a" : "#5E6AD2",
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <p
+                            className="text-xs truncate"
+                            style={{ color: "var(--text-secondary)" }}
+                          >
+                            {pitch.thesis}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right: submitter + date + chevron */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="text-right">
+                        {submitterName && (
+                          <p className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>
+                            {submitterName.split(" ")[0]}
+                          </p>
+                        )}
+                        <p className="text-[10px] geist-mono" style={{ color: "var(--text-secondary)" }}>
+                          {formatDate(pitch.created_at)}
+                        </p>
+                      </div>
+                      <ChevronRight
+                        size={16}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ color: "var(--text-secondary)" }}
+                      />
                     </div>
                   </Link>
                 );
@@ -239,7 +285,7 @@ export default async function Pitches({
 
           {/* ── Non-authorized notice ─────────────────────────────────────── */}
           {!canSubmit && (
-            <p className="text-xs text-center" style={{ color: "var(--text-tertiary)" }}>
+            <p className="text-xs text-center" style={{ color: "var(--text-secondary)" }}>
               Pitch submission and voting are available to Authorized Members.
               Contact an admin to request access.
             </p>

@@ -65,16 +65,18 @@ export default async function MessagesPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <AppNav name={profile.full_name} role={profile.role} currentPath="/messages" />
-      <MessagesClient
-        userId={user.id}
-        userName={profile.full_name}
-        userRole={profile.role}
-        members={(membersResult.data ?? []) as MemberBasic[]}
-        initialAnnouncements={(announcementsResult.data ?? []) as Announcement[]}
-        initialGroupMessages={(groupMessagesResult.data ?? []) as GroupMessage[]}
-        initialDMs={(dmsResult.data ?? []) as DirectMessage[]}
-        readAnnouncementIds={Array.from(readIds)}
-      />
+      <main style={{ padding: 0, flex: 1, overflow: "hidden" }}>
+        <MessagesClient
+          userId={user.id}
+          userName={profile.full_name}
+          userRole={profile.role}
+          members={(membersResult.data ?? []) as MemberBasic[]}
+          initialAnnouncements={(announcementsResult.data ?? []) as Announcement[]}
+          initialGroupMessages={(groupMessagesResult.data ?? []) as GroupMessage[]}
+          initialDMs={(dmsResult.data ?? []) as DirectMessage[]}
+          readAnnouncementIds={Array.from(readIds)}
+        />
+      </main>
     </div>
   );
 }

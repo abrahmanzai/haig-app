@@ -34,12 +34,14 @@ export default async function InfoPage() {
   return (
     <div className="min-h-screen">
       <AppNav name={profile.full_name} role={profile.role} currentPath="/info" />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+      <main style={{ padding: 0 }}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
         <InfoClient
           minutes={minutes ?? []}
           documents={documents ?? []}
           isAdmin={profile.role === "admin"}
         />
+        </div>
       </main>
     </div>
   );

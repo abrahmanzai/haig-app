@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/date";
 import { redirect } from "next/navigation";
 import AppNav from "@/app/_components/AppNav";
 import PortfolioAdminControls from "./PortfolioAdminControls";
+import { Wallet, TrendingUp, DollarSign, BarChart2 } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -86,7 +87,10 @@ export default async function Portfolio() {
 
           {/* ── Header ───────────────────────────────────────────────────── */}
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <h1 className="text-3xl font-bold">Portfolio</h1>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--text-primary)" }}>Portfolio</h1>
+              <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>Club holdings, cash, and trade history.</p>
+            </div>
             {profile?.role === "admin" && (
               <PortfolioAdminControls
                 cashOnHand={financials?.cash_on_hand ?? 0}
@@ -99,43 +103,59 @@ export default async function Portfolio() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               {
-                label: "Total Value",
-                value: usd(totalValue),
-                color: "var(--text-primary)",
-                accent: "var(--accent-primary)",
+                label:  "Total Value",
+                value:  usd(totalValue),
+                sub:    "Club portfolio total",
+                stripe: "#5E6AD2",
+                color:  "var(--text-primary)",
+                Icon:   Wallet,
               },
               {
-                label: "Cash on Hand",
-                value: usd(financials?.cash_on_hand ?? 0),
-                color: "var(--accent-green)",
-                accent: "var(--accent-green)",
+                label:  "Cash on Hand",
+                value:  usd(financials?.cash_on_hand ?? 0),
+                sub:    "Available to deploy",
+                stripe: "#30d158",
+                color:  "#30d158",
+                Icon:   DollarSign,
               },
               {
-                label: "Invested",
-                value: usd(totalCost),
-                color: "var(--text-secondary)",
-                accent: "var(--text-tertiary)",
+                label:  "Invested",
+                value:  usd(totalCost),
+                sub:    "Total capital deployed",
+                stripe: "#5E6AD2",
+                color:  "var(--text-primary)",
+                Icon:   TrendingUp,
               },
               {
-                label: "Equity Gain / Loss",
-                value: `${usd(totalGainLoss)}  (${pct(totalGainPct)})`,
-                color: totalGainLoss >= 0 ? "var(--accent-green)" : "var(--accent-red)",
-                accent: totalGainLoss >= 0 ? "var(--accent-green)" : "var(--accent-red)",
+                label:  "Equity Gain / Loss",
+                value:  usd(totalGainLoss),
+                sub:    pct(totalGainPct) + " total return",
+                stripe: totalGainLoss >= 0 ? "#30d158" : "#ff453a",
+                color:  totalGainLoss >= 0 ? "#30d158" : "#ff453a",
+                Icon:   BarChart2,
               },
             ].map((card) => (
               <div
                 key={card.label}
-                className="stat-card"
-                style={{ borderTop: `2px solid ${card.accent}22` }}
+                className="relative overflow-hidden rounded-2xl p-5"
+                style={{
+                  background: "var(--bg-glass)",
+                  border: "1px solid var(--border)",
+                  backdropFilter: "blur(12px)",
+                }}
               >
-                <p
-                  className="text-xs font-semibold uppercase tracking-wider mb-2.5"
-                  style={{ color: "var(--text-tertiary)" }}
-                >
+                {/* Top accent stripe */}
+                <div className="absolute top-0 left-0 w-full h-0.5" style={{ background: `${card.stripe}66` }} />
+                {/* Ghost icon */}
+                <card.Icon size={40} className="absolute right-3 bottom-3" style={{ color: "rgba(255,255,255,0.05)", strokeWidth: 1.5 }} />
+                <p className="text-[10px] uppercase tracking-widest mb-2 geist-mono" style={{ color: "var(--text-secondary)" }}>
                   {card.label}
                 </p>
-                <p className="text-lg font-bold leading-snug num" style={{ color: card.color }}>
+                <p className="text-2xl font-bold mb-1 geist-mono" style={{ color: card.color }}>
                   {card.value}
+                </p>
+                <p className="text-[10px] geist-mono" style={{ color: "var(--text-secondary)" }}>
+                  {card.sub}
                 </p>
               </div>
             ))}
@@ -144,17 +164,17 @@ export default async function Portfolio() {
           {/* ── Holdings table ────────────────────────────────────────────── */}
           <div
             className="rounded-2xl border border-[var(--border)] overflow-hidden"
-            style={{ background: "var(--bg-secondary)", boxShadow: "var(--shadow-card)" }}
+            style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)" }}
           >
             <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
-              <h2 className="font-semibold">Holdings</h2>
-              <span className="text-xs num" style={{ color: "var(--text-tertiary)" }}>
+              <h2 className="font-semibold" style={{ color: "var(--text-primary)" }}>Holdings</h2>
+              <span className="text-xs num" style={{ color: "var(--text-secondary)" }}>
                 {holdingsWithPrice.length} position{holdingsWithPrice.length !== 1 ? "s" : ""}
               </span>
             </div>
 
             {holdingsWithPrice.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-center" style={{ color: "var(--text-tertiary)" }}>
+              <p className="px-6 py-8 text-sm text-center" style={{ color: "var(--text-secondary)" }}>
                 No holdings on record.
               </p>
             ) : (
@@ -166,7 +186,7 @@ export default async function Portfolio() {
                         <th
                           key={h}
                           className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
-                          style={{ color: "var(--text-tertiary)" }}
+                          style={{ color: "var(--text-secondary)" }}
                         >
                           {h}
                         </th>
@@ -220,14 +240,14 @@ export default async function Portfolio() {
           {/* ── Trade history ─────────────────────────────────────────────── */}
           <div
             className="rounded-2xl border border-[var(--border)] overflow-hidden"
-            style={{ background: "var(--bg-secondary)" }}
+            style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)" }}
           >
             <div className="px-6 py-4 border-b border-[var(--border)]">
-              <h2 className="font-semibold">Recent Trades</h2>
+              <h2 className="font-semibold" style={{ color: "var(--text-primary)" }}>Recent Trades</h2>
             </div>
 
             {trades.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-center" style={{ color: "var(--text-tertiary)" }}>
+              <p className="px-6 py-8 text-sm text-center" style={{ color: "var(--text-secondary)" }}>
                 No trades recorded yet.
               </p>
             ) : (
@@ -239,7 +259,7 @@ export default async function Portfolio() {
                         <th
                           key={h}
                           className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
-                          style={{ color: "var(--text-tertiary)" }}
+                          style={{ color: "var(--text-secondary)" }}
                         >
                           {h}
                         </th>
