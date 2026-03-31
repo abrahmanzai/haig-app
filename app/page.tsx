@@ -5,41 +5,17 @@ import SplashGate from "./_components/SplashGate";
 import ThemeToggle from "./_components/ThemeToggle";
 import ThemeLogo from "./_components/ThemeLogo";
 import HeroWords from "./_components/HeroWords";
-import FeatureCard from "./_components/lp/FeatureCard";
+import FeaturesSection from "./_components/lp/FeatureCard";
 import EventCard from "./_components/lp/EventCard";
 import EmailCta from "./_components/lp/EmailCta";
 import { createClient } from "@/lib/supabase/server";
 import {
-  Calendar, BookOpen, TrendingUp, BarChart2,
+  Calendar, TrendingUp, BarChart2,
   UserPlus, GraduationCap, Mic, ThumbsUp,
   ArrowRight, Users, DollarSign, ChevronRight,
 } from "lucide-react";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
-
-const features = [
-  {
-    icon: BookOpen,
-    title: "Learn Together",
-    body: "Structured financial literacy curriculum — workshops, speaker sessions with finance professionals, and biweekly market discussions.",
-    color: "#5E6AD2",
-    glow: "rgba(94,106,210,0.25)",
-  },
-  {
-    icon: TrendingUp,
-    title: "Invest Together",
-    body: "Research real companies, present investment pitches, vote with weighted capital units, and execute real trades in the club brokerage.",
-    color: "#30d158",
-    glow: "rgba(48,209,88,0.25)",
-  },
-  {
-    icon: BarChart2,
-    title: "Build Together",
-    body: "Track portfolio performance against the S&P 500, manage your capital account, and build a verifiable investing track record.",
-    color: "#bf5af2",
-    glow: "rgba(191,90,242,0.25)",
-  },
-];
 
 const steps = [
   {
@@ -334,11 +310,7 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-5">
-              {features.map((f) => (
-                <FeatureCard key={f.title} {...f} />
-              ))}
-            </div>
+            <FeaturesSection />
           </div>
         </section>
 
