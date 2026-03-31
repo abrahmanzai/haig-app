@@ -153,6 +153,45 @@ main {
   letter-spacing: -0.01em;
 }
 
+/* ─── Landing page animations ────────────────────────────────────────────── */
+
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(60px, -40px) scale(1.08); }
+  66%       { transform: translate(-40px, 30px) scale(0.94); }
+}
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(-50px, 30px) scale(1.06); }
+  66%       { transform: translate(35px, -40px) scale(0.96); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+@keyframes fade-up-in {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer-x {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(200%); }
+}
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.lp-fade-up {
+  animation: fade-up-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+.lp-fade-up-1 { animation-delay: 0.1s; }
+.lp-fade-up-2 { animation-delay: 0.25s; }
+.lp-fade-up-3 { animation-delay: 0.4s; }
+.lp-fade-up-4 { animation-delay: 0.55s; }
+.lp-fade-up-5 { animation-delay: 0.7s; }
+
 /* ─── Messages container — respects dynamic viewport on mobile ────────────── */
 
 /* Mobile: subtract top bar. Desktop: subtract the fixed top header (64px). */

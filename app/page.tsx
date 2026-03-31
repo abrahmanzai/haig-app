@@ -4,11 +4,13 @@ import Link from "next/link";
 import SplashGate from "./_components/SplashGate";
 import ThemeToggle from "./_components/ThemeToggle";
 import ThemeLogo from "./_components/ThemeLogo";
+import HeroWords from "./_components/HeroWords";
 import { createClient } from "@/lib/supabase/server";
-import { Calendar } from "lucide-react";
 import {
-  BookOpen, TrendingUp, BarChart2,
+  Calendar, BookOpen, TrendingUp, BarChart2,
   UserPlus, GraduationCap, Mic, ThumbsUp,
+  ArrowRight, Users, DollarSign, ChevronRight,
+  Mail, ExternalLink,
 } from "lucide-react";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -18,19 +20,22 @@ const features = [
     icon: BookOpen,
     title: "Learn Together",
     body: "Structured financial literacy curriculum — workshops, speaker sessions with finance professionals, and biweekly market discussions.",
-    color: "var(--accent-primary)",
+    color: "#5E6AD2",
+    glow: "rgba(94,106,210,0.25)",
   },
   {
     icon: TrendingUp,
     title: "Invest Together",
     body: "Research real companies, present investment pitches, vote with weighted capital units, and execute real trades in the club brokerage.",
     color: "#30d158",
+    glow: "rgba(48,209,88,0.25)",
   },
   {
     icon: BarChart2,
     title: "Build Together",
     body: "Track portfolio performance against the S&P 500, manage your capital account, and build a verifiable investing track record.",
     color: "#bf5af2",
+    glow: "rgba(191,90,242,0.25)",
   },
 ];
 
@@ -61,6 +66,12 @@ const steps = [
   },
 ];
 
+const stats = [
+  { label: "AUM",          value: "$24K+",  icon: DollarSign },
+  { label: "Members",      value: "12",     icon: Users },
+  { label: "Pitches Voted", value: "8",     icon: TrendingUp },
+  { label: "Founded",      value: "2025",   icon: BarChart2 },
+];
 
 const EVENT_COLORS: Record<string, string> = {
   founding: "#ffd60a",
@@ -74,9 +85,7 @@ const EVENT_COLORS: Record<string, string> = {
 
 function formatEventDate(dateStr: string) {
   return new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
+    weekday: "long", month: "long", day: "numeric",
   });
 }
 
@@ -95,30 +104,33 @@ export default async function Home() {
   const upcomingEvents = events ?? [];
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div style={{ minHeight: "100vh", background: "#050506" }}>
       <SplashGate />
 
       {/* ═══ NAV ══════════════════════════════════════════════════════════════ */}
       <nav
-        className="fixed top-0 inset-x-0 z-50 border-b border-[var(--border)]"
-        style={{ background: "var(--bg-nav)", backdropFilter: "blur(20px)" }}
+        className="fixed top-0 inset-x-0 z-50 border-b"
+        style={{
+          background: "rgba(5,5,6,0.85)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderColor: "rgba(255,255,255,0.08)",
+        }}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <a href="#hero" className="flex-shrink-0" aria-label="HAIG home">
-            <ThemeLogo width={36} height={36} />
+          <a href="#hero" className="flex items-center gap-2.5 flex-shrink-0" aria-label="HAIG home">
+            <ThemeLogo width={32} height={32} />
+            <span className="hidden sm:block text-sm font-bold tracking-widest uppercase" style={{ color: "var(--text-secondary)", letterSpacing: "0.12em" }}>
+              HAIG
+            </span>
           </a>
 
-          <div className="hidden sm:flex gap-6 text-sm" style={{ color: "var(--text-secondary)" }}>
-            {[
-              ["Mission",        "#mission"],
-              ["Events",         "#events"],
-              ["How It Works",   "#how"],
-              ["Contact",        "#contact"],
-            ].map(([label, href]) => (
+          <div className="hidden sm:flex gap-6 text-sm">
+            {[["Mission","#mission"],["Events","#events"],["How It Works","#how"],["Contact","#contact"]].map(([label, href]) => (
               <a
                 key={label}
                 href={href}
-                className="transition-colors"
+                className="transition-colors hover:text-white"
                 style={{ color: "var(--text-secondary)" }}
               >
                 {label}
@@ -130,13 +142,14 @@ export default async function Home() {
             <ThemeToggle />
             <Link
               href="/login"
-              className="text-sm px-3 py-1.5 rounded-lg border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
+              className="text-sm px-3 py-1.5 rounded-lg border transition-colors hover:bg-white/5"
+              style={{ borderColor: "rgba(255,255,255,0.12)", color: "var(--text-secondary)" }}
             >
               Member Login
             </Link>
             <a
               href="#contact"
-              className="text-sm px-3 py-1.5 rounded-lg font-semibold hover:brightness-110 transition-all text-white"
+              className="text-sm px-4 py-1.5 rounded-lg font-semibold text-white transition-all hover:brightness-110 hover:scale-[1.02]"
               style={{ background: "var(--accent-primary)" }}
             >
               Contact Us
@@ -150,39 +163,107 @@ export default async function Home() {
         {/* ═══ HERO ═════════════════════════════════════════════════════════ */}
         <section
           id="hero"
-          className="relative flex flex-col items-center justify-center text-center px-6 pt-14"
-          style={{ minHeight: "100vh" }}
+          className="relative flex flex-col items-center justify-center text-center overflow-hidden pt-14"
+          style={{ minHeight: "100vh", background: "#050506" }}
         >
-          {/* Glow bg */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-            <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
-              style={{ background: "radial-gradient(circle, rgba(94,106,210,0.12) 0%, transparent 65%)" }}
-            />
-          </div>
+          {/* Animated dot grid */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: "linear-gradient(to right, rgba(94,106,210,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(94,106,210,0.08) 1px, transparent 1px)",
+              backgroundSize: "64px 64px",
+              maskImage: "radial-gradient(ellipse 70% 65% at 50% 0%, #000 60%, transparent 100%)",
+              WebkitMaskImage: "radial-gradient(ellipse 70% 65% at 50% 0%, #000 60%, transparent 100%)",
+            }}
+          />
 
-          <div className="relative z-10 max-w-3xl lp-hero-content">
+          {/* Aurora blob 1 — top right */}
+          <div
+            className="absolute pointer-events-none rounded-full"
+            style={{
+              top: "-10%",
+              right: "-5%",
+              width: "600px",
+              height: "600px",
+              background: "radial-gradient(circle, rgba(94,106,210,0.18) 0%, transparent 70%)",
+              filter: "blur(60px)",
+              animation: "aurora-drift-1 20s ease-in-out infinite",
+            }}
+          />
+
+          {/* Aurora blob 2 — bottom left */}
+          <div
+            className="absolute pointer-events-none rounded-full"
+            style={{
+              bottom: "5%",
+              left: "-10%",
+              width: "500px",
+              height: "500px",
+              background: "radial-gradient(circle, rgba(191,90,242,0.12) 0%, transparent 70%)",
+              filter: "blur(60px)",
+              animation: "aurora-drift-2 26s ease-in-out infinite",
+            }}
+          />
+
+          {/* Center glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 55% 55% at 50% 45%, rgba(94,106,210,0.10) 0%, transparent 100%)",
+            }}
+          />
+
+          {/* Content */}
+          <div className="relative z-10 max-w-4xl px-6 flex flex-col items-center">
+
+            {/* Eyebrow badge */}
+            <div className="lp-fade-up lp-fade-up-1 mb-8 flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-semibold uppercase tracking-widest"
+              style={{
+                background: "rgba(94,106,210,0.08)",
+                borderColor: "rgba(94,106,210,0.25)",
+                color: "#5E6AD2",
+              }}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: "#30d158",
+                  animation: "pulse-dot 1.8s ease-in-out infinite",
+                  display: "inline-block",
+                }}
+              />
+              Student Investment Club · Est. 2025
+            </div>
+
+            {/* H1 */}
             <h1
-              className="font-extrabold tracking-tight leading-none mb-5"
-              style={{ fontSize: "clamp(2.6rem, 8vw, 5rem)" }}
+              className="lp-fade-up lp-fade-up-2 font-extrabold tracking-tight leading-[1.02] mb-4"
+              style={{
+                fontSize: "clamp(2.8rem, 8vw, 5.5rem)",
+                color: "#EDEDEF",
+                letterSpacing: "-0.03em",
+              }}
             >
               High Agency<br />Investment Group
             </h1>
 
-            <p
-              className="font-bold mb-6"
+            {/* Cycling gradient tagline */}
+            <div
+              className="lp-fade-up lp-fade-up-3 font-bold mb-6"
               style={{
-                fontSize: "clamp(1.5rem, 5vw, 2.5rem)",
-                background: "linear-gradient(135deg, var(--accent-primary) 0%, #64d2ff 50%, #30d158 100%)",
+                fontSize: "clamp(1.4rem, 4vw, 2.2rem)",
+                background: "linear-gradient(135deg, #5E6AD2 0%, #64d2ff 50%, #30d158 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
+                minHeight: "1.4em",
               }}
             >
-              Learn. Invest. Build.
-            </p>
+              <HeroWords />
+            </div>
 
+            {/* Description */}
             <p
-              className="text-lg mb-10 max-w-xl mx-auto"
+              className="lp-fade-up lp-fade-up-3 text-lg max-w-xl mx-auto mb-10"
               style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
             >
               A student general partnership where members pool capital, research
@@ -190,54 +271,80 @@ export default async function Home() {
               into hands-on practice.
             </p>
 
-            <div className="flex gap-3 justify-center flex-wrap">
+            {/* CTAs */}
+            <div className="lp-fade-up lp-fade-up-4 flex gap-3 justify-center flex-wrap mb-16">
               <a
                 href="#contact"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 hover:brightness-110 hover:scale-[1.02] transition-all text-white"
+                className="group relative flex items-center gap-2 rounded-xl font-semibold text-base px-8 py-3.5 text-white overflow-hidden transition-all hover:scale-[1.02]"
                 style={{ background: "var(--accent-primary)" }}
               >
-                Get in Touch →
+                {/* shimmer */}
+                <span
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%)",
+                    animation: "shimmer-x 2.5s ease infinite",
+                  }}
+                />
+                Get in Touch
+                <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
               </a>
               <Link
                 href="/login"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)" }}
+                className="flex items-center gap-2 rounded-xl font-semibold text-base px-8 py-3.5 border transition-all hover:bg-white/5 hover:scale-[1.02]"
+                style={{
+                  borderColor: "rgba(255,255,255,0.14)",
+                  color: "var(--text-primary)",
+                  background: "rgba(255,255,255,0.03)",
+                  backdropFilter: "blur(12px)",
+                }}
               >
                 Member Login
+                <ChevronRight size={16} style={{ color: "var(--text-secondary)" }} />
               </Link>
+            </div>
+
+            {/* Stats bar */}
+            <div
+              className="lp-fade-up lp-fade-up-5 w-full max-w-2xl grid grid-cols-2 sm:grid-cols-4 divide-x rounded-2xl overflow-hidden border"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                borderColor: "rgba(255,255,255,0.08)",
+                backdropFilter: "blur(12px)",
+              }}
+            >
+              {stats.map((s) => (
+                <div key={s.label} className="flex flex-col items-center py-5 px-3 gap-1" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                  <span className="text-2xl font-bold geist-mono" style={{ color: "var(--accent-primary)" }}>{s.value}</span>
+                  <span className="text-[10px] uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>{s.label}</span>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Scroll hint */}
           <a
             href="#mission"
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-xs transition-colors"
-            style={{ color: "var(--text-tertiary)" }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 transition-opacity hover:opacity-60"
+            style={{ color: "rgba(255,255,255,0.25)", fontSize: "11px" }}
           >
-            <span>Scroll</span>
-            <span>↓</span>
+            <span>scroll</span>
+            <span style={{ animation: "fade-up-in 1.5s ease-in-out infinite alternate" }}>↓</span>
           </a>
         </section>
 
         {/* ═══ MISSION ══════════════════════════════════════════════════════ */}
-        <section id="mission" className="py-24 px-6">
+        <section id="mission" className="py-28 px-6" style={{ background: "#050506" }}>
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
-              <p
-                className="text-sm font-semibold uppercase tracking-widest mb-3"
-                style={{ color: "var(--accent-primary)" }}
-              >
+            <div className="text-center mb-16">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: "var(--accent-primary)" }}>
                 Our Mission
               </p>
-              <h2 className="text-4xl font-bold mb-4">
+              <h2 className="text-4xl sm:text-5xl font-bold mb-5 tracking-tight" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
                 Built for High-Agency Investors
               </h2>
-              <p
-                className="text-lg max-w-2xl mx-auto"
-                style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
-              >
-                HAIG gives students real-world investing experience. We pool
-                capital, debate ideas, and execute as a team.
+              <p className="text-lg max-w-2xl mx-auto" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
+                HAIG gives students real-world investing experience. We pool capital, debate ideas, and execute as a team.
               </p>
             </div>
 
@@ -245,26 +352,34 @@ export default async function Home() {
               {features.map((f) => (
                 <article
                   key={f.title}
-                  className="rounded-2xl p-6 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors"
+                  className="group relative rounded-2xl p-7 border transition-all duration-300 hover:-translate-y-1 overflow-hidden"
                   style={{
-                    background: "var(--bg-glass)",
+                    background: "rgba(255,255,255,0.03)",
+                    borderColor: "rgba(255,255,255,0.08)",
                     backdropFilter: "blur(20px)",
-                    boxShadow: "var(--shadow-card)",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = f.color + "55";
+                    (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 40px ${f.glow}`;
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "none";
                   }}
                 >
+                  {/* Top stripe on hover */}
                   <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
-                    style={{ background: f.color + "20" }}
+                    className="absolute top-0 left-0 w-full h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ background: f.color }}
+                  />
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110"
+                    style={{ background: f.color + "18" }}
                   >
                     <f.icon size={22} style={{ color: f.color }} />
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    {f.body}
-                  </p>
+                  <h3 className="font-semibold text-lg mb-3" style={{ color: "var(--text-primary)" }}>{f.title}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{f.body}</p>
                 </article>
               ))}
             </div>
@@ -274,58 +389,70 @@ export default async function Home() {
         {/* ═══ UPCOMING EVENTS ══════════════════════════════════════════════ */}
         <section
           id="events"
-          className="py-24 px-6 border-y border-[var(--border)]"
-          style={{ background: "rgba(94,106,210,0.03)" }}
+          className="py-28 px-6 border-y"
+          style={{ background: "#0a0a0e", borderColor: "rgba(255,255,255,0.06)" }}
         >
           <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-14">
-              <p
-                className="text-sm font-semibold uppercase tracking-widest mb-3"
-                style={{ color: "var(--accent-primary)" }}
-              >
+            <div className="text-center mb-16">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: "var(--accent-primary)" }}>
                 What&apos;s Coming
               </p>
-              <h2 className="text-4xl font-bold mb-4">Upcoming Events</h2>
-              <p
-                className="text-lg max-w-2xl mx-auto"
-                style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
-              >
+              <h2 className="text-4xl sm:text-5xl font-bold mb-4 tracking-tight" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+                Upcoming Events
+              </h2>
+              <p className="text-lg" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
                 Open to current members. Meetings are held bi-weekly.
               </p>
             </div>
 
             {upcomingEvents.length === 0 ? (
               <div
-                className="rounded-2xl border border-[var(--border)] p-10 text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
+                className="rounded-2xl border p-12 text-center"
+                style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.08)" }}
               >
-                <Calendar size={32} className="mx-auto mb-4" style={{ color: "var(--text-tertiary)" }} />
-                <p className="font-semibold mb-1">No upcoming events scheduled</p>
-                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                  Check back soon — we meet bi-weekly.
-                </p>
+                <Calendar size={32} className="mx-auto mb-4" style={{ color: "var(--text-secondary)" }} />
+                <p className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>No upcoming events scheduled</p>
+                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Check back soon — we meet bi-weekly.</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
                 {upcomingEvents.map((ev) => {
                   const color = EVENT_COLORS[ev.event_type] ?? "#888";
+                  const d = new Date(ev.event_date + "T12:00:00");
+                  const month = d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+                  const day   = d.getDate();
                   return (
                     <div
                       key={ev.id}
-                      className="rounded-2xl border border-[var(--border)] p-5 flex items-start gap-4 hover:border-[var(--border-hover)] transition-colors"
-                      style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
+                      className="group rounded-2xl border p-5 flex items-start gap-5 transition-all hover:-translate-y-0.5"
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        borderColor: "rgba(255,255,255,0.08)",
+                        backdropFilter: "blur(12px)",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLElement).style.borderColor = color + "44";
+                        (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 24px ${color}18`;
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
+                        (e.currentTarget as HTMLElement).style.boxShadow = "none";
+                      }}
                     >
+                      {/* Date box */}
                       <div
-                        className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: color + "20" }}
+                        className="flex flex-col items-center justify-center w-14 h-14 rounded-xl flex-shrink-0 border"
+                        style={{ background: color + "12", borderColor: color + "30" }}
                       >
-                        <Calendar size={20} style={{ color }} />
+                        <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color }}>{month}</span>
+                        <span className="text-xl font-black leading-none geist-mono" style={{ color: "var(--text-primary)" }}>{day}</span>
                       </div>
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <p className="font-semibold leading-snug">{ev.title}</p>
+                          <p className="font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>{ev.title}</p>
                           <span
-                            className="text-xs font-semibold rounded-lg px-2 py-0.5 capitalize flex-shrink-0"
+                            className="text-[10px] font-semibold rounded-full px-2 py-0.5 capitalize"
                             style={{ background: color + "20", color }}
                           >
                             {ev.event_type}
@@ -333,23 +460,21 @@ export default async function Home() {
                         </div>
                         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                           {formatEventDate(ev.event_date)}
-                          {ev.location && ev.location !== "TBD" && (
-                            <> &middot; {ev.location}</>
-                          )}
+                          {ev.location && ev.location !== "TBD" && <> &middot; {ev.location}</>}
                         </p>
                         {ev.description && (
-                          <p className="text-sm mt-1.5" style={{ color: "var(--text-tertiary)" }}>
-                            {ev.description}
-                          </p>
+                          <p className="text-sm mt-1" style={{ color: "rgba(138,143,152,0.7)" }}>{ev.description}</p>
                         )}
                       </div>
+
+                      <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" style={{ color: "var(--text-secondary)" }} />
                     </div>
                   );
                 })}
               </div>
             )}
 
-            <p className="text-center mt-8 text-sm" style={{ color: "var(--text-tertiary)" }}>
+            <p className="text-center mt-8 text-sm" style={{ color: "var(--text-secondary)" }}>
               Already a member?{" "}
               <Link href="/login" className="hover:underline" style={{ color: "var(--accent-primary)" }}>
                 Log in to RSVP →
@@ -359,49 +484,57 @@ export default async function Home() {
         </section>
 
         {/* ═══ HOW IT WORKS ═════════════════════════════════════════════════ */}
-        <section
-          id="how"
-          className="py-24 px-6"
-          style={{ background: "var(--bg-secondary)" }}
-        >
+        <section id="how" className="py-28 px-6" style={{ background: "#050506" }}>
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
-              <p
-                className="text-sm font-semibold uppercase tracking-widest mb-3"
-                style={{ color: "var(--accent-primary)" }}
-              >
+            <div className="text-center mb-16">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: "var(--accent-primary)" }}>
                 The Process
               </p>
-              <h2 className="text-4xl font-bold">How It Works</h2>
+              <h2 className="text-4xl sm:text-5xl font-bold tracking-tight" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+                How It Works
+              </h2>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {steps.map((step) => (
+            {/* Steps grid with connector line on desktop */}
+            <div className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {/* Connector line — desktop only */}
+              <div
+                className="hidden lg:block absolute top-[2.1rem] left-[12.5%] right-[12.5%] h-px"
+                style={{ background: "linear-gradient(to right, transparent, rgba(94,106,210,0.4) 20%, rgba(94,106,210,0.4) 80%, transparent)" }}
+              />
+
+              {steps.map((step, i) => (
                 <article
                   key={step.n}
-                  className="relative rounded-2xl p-6 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors overflow-hidden"
-                  style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
+                  className="relative flex flex-col rounded-2xl p-6 border transition-all hover:-translate-y-1 hover:border-[rgba(94,106,210,0.3)]"
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    borderColor: "rgba(255,255,255,0.08)",
+                    backdropFilter: "blur(12px)",
+                    animationDelay: `${i * 0.1}s`,
+                  }}
                 >
+                  {/* Step circle (sits on the connector line) */}
+                  <div
+                    className="w-10 h-10 rounded-full border-2 flex items-center justify-center mb-5 flex-shrink-0 relative z-10"
+                    style={{
+                      background: "#050506",
+                      borderColor: "rgba(94,106,210,0.5)",
+                    }}
+                  >
+                    <step.icon size={17} style={{ color: "#5E6AD2" }} />
+                  </div>
+
                   {/* Ghost step number */}
                   <div
-                    className="text-7xl font-black select-none leading-none mb-3"
-                    style={{ color: "var(--ghost-text)" }}
+                    className="text-6xl font-black leading-none mb-3 select-none geist-mono"
+                    style={{ color: "rgba(255,255,255,0.04)" }}
                   >
                     {step.n}
                   </div>
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                    style={{ background: "var(--bg-tertiary)" }}
-                  >
-                    <step.icon size={20} style={{ color: "var(--accent-primary)" }} />
-                  </div>
-                  <h3 className="font-semibold mb-2">{step.title}</h3>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    {step.body}
-                  </p>
+
+                  <h3 className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>{step.title}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{step.body}</p>
                 </article>
               ))}
             </div>
@@ -409,122 +542,118 @@ export default async function Home() {
         </section>
 
         {/* ═══ FOUNDING PARTNERS ════════════════════════════════════════════ */}
-        <section className="py-24 px-6">
+        <section className="py-28 px-6" style={{ background: "#0a0a0e" }}>
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
-              <p
-                className="text-sm font-semibold uppercase tracking-widest mb-3"
-                style={{ color: "var(--accent-primary)" }}
-              >
+            <div className="text-center mb-16">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: "var(--accent-primary)" }}>
                 Leadership
               </p>
-              <h2 className="text-4xl font-bold">Founding Partners</h2>
+              <h2 className="text-4xl sm:text-5xl font-bold tracking-tight" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+                Founding Partners
+              </h2>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {/* Slot 1 — named founder */}
-              <article
-                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
-                  style={{ background: "rgba(94,106,210,0.15)", color: "var(--accent-primary)" }}
+              {[
+                { initials: "WH", name: "William Headlee",         role: "President",      color: "#5E6AD2", active: true  },
+                { initials: "AH", name: "Abdul Hameed Rahmanzai",  role: "Vice President", color: "#5E6AD2", active: true  },
+                { initials: "+",  name: "Open Position",            role: "Treasurer",      color: "#6B7280", active: false },
+                { initials: "D",  name: "Dawson Gibbons",           role: "Secretary",      color: "#30d158", active: true  },
+              ].map((f) => (
+                <article
+                  key={f.name}
+                  className="relative rounded-2xl p-6 border flex flex-col items-center text-center transition-all hover:-translate-y-1"
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    borderColor: "rgba(255,255,255,0.08)",
+                    backdropFilter: "blur(12px)",
+                    opacity: f.active ? 1 : 0.55,
+                  }}
                 >
-                  WH
-                </div>
-                <p className="font-semibold text-base mb-1">William Headlee</p>
-                <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
-                  President
-                </p>
-              </article>
-
-              {/* Slot 2 — named founder */}
-              <article
-                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
-                  style={{ background: "rgba(94,106,210,0.15)", color: "var(--accent-primary)" }}
-                >
-                  AH
-                </div>
-                <p className="font-semibold text-base mb-1">Abdul Hameed Rahmanzai</p>
-                <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
-                  Vice President
-                </p>
-              </article>
-
-              {/* Slot 3 — Treasurer open */}
-              <article
-                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.65 }}
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-                  style={{ background: "var(--bg-tertiary)" }}
-                >
-                  <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>+</span>
-                </div>
-                <p className="font-semibold text-base mb-1" style={{ color: "var(--text-secondary)" }}>
-                  Open Position
-                </p>
-                <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Treasurer</p>
-              </article>
-
-              {/* Slot 4 — Secretary */}
-              <article
-                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
-                  style={{ background: "rgba(48,209,88,0.15)", color: "var(--accent-green)" }}
-                >
-                  D
-                </div>
-                <p className="font-semibold text-base mb-1">Dawson Gibbons</p>
-                <p className="text-sm" style={{ color: "var(--accent-green)" }}>Secretary</p>
-              </article>
+                  {/* Avatar with outer ring */}
+                  <div
+                    className="relative w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-lg font-black"
+                    style={{
+                      background: f.color + "18",
+                      color: f.color,
+                      boxShadow: f.active ? `0 0 0 1px ${f.color}30` : "none",
+                    }}
+                  >
+                    {f.initials}
+                  </div>
+                  <p className="font-semibold text-base mb-1" style={{ color: "var(--text-primary)" }}>{f.name}</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: f.color }}>{f.role}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* ═══ CONTACT ══════════════════════════════════════════════════════ */}
-        <section
-          id="contact"
-          className="py-24 px-6 border-t border-[var(--border)]"
-          style={{ background: "var(--bg-secondary)" }}
-        >
-          <div className="max-w-xl mx-auto text-center">
-            <p
-              className="text-sm font-semibold uppercase tracking-widest mb-3"
-              style={{ color: "var(--accent-primary)" }}
+        {/* ═══ CONTACT CTA ══════════════════════════════════════════════════ */}
+        <section id="contact" className="py-28 px-6 relative overflow-hidden" style={{ background: "#050506" }}>
+          {/* Background glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 70% 70% at 50% 50%, rgba(94,106,210,0.12) 0%, transparent 70%)",
+            }}
+          />
+          {/* Grid overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: "linear-gradient(to right, rgba(94,106,210,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(94,106,210,0.06) 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+            }}
+          />
+
+          <div className="relative z-10 max-w-2xl mx-auto text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-8 text-xs font-semibold uppercase tracking-widest"
+              style={{ background: "rgba(94,106,210,0.08)", borderColor: "rgba(94,106,210,0.25)", color: "#5E6AD2" }}
             >
               Connect
-            </p>
-            <h2 className="text-4xl font-bold mb-4">Get in Touch</h2>
-            <p
-              className="text-lg mb-10"
-              style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
-            >
-              Want to learn more about our work or connect with the team? Reach
-              out through any of these channels.
+            </div>
+
+            <h2 className="text-4xl sm:text-5xl font-bold mb-5 tracking-tight" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
+              Interested in Joining?
+            </h2>
+            <p className="text-lg mb-10 max-w-lg mx-auto" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
+              Membership is by invitation. If you&apos;re serious about learning to invest and want real hands-on experience, reach out — we&apos;d love to connect.
             </p>
 
+            {/* Email CTA */}
             <a
               href="mailto:highagencyinvesting@gmail.com"
-              className="inline-block text-lg sm:text-xl font-medium tracking-wide mb-12 transition-colors hover:opacity-80"
-              style={{ color: "var(--accent-primary)" }}
+              className="group inline-flex items-center gap-3 text-lg font-semibold mb-10 px-8 py-4 rounded-2xl border transition-all hover:scale-[1.02] hover:shadow-2xl"
+              style={{
+                background: "rgba(94,106,210,0.1)",
+                borderColor: "rgba(94,106,210,0.3)",
+                color: "#5E6AD2",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background = "rgba(94,106,210,0.18)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(94,106,210,0.5)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 40px rgba(94,106,210,0.25)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background = "rgba(94,106,210,0.1)";
+                (e.currentTarget as HTMLElement).style.borderColor = "rgba(94,106,210,0.3)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "none";
+              }}
             >
+              <Mail size={20} />
               highagencyinvesting@gmail.com
+              <ExternalLink size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
             </a>
 
-            <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
-              2026 High Agency Investment Group
+            {/* Divider */}
+            <div className="w-px h-12 mx-auto mb-10" style={{ background: "rgba(255,255,255,0.1)" }} />
+
+            <p className="text-sm" style={{ color: "rgba(138,143,152,0.6)" }}>
+              © 2026 High Agency Investment Group
               <br />
-              <span style={{ color: "var(--text-tertiary)" }}>A student-run general partnership</span>
+              <span>A student-run general partnership</span>
             </p>
           </div>
         </section>
