@@ -112,7 +112,7 @@ export default async function Pitches({
                     active
                       ? {
                           background: cfg ? cfg.color + "18" : "var(--bg-tertiary)",
-                          color: cfg ? cfg.color : "#EDEDEF",
+                          color: cfg ? cfg.color : "var(--text-primary)",
                         }
                       : { background: "transparent", color: "var(--text-secondary)" }
                   }
