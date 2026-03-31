@@ -80,19 +80,14 @@ export default function AppNav({ name, role, currentPath }: Props) {
             transition: "padding 0.2s ease",
           }}
         >
-          <div
-            className="w-8 h-8 rounded flex-shrink-0 flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, var(--accent-primary), #3a4182)" }}
-          >
-            <ThemeLogo width={18} height={18} />
-          </div>
+          <ThemeLogo width={32} height={32} className="flex-shrink-0" />
           {!collapsed && (
             <div className="ml-3 overflow-hidden whitespace-nowrap">
               <p className="text-sm font-black leading-tight" style={{ color: "var(--accent-primary)" }}>
-                HAIG Capital
+                HAIG
               </p>
               <p className="text-[10px] uppercase tracking-widest font-bold" style={{ color: "var(--text-secondary)" }}>
-                Investment Group
+                High Agency Inv. Group
               </p>
             </div>
           )}
@@ -231,12 +226,16 @@ export default function AppNav({ name, role, currentPath }: Props) {
           </button>
         </div>
 
-        {/* Mobile drawer */}
-        {mobileOpen && (
-          <div
-            className="border-t border-[var(--border)] px-4 py-3 space-y-1"
-            style={{ background: "var(--bg-secondary)" }}
-          >
+        {/* Mobile drawer — animated slide-down */}
+        <div
+          className="border-t border-[var(--border)] overflow-hidden"
+          style={{
+            background: "var(--bg-secondary)",
+            maxHeight: mobileOpen ? "600px" : "0px",
+            transition: "max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+        >
+          <div className="px-4 py-3 space-y-1">
             {visibleLinks.map((link) => {
               const active = currentPath.startsWith(link.href);
               const Icon = link.icon;
@@ -285,7 +284,7 @@ export default function AppNav({ name, role, currentPath }: Props) {
               </div>
             </div>
           </div>
-        )}
+        </div>
       </nav>
     </>
   );

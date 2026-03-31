@@ -310,3 +310,83 @@ html[data-theme="light"]       .hero-watermark .wm-light { display: block; }
   opacity: 0;
   transform: translateY(16px);
 }
+
+/* ─── Landing page hero CTA glow (pure CSS — no JS event handlers) ─────── */
+.cta-primary {
+  box-shadow: 0 0 32px rgba(94, 106, 210, 0.35);
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
+}
+.cta-primary:hover {
+  box-shadow: 0 0 52px rgba(94, 106, 210, 0.55);
+  filter: brightness(1.08);
+}
+
+/* ─── Scroll hint — auto-fades after 3 s, disappears after user scrolls ─── */
+.scroll-hint {
+  animation: scrollHintFade 0.6s ease-out 3s forwards;
+}
+@keyframes scrollHintFade {
+  to { opacity: 0; pointer-events: none; }
+}
+
+/* ─── Shimmer skeleton loading ───────────────────────────────────────────── */
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 25%,
+    var(--border-hover) 50%,
+    var(--bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+  border-radius: 8px;
+}
+
+/* ─── Scroll reveal entrance animations ─────────────────────────────────── */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.reveal-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered delays for sibling reveals */
+.reveal-up:nth-child(1) { transition-delay: 0ms; }
+.reveal-up:nth-child(2) { transition-delay: 80ms; }
+.reveal-up:nth-child(3) { transition-delay: 160ms; }
+.reveal-up:nth-child(4) { transition-delay: 240ms; }
+
+/* ─── Reduced motion: disable all custom animations ─────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; background: var(--bg-tertiary); }
+  .reveal-up, .reveal-up.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .spl-mark-svg, .spl-t1, .spl-t2, .spl-t3 { animation: none; }
+}
+
+/* ─── Mobile input font-size (prevents iOS auto-zoom) ───────────────────── */
+
+@media (max-width: 639px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}

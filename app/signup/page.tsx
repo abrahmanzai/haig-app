@@ -2,19 +2,42 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Eye, EyeOff, CheckCircle2, Circle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+
+function passwordStrength(pw: string): { score: number; label: string; color: string } {
+  let score = 0;
+  if (pw.length >= 8)                     score++;
+  if (pw.length >= 12)                    score++;
+  if (/[A-Z]/.test(pw))                   score++;
+  if (/[0-9]/.test(pw))                   score++;
+  if (/[^A-Za-z0-9]/.test(pw))           score++;
+  if (score <= 1) return { score, label: "Weak",   color: "var(--accent-red)" };
+  if (score <= 3) return { score, label: "Fair",   color: "var(--accent-orange)" };
+  if (score === 4) return { score, label: "Good",  color: "var(--accent-teal)" };
+  return             { score, label: "Strong", color: "var(--accent-green)" };
+}
 
 export default function Signup() {
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [showPass, setShowPass] = useState(false);
+  const [error,    setError]    = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading,  setLoading]  = useState(false);
+
+  const strength = password.length > 0 ? passwordStrength(password) : null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
     setLoading(true);
 
     const supabase = createClient();
@@ -23,8 +46,6 @@ export default function Signup() {
       password,
       options: {
         data: { full_name: fullName },
-        // Tell Supabase where to redirect after the confirmation link is clicked.
-        // The callback route exchanges the code for a session → /dashboard.
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
@@ -48,7 +69,7 @@ export default function Signup() {
         {submitted ? (
           /* ── Success state ── */
           <div className="text-center">
-            <div className="text-4xl mb-4">✉️</div>
+            <CheckCircle2 size={40} className="mx-auto mb-4" style={{ color: "var(--accent-green)" }} />
             <h2 className="text-lg font-bold mb-2">Check your email</h2>
             <p className="text-sm mb-6" style={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
               We sent a confirmation link to <strong>{email}</strong>.
@@ -75,44 +96,104 @@ export default function Signup() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="grid gap-3">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                autoComplete="name"
-                className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
-                style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
-                onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
-                style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
-                onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
-              />
-              <input
-                type="password"
-                placeholder="Password (min 6 characters)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                autoComplete="new-password"
-                className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
-                style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
-                onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
-              />
+            <form onSubmit={handleSubmit} className="grid gap-4">
+              {/* Full name */}
+              <div className="space-y-1.5">
+                <label htmlFor="signup-name" className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+                  Full Name
+                </label>
+                <input
+                  id="signup-name"
+                  type="text"
+                  placeholder="Jane Smith"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  autoComplete="name"
+                  className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
+                  onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
+                />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-1.5">
+                <label htmlFor="signup-email" className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+                  Email
+                </label>
+                <input
+                  id="signup-email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
+                  style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
+                  onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
+                />
+              </div>
+
+              {/* Password + strength */}
+              <div className="space-y-1.5">
+                <label htmlFor="signup-password" className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="signup-password"
+                    type={showPass ? "text" : "password"}
+                    placeholder="Min. 6 characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    className="w-full rounded-lg border border-[var(--border)] p-3 pr-10 text-sm outline-none transition-colors"
+                    style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
+                    onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded transition-colors hover:bg-[var(--bg-tertiary)]"
+                    aria-label={showPass ? "Hide password" : "Show password"}
+                    style={{ color: "var(--text-tertiary)" }}
+                  >
+                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+
+                {/* Password strength bar */}
+                {strength && (
+                  <div className="space-y-1.5 pt-0.5">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div
+                          key={i}
+                          className="flex-1 h-1 rounded-full transition-all duration-300"
+                          style={{
+                            background: i <= strength.score ? strength.color : "var(--bg-tertiary)",
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {strength.score >= 3
+                        ? <CheckCircle2 size={12} style={{ color: strength.color }} />
+                        : <Circle size={12} style={{ color: "var(--text-tertiary)" }} />
+                      }
+                      <span className="text-xs font-medium" style={{ color: strength.color }}>
+                        {strength.label} password
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {error && (
                 <p className="text-sm rounded-lg px-3 py-2" style={{ background: "rgba(255,69,58,0.12)", color: "var(--accent-red)" }}>

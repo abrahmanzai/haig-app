@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import SplashGate from "./_components/SplashGate";
+import ScrollReveal from "./_components/ScrollReveal";
 import ThemeToggle from "./_components/ThemeToggle";
 import ThemeLogo from "./_components/ThemeLogo";
 import { createClient } from "@/lib/supabase/server";
@@ -39,7 +40,7 @@ const steps = [
     n: "01",
     icon: UserPlus,
     title: "Get Invited & Onboard",
-    body: "Membership is by invitation through existing member relationships. Once admitted, complete your onboarding paperwork and join the club.",
+    body: "Membership is by referral from an existing member. Reach out via the contact section below — we'll connect you with someone who can vouch for you.",
   },
   {
     n: "02",
@@ -97,6 +98,7 @@ export default async function Home() {
   return (
     <div style={{ minHeight: "100vh" }}>
       <SplashGate />
+      <ScrollReveal />
 
       {/* ═══ NAV ══════════════════════════════════════════════════════════════ */}
       <nav
@@ -134,13 +136,6 @@ export default async function Home() {
             >
               Member Login
             </Link>
-            <a
-              href="#contact"
-              className="text-sm px-3 py-1.5 rounded-lg font-semibold hover:brightness-110 transition-all text-white"
-              style={{ background: "var(--accent-primary)" }}
-            >
-              Contact Us
-            </a>
           </div>
         </div>
       </nav>
@@ -153,11 +148,22 @@ export default async function Home() {
           className="relative flex flex-col items-center justify-center text-center px-6 pt-14"
           style={{ minHeight: "100vh" }}
         >
-          {/* Glow bg */}
+          {/* Multi-layer glow bg for depth */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+            {/* Primary glow — indigo */}
             <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
-              style={{ background: "radial-gradient(circle, rgba(94,106,210,0.12) 0%, transparent 65%)" }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
+              style={{ background: "radial-gradient(circle, rgba(94,106,210,0.18) 0%, transparent 60%)" }}
+            />
+            {/* Secondary glow — teal, offset */}
+            <div
+              className="absolute top-[38%] left-[60%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full"
+              style={{ background: "radial-gradient(circle, rgba(100,210,255,0.08) 0%, transparent 65%)" }}
+            />
+            {/* Tertiary glow — green, offset */}
+            <div
+              className="absolute top-[58%] left-[35%] -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full"
+              style={{ background: "radial-gradient(circle, rgba(48,209,88,0.06) 0%, transparent 65%)" }}
             />
           </div>
 
@@ -182,36 +188,41 @@ export default async function Home() {
             </p>
 
             <p
-              className="text-lg mb-10 max-w-xl mx-auto"
+              className="text-lg mb-10 max-w-lg mx-auto"
               style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
             >
-              A student general partnership where members pool capital, research
-              equities, and execute real trades together — turning financial theory
-              into hands-on practice.
+              HAIG (High Agency Investment Group) is a student general partnership
+              where members pool capital, research equities, and execute real trades
+              together.
             </p>
 
             <div className="flex gap-3 justify-center flex-wrap">
+              {/* Primary CTA */}
               <a
                 href="#contact"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 hover:brightness-110 hover:scale-[1.02] transition-all text-white"
+                className="cta-primary rounded-xl font-bold text-base px-8 py-3.5 text-white transition-all"
                 style={{ background: "var(--accent-primary)" }}
               >
                 Get in Touch →
               </a>
+              {/* Secondary CTA — visually subordinate */}
               <Link
                 href="/login"
-                className="rounded-xl font-semibold text-base px-8 py-3.5 border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)" }}
+                className="rounded-xl text-sm font-medium px-7 py-3.5 border border-[var(--border)] hover:border-[var(--border-hover)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                style={{ color: "var(--text-secondary)" }}
               >
                 Member Login
               </Link>
             </div>
+            <p className="mt-5 text-xs" style={{ color: "var(--text-tertiary)" }}>
+              Membership by invitation only · student-run general partnership
+            </p>
           </div>
 
-          {/* Scroll hint */}
+          {/* Scroll hint — fades out after 3 s */}
           <a
             href="#mission"
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-xs transition-colors"
+            className="scroll-hint absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-xs transition-colors"
             style={{ color: "var(--text-tertiary)" }}
           >
             <span>Scroll</span>
@@ -222,7 +233,7 @@ export default async function Home() {
         {/* ═══ MISSION ══════════════════════════════════════════════════════ */}
         <section id="mission" className="py-24 px-6">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
+            <div className="text-center mb-14 reveal-up">
               <p
                 className="text-sm font-semibold uppercase tracking-widest mb-3"
                 style={{ color: "var(--accent-primary)" }}
@@ -236,8 +247,8 @@ export default async function Home() {
                 className="text-lg max-w-2xl mx-auto"
                 style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
               >
-                HAIG gives students real-world investing experience. We pool
-                capital, debate ideas, and execute as a team.
+                We give students real-world investing experience by pooling
+                capital, debating ideas, and executing trades as a team.
               </p>
             </div>
 
@@ -245,7 +256,7 @@ export default async function Home() {
               {features.map((f) => (
                 <article
                   key={f.title}
-                  className="rounded-2xl p-6 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors"
+                  className="reveal-up rounded-2xl p-6 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors"
                   style={{
                     background: "var(--bg-glass)",
                     backdropFilter: "blur(20px)",
@@ -278,7 +289,7 @@ export default async function Home() {
           style={{ background: "rgba(94,106,210,0.03)" }}
         >
           <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-14">
+            <div className="text-center mb-14 reveal-up">
               <p
                 className="text-sm font-semibold uppercase tracking-widest mb-3"
                 style={{ color: "var(--accent-primary)" }}
@@ -349,7 +360,13 @@ export default async function Home() {
               </div>
             )}
 
-            <p className="text-center mt-8 text-sm" style={{ color: "var(--text-tertiary)" }}>
+            {upcomingEvents.length > 0 && upcomingEvents.length < 3 && (
+              <p className="text-center mt-4 text-sm" style={{ color: "var(--text-tertiary)" }}>
+                More events coming soon — we meet bi-weekly.
+              </p>
+            )}
+
+            <p className="text-center mt-6 text-sm" style={{ color: "var(--text-tertiary)" }}>
               Already a member?{" "}
               <Link href="/login" className="hover:underline" style={{ color: "var(--accent-primary)" }}>
                 Log in to RSVP →
@@ -365,7 +382,7 @@ export default async function Home() {
           style={{ background: "var(--bg-secondary)" }}
         >
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
+            <div className="text-center mb-14 reveal-up">
               <p
                 className="text-sm font-semibold uppercase tracking-widest mb-3"
                 style={{ color: "var(--accent-primary)" }}
@@ -379,7 +396,7 @@ export default async function Home() {
               {steps.map((step) => (
                 <article
                   key={step.n}
-                  className="relative rounded-2xl p-6 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors overflow-hidden"
+                  className="reveal-up relative rounded-2xl p-6 border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors overflow-hidden"
                   style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
                 >
                   {/* Ghost step number */}
@@ -409,9 +426,9 @@ export default async function Home() {
         </section>
 
         {/* ═══ FOUNDING PARTNERS ════════════════════════════════════════════ */}
-        <section className="py-24 px-6">
+        <section id="leaders" className="py-24 px-6">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-14">
+            <div className="text-center mb-14 reveal-up">
               <p
                 className="text-sm font-semibold uppercase tracking-widest mb-3"
                 style={{ color: "var(--accent-primary)" }}
@@ -421,72 +438,27 @@ export default async function Home() {
               <h2 className="text-4xl font-bold">Founding Partners</h2>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {/* Slot 1 — named founder */}
-              <article
-                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
-                  style={{ background: "rgba(94,106,210,0.15)", color: "var(--accent-primary)" }}
+            <div className="grid sm:grid-cols-3 gap-5 max-w-3xl mx-auto">
+              {[
+                { initials: "WH", name: "William Headlee",         role: "President"      },
+                { initials: "AH", name: "Abdul Hameed Rahmanzai",  role: "Vice President" },
+                { initials: "DG", name: "Dawson Gibbons",          role: "Secretary"      },
+              ].map((person) => (
+                <article
+                  key={person.name}
+                  className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
+                  style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
                 >
-                  WH
-                </div>
-                <p className="font-semibold text-base mb-1">William Headlee</p>
-                <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
-                  President
-                </p>
-              </article>
-
-              {/* Slot 2 — named founder */}
-              <article
-                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
-                  style={{ background: "rgba(94,106,210,0.15)", color: "var(--accent-primary)" }}
-                >
-                  AH
-                </div>
-                <p className="font-semibold text-base mb-1">Abdul Hameed Rahmanzai</p>
-                <p className="text-sm" style={{ color: "var(--accent-primary)" }}>
-                  Vice President
-                </p>
-              </article>
-
-              {/* Slot 3 — Treasurer open */}
-              <article
-                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)", opacity: 0.65 }}
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-                  style={{ background: "var(--bg-tertiary)" }}
-                >
-                  <span className="text-xl" style={{ color: "var(--text-tertiary)" }}>+</span>
-                </div>
-                <p className="font-semibold text-base mb-1" style={{ color: "var(--text-secondary)" }}>
-                  Open Position
-                </p>
-                <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Treasurer</p>
-              </article>
-
-              {/* Slot 4 — Secretary */}
-              <article
-                className="rounded-2xl p-6 border border-[var(--border)] flex flex-col items-center text-center"
-                style={{ background: "var(--bg-glass)", backdropFilter: "blur(20px)" }}
-              >
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
-                  style={{ background: "rgba(48,209,88,0.15)", color: "var(--accent-green)" }}
-                >
-                  D
-                </div>
-                <p className="font-semibold text-base mb-1">Dawson Gibbons</p>
-                <p className="text-sm" style={{ color: "var(--accent-green)" }}>Secretary</p>
-              </article>
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 text-xl font-black"
+                    style={{ background: "rgba(94,106,210,0.15)", color: "var(--accent-primary)" }}
+                  >
+                    {person.initials}
+                  </div>
+                  <p className="font-semibold text-base mb-1">{person.name}</p>
+                  <p className="text-sm" style={{ color: "var(--accent-primary)" }}>{person.role}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
@@ -528,6 +500,43 @@ export default async function Home() {
             </p>
           </div>
         </section>
+
+        {/* ═══ FOOTER ═══════════════════════════════════════════════════════ */}
+        <footer
+          className="border-t border-[var(--border)] py-10 px-6"
+          style={{ background: "var(--bg-primary)" }}
+        >
+          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <ThemeLogo width={24} height={24} />
+              <span className="text-sm font-semibold" style={{ color: "var(--text-secondary)" }}>
+                High Agency Investment Group
+              </span>
+            </div>
+
+            <nav className="flex flex-wrap gap-x-6 gap-y-2 justify-center text-sm" style={{ color: "var(--text-tertiary)" }}>
+              {[
+                ["Mission",      "#mission"],
+                ["Events",       "#events"],
+                ["How It Works", "#how"],
+                ["Leadership",   "#leaders"],
+                ["Contact",      "#contact"],
+              ].map(([label, href]) => (
+                <a key={label} href={href} className="hover:underline transition-colors">
+                  {label}
+                </a>
+              ))}
+              <Link href="/login" className="hover:underline transition-colors" style={{ color: "var(--accent-primary)" }}>
+                Member Login
+              </Link>
+            </nav>
+
+            <p className="text-xs text-center sm:text-right" style={{ color: "var(--text-tertiary)" }}>
+              © 2026 High Agency Investment Group<br />
+              A student-run general partnership
+            </p>
+          </div>
+        </footer>
 
       </main>
     </div>

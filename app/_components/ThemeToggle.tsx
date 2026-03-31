@@ -41,16 +41,25 @@ export default function ThemeToggle() {
         outlineColor: "var(--accent-primary)",
       }}
     >
-      {/* Track icons */}
+      {/* Track icons — rotate in/out for smooth transition */}
       <Sun
         size={12}
-        className="absolute left-1.5 transition-opacity duration-300"
-        style={{ color: "#fff", opacity: isLight ? 1 : 0.3 }}
+        className="absolute left-1.5"
+        style={{
+          color: "#fff",
+          opacity: isLight ? 1 : 0.3,
+          transform: isLight ? "rotate(0deg)" : "rotate(-90deg)",
+          transition: "opacity 300ms, transform 300ms ease-out",
+        }}
       />
       <Moon
         size={12}
-        className="absolute right-1.5 transition-opacity duration-300"
-        style={{ color: isLight ? "rgba(255,255,255,0.3)" : "#fff" }}
+        className="absolute right-1.5"
+        style={{
+          color: isLight ? "rgba(255,255,255,0.3)" : "#fff",
+          transform: isLight ? "rotate(90deg)" : "rotate(0deg)",
+          transition: "opacity 300ms, transform 300ms ease-out",
+        }}
       />
 
       {/* Thumb */}
