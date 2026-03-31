@@ -4,17 +4,17 @@
 
 /* ─── Dark mode (default) ────────────────────────────────────────────────── */
 :root {
-  --bg-primary:    #000000;
-  --bg-secondary:  #1c1c1e;
-  --bg-tertiary:   #2c2c2e;
-  --bg-glass:      rgba(44, 44, 46, 0.72);
+  --bg-primary:    #050506;
+  --bg-secondary:  #0f0f11;
+  --bg-tertiary:   rgba(255, 255, 255, 0.08);
+  --bg-glass:      rgba(255, 255, 255, 0.04);
 
-  /* Text hierarchy — all pass WCAG AA contrast on dark backgrounds */
-  --text-primary:   #ffffff;        /* 21:1 on black */
-  --text-secondary: #aeaeb2;        /* ~7.5:1 on black — up from #8e8e93 */
-  --text-tertiary:  #7c7c80;        /* ~4.6:1 on black — up from #636366 (was 3.7:1, failed AA) */
+  /* Text hierarchy */
+  --text-primary:   #EDEDEF;
+  --text-secondary: #8A8F98;
+  --text-tertiary:  #6B7280;
 
-  --accent-primary: #0a84ff;
+  --accent-primary: #5E6AD2;
   --accent-green:   #30d158;
   --accent-red:     #ff453a;
   --accent-orange:  #ff9f0a;
@@ -22,19 +22,22 @@
   --accent-teal:    #64d2ff;
   --accent-gold:    #ffd60a;
 
-  --border:         rgba(255, 255, 255, 0.12);   /* up from 0.08 — more visible card edges */
-  --border-hover:   rgba(255, 255, 255, 0.22);   /* up from 0.16 */
+  --border:         rgba(255, 255, 255, 0.08);
+  --border-hover:   rgba(255, 255, 255, 0.16);
 
   /* Structural tokens */
-  --bg-body:           radial-gradient(circle at top, #121212 0%, #000 50%);
-  --bg-nav:            rgba(0, 0, 0, 0.72);
+  --bg-body:           #050506;
+  --bg-nav:            rgba(15, 15, 17, 0.92);
   --bg-modal-backdrop: rgba(0, 0, 0, 0.6);
-  --shadow-card:       0 4px 24px rgba(0, 0, 0, 0.3);
+  --shadow-card:       0 4px 24px rgba(0, 0, 0, 0.4);
   --ghost-text:        rgba(255, 255, 255, 0.04);
-  --input-bg:          var(--bg-tertiary);
+  --input-bg:          rgba(255, 255, 255, 0.06);
+
+  /* Sidebar */
+  --sidebar-width: 256px;
 
   /* Watermark / splash */
-  --watermark-opacity: 0.06;
+  --watermark-opacity: 0.04;
   color-scheme: dark;
 }
 
@@ -42,8 +45,8 @@
 html[data-theme="light"] {
   --bg-primary:    #ffffff;
   --bg-secondary:  #f2f2f7;
-  --bg-tertiary:   #e5e5ea;
-  --bg-glass:      rgba(255, 255, 255, 0.78);
+  --bg-tertiary:   rgba(0, 0, 0, 0.05);
+  --bg-glass:      rgba(255, 255, 255, 0.92);
 
   /* Text hierarchy — all pass WCAG AA contrast on light backgrounds */
   --text-primary:   #1d1d1f;        /* ~17:1 on white */
@@ -51,7 +54,7 @@ html[data-theme="light"] {
   --text-tertiary:  #86868b;        /* ~4.5:1 on white — AA pass */
 
   /* Slightly adjusted accents for contrast on light backgrounds */
-  --accent-primary: #007AFF;
+  --accent-primary: #4f59b8;
   --accent-green:   #28a745;
   --accent-red:     #dc3545;
   --accent-orange:  #e8860c;
@@ -89,13 +92,28 @@ body {
 }
 
 body {
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg-body);
   color: var(--text-primary);
 }
 
 main {
   padding: 2rem;
+}
+
+/* ─── Geist Mono utility ─────────────────────────────────────────────────── */
+.geist-mono {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Sidebar layout offset (authenticated pages) ────────────────────────── */
+/* Landing/login pages override margin-left via inline style={{ marginLeft: 0 }} */
+@media (min-width: 640px) {
+  main {
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.2s ease;
+  }
 }
 
 .container {
@@ -106,7 +124,7 @@ main {
 /* ─── Reusable card components ───────────────────────────────────────────── */
 
 .stat-card {
-  background:    var(--bg-secondary);
+  background:    var(--bg-glass);
   border:        1px solid var(--border);
   border-radius: 16px;
   padding:       20px;
@@ -135,16 +153,69 @@ main {
   letter-spacing: -0.01em;
 }
 
+/* ─── Landing page animations ────────────────────────────────────────────── */
+
+@keyframes aurora-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(60px, -40px) scale(1.08); }
+  66%       { transform: translate(-40px, 30px) scale(0.94); }
+}
+@keyframes aurora-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(-50px, 30px) scale(1.06); }
+  66%       { transform: translate(35px, -40px) scale(0.96); }
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+@keyframes fade-up-in {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer-x {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(200%); }
+}
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.lp-fade-up {
+  animation: fade-up-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+.lp-fade-up-1 { animation-delay: 0.1s; }
+.lp-fade-up-2 { animation-delay: 0.25s; }
+.lp-fade-up-3 { animation-delay: 0.4s; }
+.lp-fade-up-4 { animation-delay: 0.55s; }
+.lp-fade-up-5 { animation-delay: 0.7s; }
+
 /* ─── Messages container — respects dynamic viewport on mobile ────────────── */
 
-/* calc(100dvh - 56px) avoids the address-bar jump on mobile browsers.
-   Falls back to 100vh on browsers that don't support dvh yet.             */
+/* Mobile: subtract top bar. Desktop: subtract the fixed top header (64px). */
 .messages-container {
   height: calc(100vh - 56px);
 }
 @supports (height: 100dvh) {
   .messages-container {
     height: calc(100dvh - 56px);
+  }
+}
+@media (min-width: 640px) {
+  .messages-container {
+    height: calc(100vh - 64px);
+  }
+}
+@media (min-width: 640px) and (resolution: 0dppx) {
+  /* dvh in desktop @media — use @supports inside */
+}
+@supports (height: 100dvh) {
+  @media (min-width: 640px) {
+    .messages-container {
+      height: calc(100dvh - 64px);
+    }
   }
 }
 
@@ -277,4 +348,106 @@ html[data-theme="light"]       .hero-watermark .wm-light { display: block; }
 [data-splash] .lp-hero-content {
   opacity: 0;
   transform: translateY(16px);
+}
+
+/* ─── Landing page hero CTA glow (pure CSS — no JS event handlers) ─────── */
+.cta-primary {
+  box-shadow: 0 0 32px rgba(94, 106, 210, 0.35);
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
+}
+.cta-primary:hover {
+  box-shadow: 0 0 52px rgba(94, 106, 210, 0.55);
+  filter: brightness(1.08);
+}
+
+/* ─── Scroll hint — auto-fades after 3 s, disappears after user scrolls ─── */
+.scroll-hint {
+  animation: scrollHintFade 0.6s ease-out 3s forwards;
+}
+@keyframes scrollHintFade {
+  to { opacity: 0; pointer-events: none; }
+}
+
+/* ─── Shimmer skeleton loading ───────────────────────────────────────────── */
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 25%,
+    var(--border-hover) 50%,
+    var(--bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+  border-radius: 8px;
+}
+
+/* ─── Scroll reveal entrance animations ─────────────────────────────────── */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.reveal-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered delays for sibling reveals */
+.reveal-up:nth-child(1) { transition-delay: 0ms; }
+.reveal-up:nth-child(2) { transition-delay: 80ms; }
+.reveal-up:nth-child(3) { transition-delay: 160ms; }
+.reveal-up:nth-child(4) { transition-delay: 240ms; }
+
+/* ─── Reduced motion: disable all custom animations ─────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; background: var(--bg-tertiary); }
+  .reveal-up, .reveal-up.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .spl-mark-svg, .spl-t1, .spl-t2, .spl-t3 { animation: none; }
+}
+
+/* ─── Mobile input font-size (prevents iOS auto-zoom) ───────────────────── */
+
+@media (max-width: 639px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* ─── Mobile bottom nav bar — push page content above the fixed bar ──────── */
+
+@media (max-width: 639px) {
+  main {
+    /* !important overrides the inline style={{ padding: 0 }} on authenticated pages */
+    padding-bottom: 4rem !important;
+  }
+
+  /* Messages full-height panel: subtract top bar (56px) + bottom bar (56px) */
+  .messages-container {
+    height: calc(100vh - 112px);
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 639px) {
+    .messages-container {
+      height: calc(100dvh - 112px);
+    }
+  }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
   ChevronLeft, ChevronRight, ChevronDown, Plus, X, LayoutGrid, List,
@@ -238,7 +239,7 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId,
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <main style={{ padding: 0 }}>
+    <div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
@@ -383,21 +384,30 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId,
                       <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
                         📍 {ev.location}
                       </p>
-                      <a
-                        href={buildGCalUrl(ev)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-xs font-medium rounded-lg px-2.5 py-1 border border-[var(--border)] hover:bg-[var(--bg-secondary)] transition-colors flex-shrink-0"
-                        style={{ color: "var(--accent-primary)" }}
-                      >
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                          <line x1="16" y1="2" x2="16" y2="6"/>
-                          <line x1="8" y1="2" x2="8" y2="6"/>
-                          <line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                        Add to Google Calendar
-                      </a>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Link
+                          href={`/calendar/${ev.id}`}
+                          className="text-xs font-medium hover:underline flex-shrink-0"
+                          style={{ color: "var(--accent-primary)" }}
+                        >
+                          Full details →
+                        </Link>
+                        <a
+                          href={buildGCalUrl(ev)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-xs font-medium rounded-lg px-2.5 py-1 border border-[var(--border)] hover:bg-[var(--bg-secondary)] transition-colors flex-shrink-0"
+                          style={{ color: "var(--accent-primary)" }}
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                          </svg>
+                          Add to Google Calendar
+                        </a>
+                      </div>
                     </div>
 
                     {/* ── Attendance (admin only) ─────────────────────── */}
@@ -534,7 +544,7 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId,
           </form>
         </Modal>
       )}
-    </main>
+    </div>
   );
 }
 

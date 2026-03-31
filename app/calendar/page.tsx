@@ -47,12 +47,14 @@ export default async function CalendarPage() {
   return (
     <div className="min-h-screen">
       <AppNav name={profile?.full_name} role={profile?.role} currentPath="/calendar" />
-      <CalendarClient
-        events={events}
-        isAdmin={profile?.role === "admin"}
-        userId={userId}
-        members={members}
-      />
+      <main style={{ padding: 0 }}>
+        <CalendarClient
+          events={events}
+          isAdmin={profile?.role === "admin"}
+          userId={userId}
+          members={members}
+        />
+      </main>
     </div>
   );
 }

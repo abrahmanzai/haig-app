@@ -6,7 +6,7 @@ export default function MessagesLoading() {
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className="h-10 rounded-t-xl animate-pulse"
+            className="h-10 rounded-t-xl skeleton"
             style={{ background: "var(--bg-tertiary)", width: i === 2 ? 140 : 120 }}
           />
         ))}
@@ -17,17 +17,17 @@ export default function MessagesLoading() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-2xl border border-[var(--border)] p-5 animate-pulse"
+            className="rounded-2xl border border-[var(--border)] p-5"
             style={{ background: "var(--bg-secondary)" }}
           >
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-6 h-6 rounded-full bg-[var(--bg-tertiary)]" />
-              <div className="h-4 w-32 rounded bg-[var(--bg-tertiary)]" />
-              <div className="ml-auto h-3 w-16 rounded bg-[var(--bg-tertiary)]" />
+              <div className="w-6 h-6 rounded-full" />
+              <div className="h-4 w-32 rounded skeleton" />
+              <div className="ml-auto h-3 w-16 rounded" />
             </div>
             <div className="space-y-2">
-              <div className="h-3 w-full rounded bg-[var(--bg-tertiary)]" />
-              <div className="h-3 w-3/4 rounded bg-[var(--bg-tertiary)]" />
+              <div className="h-3 w-full rounded skeleton" />
+              <div className="h-3 w-3/4 rounded skeleton" />
             </div>
           </div>
         ))}
