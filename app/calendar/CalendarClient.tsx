@@ -238,7 +238,7 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId,
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <main style={{ padding: 0 }}>
+    <div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
@@ -534,7 +534,7 @@ export default function CalendarClient({ events: initialEvents, isAdmin, userId,
           </form>
         </Modal>
       )}
-    </main>
+    </div>
   );
 }
 

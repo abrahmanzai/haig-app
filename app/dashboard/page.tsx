@@ -8,6 +8,7 @@ import AppNav from "@/app/_components/AppNav";
 import {
   Wallet, Vote, Clock, CalendarDays,
   CalendarRange, TrendingUp, PieChart, ShieldCheck,
+  TrendingUp as TrendUp, TrendingDown, Minus,
 } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -158,7 +159,7 @@ export default async function Dashboard() {
           )}
 
           {/* ── Stat cards ───────────────────────────────────────────────── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stat-cards">
             {[
               {
                 label:  "Capital Contribution",
@@ -166,20 +167,24 @@ export default async function Dashboard() {
                 sub:    "Your partnership stake",
                 stripe: "#5E6AD2",
                 Icon:   Wallet,
+                trend:  (profile?.capital_contribution ?? 0) > 0 ? "up" : "neutral",
               },
               {
                 label:  "Voting Units",
-                value:  (profile?.voting_units ?? 0).toFixed(4),
+                value:  (profile?.voting_units ?? 0).toFixed(2),
                 sub:    "Weighted vote power",
                 stripe: "#5E6AD2",
                 Icon:   Vote,
+                trend:  "neutral",
               },
               {
                 label:  "Active Votes",
                 value:  activeVotes > 0 ? `${activeVotes} Pending` : "0",
-                sub:    activeVotes > 0 ? "Votes open now" : "No open votes",
+                sub:    activeVotes > 0 ? "View open votes →" : "No open votes",
                 stripe: activeVotes > 0 ? "#ffd60a" : "#5E6AD2",
                 Icon:   Clock,
+                trend:  activeVotes > 0 ? "up" : "neutral",
+                href:   activeVotes > 0 ? "/pitches?status=voting" : undefined,
               },
               {
                 label:  "Next Event",
@@ -187,45 +192,68 @@ export default async function Dashboard() {
                 sub:    nextEvent?.title ?? "No upcoming events",
                 stripe: "#5E6AD2",
                 Icon:   CalendarDays,
+                trend:  nextEvent ? "up" : "neutral",
               },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="relative overflow-hidden rounded-2xl p-5"
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  backdropFilter: "blur(12px)",
-                }}
-              >
-                {/* Top accent stripe */}
+            ].map((stat) => {
+              const TrendIcon = stat.trend === "up" ? TrendUp : stat.trend === "down" ? TrendingDown : Minus;
+              const trendColor = stat.trend === "up" ? "var(--accent-green)" : stat.trend === "down" ? "var(--accent-red)" : "var(--text-tertiary)";
+              const cardStyle = {
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                backdropFilter: "blur(12px)",
+              };
+              const inner = (
+                <>
+                  {/* Top accent stripe */}
+                  <div
+                    className="absolute top-0 left-0 w-full h-0.5"
+                    style={{ background: `${stat.stripe}66` }}
+                  />
+                  {/* Ghost icon */}
+                  <stat.Icon
+                    size={40}
+                    className="absolute right-3 bottom-3"
+                    style={{ color: "rgba(255,255,255,0.05)", strokeWidth: 1.5 }}
+                  />
+                  <p
+                    className="text-[10px] uppercase tracking-widest mb-2 geist-mono"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    {stat.label}
+                  </p>
+                  <p
+                    className="text-2xl font-bold mb-1 geist-mono"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    {stat.value}
+                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <TrendIcon size={11} style={{ color: trendColor, flexShrink: 0 }} strokeWidth={2} />
+                    <p className="text-[10px] geist-mono" style={{ color: "var(--text-secondary)" }}>
+                      {stat.sub}
+                    </p>
+                  </div>
+                </>
+              );
+              return stat.href ? (
+                <Link
+                  key={stat.label}
+                  href={stat.href}
+                  className="relative overflow-hidden rounded-2xl p-5 block hover:border-[rgba(255,255,255,0.16)] transition-colors"
+                  style={cardStyle}
+                >
+                  {inner}
+                </Link>
+              ) : (
                 <div
-                  className="absolute top-0 left-0 w-full h-0.5"
-                  style={{ background: `${stat.stripe}66` }}
-                />
-                {/* Ghost icon */}
-                <stat.Icon
-                  size={40}
-                  className="absolute right-3 bottom-3"
-                  style={{ color: "rgba(255,255,255,0.05)", strokeWidth: 1.5 }}
-                />
-                <p
-                  className="text-[10px] uppercase tracking-widest mb-2 geist-mono"
-                  style={{ color: "var(--text-secondary)" }}
+                  key={stat.label}
+                  className="relative overflow-hidden rounded-2xl p-5"
+                  style={cardStyle}
                 >
-                  {stat.label}
-                </p>
-                <p
-                  className="text-2xl font-bold mb-1 geist-mono"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {stat.value}
-                </p>
-                <p className="text-[10px] geist-mono" style={{ color: "var(--text-secondary)" }}>
-                  {stat.sub}
-                </p>
-              </div>
-            ))}
+                  {inner}
+                </div>
+              );
+            })}
           </div>
 
           {/* ── Portfolio + Upcoming Events ───────────────────────────────── */}
@@ -264,8 +292,8 @@ export default async function Dashboard() {
               </div>
               <div className="space-y-4">
                 {[
-                  { label: "Invested",      value: usd(financials?.total_invested ?? 0), pct: financials && totalValue > 0 ? (financials.total_invested / totalValue) : 0.9,  color: "#5E6AD2" },
-                  { label: "Cash on Hand",  value: usd(financials?.cash_on_hand ?? 0),   pct: financials && totalValue > 0 ? (financials.cash_on_hand / totalValue) : 0.1,    color: "#30d158" },
+                  { label: "Invested",      value: usd(financials?.total_invested ?? 0), pct: financials && totalValue > 0 ? (financials.total_invested / totalValue) : 0,  color: "#5E6AD2" },
+                  { label: "Cash on Hand",  value: usd(financials?.cash_on_hand ?? 0),   pct: financials && totalValue > 0 ? (financials.cash_on_hand / totalValue) : 0,    color: "#30d158" },
                 ].map((row) => (
                   <div key={row.label}>
                     <div className="flex justify-between text-[10px] uppercase tracking-widest geist-mono mb-1.5" style={{ color: "var(--text-secondary)" }}>

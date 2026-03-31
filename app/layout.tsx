@@ -41,28 +41,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('haig_theme');if(t)document.documentElement.dataset.theme=t;if(!sessionStorage.getItem('haig_splash_seen')){document.documentElement.dataset.splash='1';}var sc=localStorage.getItem('haig_sidebar_collapsed');document.documentElement.style.setProperty('--sidebar-width',sc==='1'?'64px':'256px');})();` }} />
       </head>
       <body className={`${ibmPlexSans.variable} ${jetbrainsMono.variable} ${ibmPlexSans.className}`} style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
-        {/* Global logo watermark — fixed and viewport-centered on every page.
-            Opacity controlled by .hero-watermark: 0.06 normally, 0 while splash plays. */}
-        <div
-          className="hero-watermark fixed inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
-          style={{ zIndex: 0 }}
-          aria-hidden
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo-mark.svg"
-            alt=""
-            className="wm-dark"
-            style={{ height: "65vh", width: "auto" }}
-          />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo-mark-dark.svg"
-            alt=""
-            className="wm-light"
-            style={{ height: "65vh", width: "auto" }}
-          />
-        </div>
         {children}
       </body>
     </html>

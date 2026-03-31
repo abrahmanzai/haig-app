@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 // ─── Inner form — reads searchParams ─────────────────────────────────────────
@@ -18,7 +19,8 @@ function LoginForm() {
       ? "Email confirmation failed. Please try again or contact support."
       : null,
   );
-  const [loading, setLoading] = useState(false);
+  const [loading,  setLoading]  = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,30 +42,53 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-3">
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        autoComplete="email"
-        className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
-        style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-        onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
-        onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        autoComplete="current-password"
-        className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
-        style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-        onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
-        onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
-      />
+      <div className="space-y-1">
+        <label htmlFor="login-email" className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+          Email
+        </label>
+        <input
+          id="login-email"
+          type="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+          className="w-full rounded-lg border border-[var(--border)] p-3 text-sm outline-none transition-colors"
+          style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
+          onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
+        />
+      </div>
+      <div className="space-y-1">
+        <label htmlFor="login-password" className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
+          Password
+        </label>
+        <div className="relative">
+          <input
+            id="login-password"
+            type={showPass ? "text" : "password"}
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+            className="w-full rounded-lg border border-[var(--border)] p-3 pr-10 text-sm outline-none transition-colors"
+            style={{ background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
+            onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent-primary)")}
+            onBlur={(e)  => (e.currentTarget.style.borderColor = "var(--border)")}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPass((v) => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded transition-colors hover:bg-[var(--bg-tertiary)]"
+            aria-label={showPass ? "Hide password" : "Show password"}
+            style={{ color: "var(--text-tertiary)" }}
+          >
+            {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+      </div>
 
       {error && (
         <p

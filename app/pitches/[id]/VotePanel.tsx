@@ -164,35 +164,73 @@ export default function VotePanel({
         </div>
       )}
 
-      {/* ── Tally bars ────────────────────────────────────────────────────── */}
-      <div className="space-y-3">
-        {[
-          { label: "Yes",     value: t.yes,     color: "#30d158" },
-          { label: "No",      value: t.no,      color: "#ff453a" },
-          { label: "Abstain", value: t.abstain, color: "#8e8e93" },
-        ].map(({ label, value, color }) => {
-          const pct = t.total > 0 ? (value / t.total) * 100 : 0;
-          return (
-            <div key={label}>
-              <div className="flex justify-between text-xs mb-1">
-                <span style={{ color: "var(--text-secondary)" }}>{label}</span>
-                <span className="tabular-nums font-semibold" style={{ color }}>
-                  {value.toFixed(4)} units ({pct.toFixed(1)}%)
-                </span>
-              </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ background: "var(--bg-tertiary)" }}>
+      {/* ── Combined segmented progress bar with threshold marker ──────────── */}
+      {(() => {
+        const yesPct     = t.total > 0 ? (t.yes     / t.total) * 100 : 0;
+        const noPct      = t.total > 0 ? (t.no      / t.total) * 100 : 0;
+        const abstainPct = t.total > 0 ? (t.abstain / t.total) * 100 : 0;
+        const required   = THRESHOLD_REQUIRED[voteThreshold] ?? 0.5;
+        // Threshold applies to decisive votes only (yes + no)
+        const decisive   = t.yes + t.no;
+        const thresholdOnBar = decisive > 0
+          ? (required * decisive / t.total) * 100
+          : required * 100;
+
+        return (
+          <div className="space-y-2">
+            <div className="relative h-3 rounded-full overflow-hidden" style={{ background: "var(--bg-tertiary)" }}>
+              {/* Yes segment */}
+              <div
+                className="absolute left-0 top-0 h-full transition-all duration-500"
+                style={{ width: `${yesPct}%`, background: "#30d158" }}
+              />
+              {/* No segment */}
+              <div
+                className="absolute top-0 h-full transition-all duration-500"
+                style={{ left: `${yesPct}%`, width: `${noPct}%`, background: "#ff453a" }}
+              />
+              {/* Abstain segment */}
+              <div
+                className="absolute top-0 h-full transition-all duration-500"
+                style={{ left: `${yesPct + noPct}%`, width: `${abstainPct}%`, background: "#8e8e93" }}
+              />
+              {/* Threshold marker */}
+              {t.total > 0 && (
                 <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${pct}%`, background: color }}
+                  className="absolute top-0 bottom-0 w-0.5"
+                  style={{
+                    left: `${Math.min(thresholdOnBar, 99)}%`,
+                    background: "rgba(255,255,255,0.9)",
+                    boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+                  }}
+                  title={`${THRESHOLD_LABELS[voteThreshold]} threshold`}
                 />
-              </div>
+              )}
             </div>
-          );
-        })}
-      </div>
+
+            {/* Legend */}
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {[
+                { label: "Yes",     value: t.yes,     color: "#30d158", pct: yesPct },
+                { label: "No",      value: t.no,      color: "#ff453a", pct: noPct },
+                { label: "Abstain", value: t.abstain, color: "#8e8e93", pct: abstainPct },
+              ].map(({ label, value, color, pct }) => (
+                <div key={label} className="flex items-center gap-1.5 text-xs">
+                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+                  <span style={{ color: "var(--text-secondary)" }}>{label}</span>
+                  <span className="tabular-nums font-semibold" style={{ color }}>
+                    {value.toFixed(4)} ({pct.toFixed(1)}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
         {votes.length} voter{votes.length !== 1 ? "s" : ""} · {t.total.toFixed(4)} total units cast
+        {" "}· Threshold: {THRESHOLD_LABELS[voteThreshold]}
       </p>
 
       {/* ── Cast / change vote (active voting, eligible users) ────────────── */}

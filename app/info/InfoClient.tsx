@@ -191,13 +191,6 @@ export default function InfoClient({ minutes, documents, isAdmin }: Props) {
           ) : (
             documents.map((d) => <DocumentCard key={d.id} doc={d} />)
           )}
-          {isAdmin && (
-            <p className="text-xs mt-2" style={{ color: "var(--text-tertiary)" }}>
-              To add document download links, upload PDFs to Supabase Storage and update the{" "}
-              <code className="font-mono">file_url</code> field in the{" "}
-              <code className="font-mono">partnership_documents</code> table.
-            </p>
-          )}
         </div>
       )}
     </div>

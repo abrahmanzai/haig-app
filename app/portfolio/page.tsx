@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/date";
 import { redirect } from "next/navigation";
 import AppNav from "@/app/_components/AppNav";
 import PortfolioAdminControls from "./PortfolioAdminControls";
+import AllocationChart, { type AllocationSlice } from "./AllocationChart";
 import { Wallet, TrendingUp, DollarSign, BarChart2 } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -76,6 +77,17 @@ export default async function Portfolio() {
   const totalCost   = financials?.total_invested ?? 0;
   const totalGainLoss = totalValue - totalCost - (financials?.cash_on_hand ?? 0);
   const totalGainPct  = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
+
+  // ── Allocation chart data ─────────────────────────────────────────────────
+  const ACCENT_COLORS = [
+    "#5E6AD2", "#30d158", "#ff9f0a", "#64d2ff",
+    "#bf5af2", "#ff453a", "#ffd60a", "#0891b2",
+  ];
+  const allocationData: AllocationSlice[] = holdingsWithPrice.map((h, i) => ({
+    ticker: h.ticker,
+    value:  h.shares * (h.current_price ?? h.avg_cost_basis),
+    color:  ACCENT_COLORS[i % ACCENT_COLORS.length],
+  }));
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -161,6 +173,11 @@ export default async function Portfolio() {
             ))}
           </div>
 
+          {/* ── Allocation chart ─────────────────────────────────────────── */}
+          {allocationData.length > 0 && (
+            <AllocationChart data={allocationData} totalValue={totalValue} />
+          )}
+
           {/* ── Holdings table ────────────────────────────────────────────── */}
           <div
             className="rounded-2xl border border-[var(--border)] overflow-hidden"
@@ -182,7 +199,7 @@ export default async function Portfolio() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-[var(--border)]">
-                      {["Ticker", "Company", "Shares", "Avg Cost", "Live Price", "Market Value", "Gain / Loss"].map((h) => (
+                      {["Ticker", "Company", "Shares", "Avg Cost", "Live Price", "Market Value", "Gain / Loss", "Weight"].map((h) => (
                         <th
                           key={h}
                           className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider"
@@ -201,6 +218,7 @@ export default async function Portfolio() {
                       const gainLoss   = value - costBasis;
                       const gainPct    = costBasis > 0 ? (gainLoss / costBasis) * 100 : 0;
                       const gainColor  = gainLoss >= 0 ? "var(--accent-green)" : "var(--accent-red)";
+                      const weightPct  = totalValue > 0 ? (value / totalValue) * 100 : 0;
 
                       return (
                         <tr
@@ -227,6 +245,19 @@ export default async function Portfolio() {
                           </td>
                           <td className="px-6 py-4 num font-semibold" style={{ color: gainColor }}>
                             {usd(gainLoss)} ({pct(gainPct)})
+                          </td>
+                          <td className="px-6 py-4" style={{ minWidth: 110 }}>
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--bg-tertiary)" }}>
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{ width: `${Math.min(weightPct, 100)}%`, background: "var(--accent-primary)" }}
+                                />
+                              </div>
+                              <span className="text-xs num flex-shrink-0" style={{ color: "var(--text-secondary)", minWidth: 38 }}>
+                                {weightPct.toFixed(1)}%
+                              </span>
+                            </div>
                           </td>
                         </tr>
                       );
