@@ -167,11 +167,20 @@ export default function AppNav({ name, role, currentPath }: Props) {
           {/* Collapse toggle */}
           <button
             onClick={toggleCollapsed}
-            className="w-full flex items-center justify-center py-2.5 transition-colors"
-            style={{ color: "var(--text-tertiary)" }}
+            className="w-full flex items-center gap-2 py-2.5 transition-colors hover:bg-[var(--bg-tertiary)] rounded-md mx-1"
+            style={{
+              color: "var(--text-secondary)",
+              padding: collapsed ? "10px 14px" : "10px 12px",
+              justifyContent: collapsed ? "center" : undefined,
+            }}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+            {collapsed ? <ChevronRight size={16} /> : (
+              <>
+                <ChevronLeft size={16} />
+                <span className="text-xs font-medium">Collapse</span>
+              </>
+            )}
           </button>
         </div>
       </aside>
