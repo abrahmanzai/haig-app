@@ -97,6 +97,17 @@ export default async function Home() {
 
   return (
     <div style={{ minHeight: "100vh" }}>
+      {/* Logo watermark — home page only */}
+      <div
+        className="hero-watermark fixed inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
+        style={{ zIndex: 0 }}
+        aria-hidden
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-mark.svg"      alt="" className="wm-dark"  style={{ height: "65vh", width: "auto" }} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-mark-dark.svg" alt="" className="wm-light" style={{ height: "65vh", width: "auto" }} />
+      </div>
       <SplashGate />
       <ScrollReveal />
 
