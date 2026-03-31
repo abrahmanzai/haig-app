@@ -22,6 +22,9 @@ const NAV_LINKS = [
   { href: "/info",      label: "Info",      icon: Info,             roles: ["authorized", "admin"] },
 ] as const;
 
+// Primary tabs always shown in the mobile bottom bar
+const BOTTOM_NAV_HREFS = ["/dashboard", "/calendar", "/pitches", "/portfolio"] as const;
+
 interface Props {
   name?: string | null;
   role?: string | null;
@@ -235,7 +238,7 @@ export default function AppNav({ name, role, currentPath }: Props) {
           </button>
         </div>
 
-        {/* Mobile drawer — animated slide-down */}
+        {/* Mobile drawer — secondary items only (Research, Info, Messages, Admin) */}
         <div
           className="border-t border-[var(--border)] overflow-hidden"
           style={{
@@ -245,28 +248,31 @@ export default function AppNav({ name, role, currentPath }: Props) {
           }}
         >
           <div className="px-4 py-3 space-y-1">
-            {visibleLinks.map((link) => {
-              const active = currentPath.startsWith(link.href);
-              const Icon = link.icon;
-              const isMessages = link.href === "/messages";
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm transition-colors"
-                  style={{
-                    color: active ? "var(--accent-primary)" : "var(--text-secondary)",
-                    background: active ? "rgba(94,106,210,0.08)" : "transparent",
-                    fontWeight: active ? 600 : 400,
-                  }}
-                >
-                  <Icon size={16} />
-                  {link.label}
-                  {isMessages && <UnreadBadge />}
-                </Link>
-              );
-            })}
+            {/* Secondary nav items (not in bottom bar) */}
+            {visibleLinks
+              .filter((l) => !BOTTOM_NAV_HREFS.includes(l.href))
+              .map((link) => {
+                const active = currentPath.startsWith(link.href);
+                const Icon = link.icon;
+                const isMessages = link.href === "/messages";
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm transition-colors"
+                    style={{
+                      color: active ? "var(--accent-primary)" : "var(--text-secondary)",
+                      background: active ? "rgba(94,106,210,0.08)" : "transparent",
+                      fontWeight: active ? 600 : 400,
+                    }}
+                  >
+                    <Icon size={16} />
+                    {link.label}
+                    {isMessages && <UnreadBadge />}
+                  </Link>
+                );
+              })}
 
             {role === "admin" && (
               <Link
@@ -293,6 +299,42 @@ export default function AppNav({ name, role, currentPath }: Props) {
               </div>
             </div>
           </div>
+        </div>
+      </nav>
+
+      {/* ── Mobile bottom nav bar ────────────────────────────────────────── */}
+      <nav
+        className="sm:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[var(--border)]"
+        style={{
+          background: "var(--bg-nav)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        }}
+        aria-label="Primary navigation"
+      >
+        <div className="flex items-stretch h-14">
+          {BOTTOM_NAV_HREFS.map((href) => {
+            const link = NAV_LINKS.find((l) => l.href === href);
+            if (!link) return null;
+            const active = currentPath.startsWith(href);
+            const Icon = link.icon;
+            const isMessages = href === "/messages";
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors"
+                style={{ color: active ? "var(--accent-primary)" : "var(--text-tertiary)" }}
+              >
+                <div className="relative">
+                  <Icon size={20} strokeWidth={active ? 2.5 : 1.75} />
+                  {isMessages && <UnreadBadge />}
+                </div>
+                <span className="text-[10px] font-medium">{link.label}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </>

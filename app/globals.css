@@ -429,3 +429,25 @@ html[data-theme="light"]       .hero-watermark .wm-light { display: block; }
     font-size: 16px !important;
   }
 }
+
+/* ─── Mobile bottom nav bar — push page content above the fixed bar ──────── */
+
+@media (max-width: 639px) {
+  main {
+    /* !important overrides the inline style={{ padding: 0 }} on authenticated pages */
+    padding-bottom: 4rem !important;
+  }
+
+  /* Messages full-height panel: subtract top bar (56px) + bottom bar (56px) */
+  .messages-container {
+    height: calc(100vh - 112px);
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 639px) {
+    .messages-container {
+      height: calc(100dvh - 112px);
+    }
+  }
+}

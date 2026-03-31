@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import AppNav from "@/app/_components/AppNav";
 import PortfolioAdminControls from "./PortfolioAdminControls";
 import AllocationChart, { type AllocationSlice } from "./AllocationChart";
+import Link from "next/link";
 import { Wallet, TrendingUp, DollarSign, BarChart2 } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -101,7 +102,12 @@ export default async function Portfolio() {
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--text-primary)" }}>Portfolio</h1>
-              <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>Club holdings, cash, and trade history.</p>
+              <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+                Club holdings, cash, and trade history.{" "}
+                <Link href="/portfolio/performance" className="hover:underline" style={{ color: "var(--accent-primary)" }}>
+                  View performance →
+                </Link>
+              </p>
             </div>
             {profile?.role === "admin" && (
               <PortfolioAdminControls
