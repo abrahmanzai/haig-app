@@ -13,7 +13,7 @@ const features = [
   {
     icon: TrendingUp,
     title: "Invest Together",
-    body: "Research real companies, present investment pitches, vote with weighted capital units, and execute real trades in the club brokerage.",
+    body: "Research real companies, present investment pitches, vote with weighted capital units, and make collective investment decisions through the club account.",
     color: "#30d158",
     glow: "rgba(48,209,88,0.25)",
   },

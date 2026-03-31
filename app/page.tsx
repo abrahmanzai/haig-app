@@ -10,9 +10,9 @@ import EventCard from "./_components/lp/EventCard";
 import EmailCta from "./_components/lp/EmailCta";
 import { createClient } from "@/lib/supabase/server";
 import {
-  Calendar, TrendingUp, BarChart2,
+  Calendar,
   UserPlus, GraduationCap, Mic, ThumbsUp,
-  ArrowRight, Users, DollarSign, ChevronRight,
+  ArrowRight, ChevronRight,
 } from "lucide-react";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -40,15 +40,8 @@ const steps = [
     n: "04",
     icon: ThumbsUp,
     title: "Vote & Invest",
-    body: "Members vote with weighted capital units. Approved pitches are executed as real trades in the partnership account.",
+    body: "Members vote with weighted capital units. Approved pitches are reviewed by club leadership and executed through the club's brokerage account.",
   },
-];
-
-const stats = [
-  { label: "AUM",          value: "$24K+",  icon: DollarSign },
-  { label: "Members",      value: "12",     icon: Users },
-  { label: "Pitches Voted", value: "8",     icon: TrendingUp },
-  { label: "Founded",      value: "2025",   icon: BarChart2 },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -66,17 +59,17 @@ export default async function Home() {
   const upcomingEvents = events ?? [];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#050506" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
       <SplashGate />
 
       {/* ═══ NAV ══════════════════════════════════════════════════════════════ */}
       <nav
         className="fixed top-0 inset-x-0 z-50 border-b"
         style={{
-          background: "rgba(5,5,6,0.85)",
+          background: "var(--bg-nav)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          borderColor: "rgba(255,255,255,0.08)",
+          borderColor: "var(--border)",
         }}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
@@ -92,7 +85,7 @@ export default async function Home() {
               <a
                 key={label}
                 href={href}
-                className="transition-colors hover:text-white"
+                className="transition-colors hover:text-[var(--text-primary)]"
                 style={{ color: "var(--text-secondary)" }}
               >
                 {label}
@@ -104,8 +97,8 @@ export default async function Home() {
             <ThemeToggle />
             <Link
               href="/login"
-              className="text-sm px-3 py-1.5 rounded-lg border transition-colors hover:bg-white/5"
-              style={{ borderColor: "rgba(255,255,255,0.12)", color: "var(--text-secondary)" }}
+              className="text-sm px-3 py-1.5 rounded-lg border transition-colors"
+              style={{ borderColor: "var(--border)", color: "var(--text-secondary)", background: "var(--bg-glass)" }}
             >
               Member Login
             </Link>
@@ -126,7 +119,7 @@ export default async function Home() {
         <section
           id="hero"
           className="relative flex flex-col items-center justify-center text-center overflow-hidden pt-14"
-          style={{ minHeight: "100vh", background: "#050506" }}
+          style={{ minHeight: "100vh", background: "var(--bg-primary)" }}
         >
           {/* Animated dot grid */}
           <div
@@ -178,31 +171,12 @@ export default async function Home() {
           {/* Content */}
           <div className="relative z-10 max-w-4xl px-6 flex flex-col items-center">
 
-            {/* Eyebrow badge */}
-            <div className="lp-fade-up lp-fade-up-1 mb-8 flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-semibold uppercase tracking-widest"
-              style={{
-                background: "rgba(94,106,210,0.08)",
-                borderColor: "rgba(94,106,210,0.25)",
-                color: "#5E6AD2",
-              }}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{
-                  background: "#30d158",
-                  animation: "pulse-dot 1.8s ease-in-out infinite",
-                  display: "inline-block",
-                }}
-              />
-              Student Investment Club · Est. 2025
-            </div>
-
             {/* H1 */}
             <h1
               className="lp-fade-up lp-fade-up-2 font-extrabold tracking-tight leading-[1.02] mb-4"
               style={{
                 fontSize: "clamp(2.8rem, 8vw, 5.5rem)",
-                color: "#EDEDEF",
+                color: "var(--text-primary)",
                 letterSpacing: "-0.03em",
               }}
             >
@@ -229,8 +203,8 @@ export default async function Home() {
               style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}
             >
               A student general partnership where members pool capital, research
-              equities, and execute real trades together — turning financial theory
-              into hands-on practice.
+              equities, and make collective investment decisions together — turning
+              financial theory into hands-on practice.
             </p>
 
             {/* CTAs */}
@@ -253,11 +227,11 @@ export default async function Home() {
               </a>
               <Link
                 href="/login"
-                className="flex items-center gap-2 rounded-xl font-semibold text-base px-8 py-3.5 border transition-all hover:bg-white/5 hover:scale-[1.02]"
+                className="flex items-center gap-2 rounded-xl font-semibold text-base px-8 py-3.5 border transition-all hover:scale-[1.02]"
                 style={{
-                  borderColor: "rgba(255,255,255,0.14)",
+                  borderColor: "var(--border)",
                   color: "var(--text-primary)",
-                  background: "rgba(255,255,255,0.03)",
+                  background: "var(--bg-glass)",
                   backdropFilter: "blur(12px)",
                 }}
               >
@@ -266,29 +240,13 @@ export default async function Home() {
               </Link>
             </div>
 
-            {/* Stats bar */}
-            <div
-              className="lp-fade-up lp-fade-up-5 w-full max-w-2xl grid grid-cols-2 sm:grid-cols-4 divide-x rounded-2xl overflow-hidden border"
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                borderColor: "rgba(255,255,255,0.08)",
-                backdropFilter: "blur(12px)",
-              }}
-            >
-              {stats.map((s) => (
-                <div key={s.label} className="flex flex-col items-center py-5 px-3 gap-1" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                  <span className="text-2xl font-bold geist-mono" style={{ color: "var(--accent-primary)" }}>{s.value}</span>
-                  <span className="text-[10px] uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>{s.label}</span>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Scroll hint */}
           <a
             href="#mission"
             className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 transition-opacity hover:opacity-60"
-            style={{ color: "rgba(255,255,255,0.25)", fontSize: "11px" }}
+            style={{ color: "var(--text-tertiary)", fontSize: "11px" }}
           >
             <span>scroll</span>
             <span style={{ animation: "fade-up-in 1.5s ease-in-out infinite alternate" }}>↓</span>
@@ -296,7 +254,7 @@ export default async function Home() {
         </section>
 
         {/* ═══ MISSION ══════════════════════════════════════════════════════ */}
-        <section id="mission" className="py-28 px-6" style={{ background: "#050506" }}>
+        <section id="mission" className="py-28 px-6" style={{ background: "var(--bg-primary)" }}>
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: "var(--accent-primary)" }}>
@@ -305,9 +263,6 @@ export default async function Home() {
               <h2 className="text-4xl sm:text-5xl font-bold mb-5 tracking-tight" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
                 Built for High-Agency Investors
               </h2>
-              <p className="text-lg max-w-2xl mx-auto" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
-                HAIG gives students real-world investing experience. We pool capital, debate ideas, and execute as a team.
-              </p>
             </div>
 
             <FeaturesSection />
@@ -318,7 +273,7 @@ export default async function Home() {
         <section
           id="events"
           className="py-28 px-6 border-y"
-          style={{ background: "#0a0a0e", borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ background: "var(--bg-secondary)", borderColor: "var(--border)" }}
         >
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-16">
@@ -328,15 +283,12 @@ export default async function Home() {
               <h2 className="text-4xl sm:text-5xl font-bold mb-4 tracking-tight" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
                 Upcoming Events
               </h2>
-              <p className="text-lg" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
-                Open to current members. Meetings are held bi-weekly.
-              </p>
             </div>
 
             {upcomingEvents.length === 0 ? (
               <div
                 className="rounded-2xl border p-12 text-center"
-                style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.08)" }}
+                style={{ background: "var(--bg-glass)", borderColor: "var(--border)" }}
               >
                 <Calendar size={32} className="mx-auto mb-4" style={{ color: "var(--text-secondary)" }} />
                 <p className="font-semibold mb-1" style={{ color: "var(--text-primary)" }}>No upcoming events scheduled</p>
@@ -360,7 +312,7 @@ export default async function Home() {
         </section>
 
         {/* ═══ HOW IT WORKS ═════════════════════════════════════════════════ */}
-        <section id="how" className="py-28 px-6" style={{ background: "#050506" }}>
+        <section id="how" className="py-28 px-6" style={{ background: "var(--bg-primary)" }}>
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: "var(--accent-primary)" }}>
@@ -384,8 +336,8 @@ export default async function Home() {
                   key={step.n}
                   className="relative flex flex-col rounded-2xl p-6 border transition-all hover:-translate-y-1 hover:border-[rgba(94,106,210,0.3)]"
                   style={{
-                    background: "rgba(255,255,255,0.03)",
-                    borderColor: "rgba(255,255,255,0.08)",
+                    background: "var(--bg-glass)",
+                    borderColor: "var(--border)",
                     backdropFilter: "blur(12px)",
                     animationDelay: `${i * 0.1}s`,
                   }}
@@ -394,7 +346,7 @@ export default async function Home() {
                   <div
                     className="w-10 h-10 rounded-full border-2 flex items-center justify-center mb-5 flex-shrink-0 relative z-10"
                     style={{
-                      background: "#050506",
+                      background: "var(--bg-primary)",
                       borderColor: "rgba(94,106,210,0.5)",
                     }}
                   >
@@ -404,7 +356,7 @@ export default async function Home() {
                   {/* Ghost step number */}
                   <div
                     className="text-6xl font-black leading-none mb-3 select-none geist-mono"
-                    style={{ color: "rgba(255,255,255,0.04)" }}
+                    style={{ color: "var(--ghost-text)" }}
                   >
                     {step.n}
                   </div>
@@ -418,7 +370,7 @@ export default async function Home() {
         </section>
 
         {/* ═══ FOUNDING PARTNERS ════════════════════════════════════════════ */}
-        <section className="py-28 px-6" style={{ background: "#0a0a0e" }}>
+        <section className="py-28 px-6" style={{ background: "var(--bg-secondary)" }}>
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: "var(--accent-primary)" }}>
@@ -434,14 +386,14 @@ export default async function Home() {
                 { initials: "WH", name: "William Headlee",         role: "President",      color: "#5E6AD2", active: true  },
                 { initials: "AH", name: "Abdul Hameed Rahmanzai",  role: "Vice President", color: "#5E6AD2", active: true  },
                 { initials: "+",  name: "Open Position",            role: "Treasurer",      color: "#6B7280", active: false },
-                { initials: "D",  name: "Dawson Gibbons",           role: "Secretary",      color: "#30d158", active: true  },
+                { initials: "DG",  name: "Dawson Gibbons",           role: "Secretary",      color: "#30d158", active: true  },
               ].map((f) => (
                 <article
                   key={f.name}
                   className="relative rounded-2xl p-6 border flex flex-col items-center text-center transition-all hover:-translate-y-1"
                   style={{
-                    background: "rgba(255,255,255,0.03)",
-                    borderColor: "rgba(255,255,255,0.08)",
+                    background: "var(--bg-glass)",
+                    borderColor: "var(--border)",
                     backdropFilter: "blur(12px)",
                     opacity: f.active ? 1 : 0.55,
                   }}
@@ -466,7 +418,7 @@ export default async function Home() {
         </section>
 
         {/* ═══ CONTACT CTA ══════════════════════════════════════════════════ */}
-        <section id="contact" className="py-28 px-6 relative overflow-hidden" style={{ background: "#050506" }}>
+        <section id="contact" className="py-28 px-6 relative overflow-hidden" style={{ background: "var(--bg-primary)" }}>
           {/* Background glow */}
           <div
             className="absolute inset-0 pointer-events-none"
@@ -486,7 +438,7 @@ export default async function Home() {
           <div className="relative z-10 max-w-2xl mx-auto text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-8 text-xs font-semibold uppercase tracking-widest"
-              style={{ background: "rgba(94,106,210,0.08)", borderColor: "rgba(94,106,210,0.25)", color: "#5E6AD2" }}
+              style={{ background: "rgba(94,106,210,0.08)", borderColor: "rgba(94,106,210,0.25)", color: "var(--accent-primary)" }}
             >
               Connect
             </div>
@@ -502,10 +454,10 @@ export default async function Home() {
             <EmailCta />
 
             {/* Divider */}
-            <div className="w-px h-12 mx-auto mb-10" style={{ background: "rgba(255,255,255,0.1)" }} />
+            <div className="w-px h-12 mx-auto mb-10" style={{ background: "var(--border)" }} />
 
-            <p className="text-sm" style={{ color: "rgba(138,143,152,0.6)" }}>
-              © 2026 High Agency Investment Group
+            <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
+              2026 High Agency Investment Group
               <br />
               <span>A student-run general partnership</span>
             </p>
