@@ -5,12 +5,14 @@ import SplashGate from "./_components/SplashGate";
 import ThemeToggle from "./_components/ThemeToggle";
 import ThemeLogo from "./_components/ThemeLogo";
 import HeroWords from "./_components/HeroWords";
+import FeatureCard from "./_components/lp/FeatureCard";
+import EventCard from "./_components/lp/EventCard";
+import EmailCta from "./_components/lp/EmailCta";
 import { createClient } from "@/lib/supabase/server";
 import {
   Calendar, BookOpen, TrendingUp, BarChart2,
   UserPlus, GraduationCap, Mic, ThumbsUp,
   ArrowRight, Users, DollarSign, ChevronRight,
-  Mail, ExternalLink,
 } from "lucide-react";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -72,22 +74,6 @@ const stats = [
   { label: "Pitches Voted", value: "8",     icon: TrendingUp },
   { label: "Founded",      value: "2025",   icon: BarChart2 },
 ];
-
-const EVENT_COLORS: Record<string, string> = {
-  founding: "#ffd60a",
-  meeting:  "#5E6AD2",
-  workshop: "#30d158",
-  speaker:  "#bf5af2",
-  social:   "#ff9f0a",
-  deadline: "#ff453a",
-  review:   "#64d2ff",
-};
-
-function formatEventDate(dateStr: string) {
-  return new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", {
-    weekday: "long", month: "long", day: "numeric",
-  });
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -350,37 +336,7 @@ export default async function Home() {
 
             <div className="grid sm:grid-cols-3 gap-5">
               {features.map((f) => (
-                <article
-                  key={f.title}
-                  className="group relative rounded-2xl p-7 border transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-                  style={{
-                    background: "rgba(255,255,255,0.03)",
-                    borderColor: "rgba(255,255,255,0.08)",
-                    backdropFilter: "blur(20px)",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.borderColor = f.color + "55";
-                    (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 40px ${f.glow}`;
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
-                    (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                  }}
-                >
-                  {/* Top stripe on hover */}
-                  <div
-                    className="absolute top-0 left-0 w-full h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    style={{ background: f.color }}
-                  />
-                  <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110"
-                    style={{ background: f.color + "18" }}
-                  >
-                    <f.icon size={22} style={{ color: f.color }} />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-3" style={{ color: "var(--text-primary)" }}>{f.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{f.body}</p>
-                </article>
+                <FeatureCard key={f.title} {...f} />
               ))}
             </div>
           </div>
@@ -416,61 +372,9 @@ export default async function Home() {
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {upcomingEvents.map((ev) => {
-                  const color = EVENT_COLORS[ev.event_type] ?? "#888";
-                  const d = new Date(ev.event_date + "T12:00:00");
-                  const month = d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
-                  const day   = d.getDate();
-                  return (
-                    <div
-                      key={ev.id}
-                      className="group rounded-2xl border p-5 flex items-start gap-5 transition-all hover:-translate-y-0.5"
-                      style={{
-                        background: "rgba(255,255,255,0.03)",
-                        borderColor: "rgba(255,255,255,0.08)",
-                        backdropFilter: "blur(12px)",
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.borderColor = color + "44";
-                        (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 24px ${color}18`;
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)";
-                        (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                      }}
-                    >
-                      {/* Date box */}
-                      <div
-                        className="flex flex-col items-center justify-center w-14 h-14 rounded-xl flex-shrink-0 border"
-                        style={{ background: color + "12", borderColor: color + "30" }}
-                      >
-                        <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color }}>{month}</span>
-                        <span className="text-xl font-black leading-none geist-mono" style={{ color: "var(--text-primary)" }}>{day}</span>
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <p className="font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>{ev.title}</p>
-                          <span
-                            className="text-[10px] font-semibold rounded-full px-2 py-0.5 capitalize"
-                            style={{ background: color + "20", color }}
-                          >
-                            {ev.event_type}
-                          </span>
-                        </div>
-                        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                          {formatEventDate(ev.event_date)}
-                          {ev.location && ev.location !== "TBD" && <> &middot; {ev.location}</>}
-                        </p>
-                        {ev.description && (
-                          <p className="text-sm mt-1" style={{ color: "rgba(138,143,152,0.7)" }}>{ev.description}</p>
-                        )}
-                      </div>
-
-                      <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" style={{ color: "var(--text-secondary)" }} />
-                    </div>
-                  );
-                })}
+                {upcomingEvents.map((ev) => (
+                  <EventCard key={ev.id} {...ev} color="" />
+                ))}
               </div>
             )}
 
@@ -623,29 +527,7 @@ export default async function Home() {
             </p>
 
             {/* Email CTA */}
-            <a
-              href="mailto:highagencyinvesting@gmail.com"
-              className="group inline-flex items-center gap-3 text-lg font-semibold mb-10 px-8 py-4 rounded-2xl border transition-all hover:scale-[1.02] hover:shadow-2xl"
-              style={{
-                background: "rgba(94,106,210,0.1)",
-                borderColor: "rgba(94,106,210,0.3)",
-                color: "#5E6AD2",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "rgba(94,106,210,0.18)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(94,106,210,0.5)";
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 40px rgba(94,106,210,0.25)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "rgba(94,106,210,0.1)";
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(94,106,210,0.3)";
-                (e.currentTarget as HTMLElement).style.boxShadow = "none";
-              }}
-            >
-              <Mail size={20} />
-              highagencyinvesting@gmail.com
-              <ExternalLink size={14} className="opacity-50 group-hover:opacity-100 transition-opacity" />
-            </a>
+            <EmailCta />
 
             {/* Divider */}
             <div className="w-px h-12 mx-auto mb-10" style={{ background: "rgba(255,255,255,0.1)" }} />

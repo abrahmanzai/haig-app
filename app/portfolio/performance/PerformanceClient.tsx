@@ -282,7 +282,7 @@ export default function PerformanceClient({ snapshots, isAdmin, currentValue, cu
             </p>
             <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
               {isAdmin
-                ? "Click "Record Today's Snapshot" to start tracking NAV history."
+                ? "Click \"Record Today's Snapshot\" to start tracking NAV history."
                 : "Ask an admin to record portfolio snapshots over time."}
             </p>
           </div>

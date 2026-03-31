@@ -250,7 +250,7 @@ export default function AppNav({ name, role, currentPath }: Props) {
           <div className="px-4 py-3 space-y-1">
             {/* Secondary nav items (not in bottom bar) */}
             {visibleLinks
-              .filter((l) => !BOTTOM_NAV_HREFS.includes(l.href))
+              .filter((l) => !(BOTTOM_NAV_HREFS as readonly string[]).includes(l.href))
               .map((link) => {
                 const active = currentPath.startsWith(link.href);
                 const Icon = link.icon;
@@ -319,7 +319,6 @@ export default function AppNav({ name, role, currentPath }: Props) {
             if (!link) return null;
             const active = currentPath.startsWith(href);
             const Icon = link.icon;
-            const isMessages = href === "/messages";
             return (
               <Link
                 key={href}
@@ -329,7 +328,6 @@ export default function AppNav({ name, role, currentPath }: Props) {
               >
                 <div className="relative">
                   <Icon size={20} strokeWidth={active ? 2.5 : 1.75} />
-                  {isMessages && <UnreadBadge />}
                 </div>
                 <span className="text-[10px] font-medium">{link.label}</span>
               </Link>
