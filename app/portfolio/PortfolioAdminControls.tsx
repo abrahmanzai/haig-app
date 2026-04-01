@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, ArrowRightLeft, DollarSign, X, RefreshCw, ExternalLink } from "lucide-react";
+import { Plus, ArrowRightLeft, DollarSign, X } from "lucide-react";
 
 // ── Shared modal wrapper ─────────────────────────────────────────────────────
 
@@ -148,7 +148,7 @@ function AddHoldingModal({ onClose }: { onClose: () => void }) {
             type="number" step="any" min="0" className={inputCls} style={inputStyle}
             value={form.current_price}
             onChange={(e) => setForm((f) => ({ ...f, current_price: e.target.value }))}
-            placeholder="Leave blank to use cost basis"
+            placeholder="Leave blank — Finnhub will fill this in"
           />
         </Field>
         {error && (
@@ -304,8 +304,8 @@ function UpdateCashModal({
   const router = useRouter();
   const [cash,     setCash]     = useState(String(initialCash));
   const [invested, setInvested] = useState(String(initialInvested));
-  const [loading, setLoading]   = useState(false);
-  const [error,   setError]     = useState<string | null>(null);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -360,139 +360,6 @@ function UpdateCashModal({
   );
 }
 
-// ── Sync Broker modal ─────────────────────────────────────────────────────────
-
-type Account = { id: string; name: string; number: string; institution: string };
-type SyncResult = { holdingsSynced: number; tradesSynced: number };
-
-function SyncBrokerModal({ onClose }: { onClose: () => void }) {
-  const router = useRouter();
-  const [accounts, setAccounts]     = useState<Account[] | null>(null);
-  const [loading, setLoading]       = useState(false);
-  const [syncing, setSyncing]       = useState(false);
-  const [result, setResult]         = useState<SyncResult | null>(null);
-  const [error, setError]           = useState<string | null>(null);
-
-  async function loadAccounts() {
-    setLoading(true);
-    setError(null);
-    const res = await fetch("/api/snaptrade/accounts");
-    const data = await res.json();
-    setLoading(false);
-    if (!res.ok) { setError(data.error ?? "Failed to load accounts"); return; }
-    setAccounts(data.accounts);
-  }
-
-  // Load accounts on mount
-  useEffect(() => { loadAccounts(); }, []);
-
-  async function openPortal() {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/snaptrade/portal");
-      const data = await res.json();
-      setLoading(false);
-      if (!res.ok) { setError(data.error ?? "Failed to generate portal link"); return; }
-      window.open(data.url, "_blank", "noopener,noreferrer");
-    } catch (e: any) {
-      setLoading(false);
-      setError(e?.message ?? "Unexpected error");
-    }
-  }
-
-  async function syncNow() {
-    setSyncing(true);
-    setError(null);
-    setResult(null);
-    const res = await fetch("/api/snaptrade/sync", { method: "POST" });
-    const data = await res.json();
-    setSyncing(false);
-    if (!res.ok) { setError(data.error ?? "Sync failed"); return; }
-    setResult({ holdingsSynced: data.holdingsSynced, tradesSynced: data.tradesSynced });
-    router.refresh();
-  }
-
-  return (
-    <Modal title="Sync from Broker" onClose={onClose}>
-      <div className="space-y-4">
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-          Connect your club&apos;s brokerage account via SnapTrade to automatically
-          sync holdings and trade history.
-        </p>
-
-        {/* Connected accounts */}
-        {accounts === null ? (
-          <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
-            {loading ? "Loading accounts…" : ""}
-          </p>
-        ) : accounts.length === 0 ? (
-          <p className="text-sm rounded-xl p-3 border border-[var(--border)]" style={{ color: "var(--text-secondary)" }}>
-            No brokerage accounts connected yet.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {accounts.map((a) => (
-              <div
-                key={a.id}
-                className="flex items-center justify-between rounded-xl border border-[var(--border)] px-4 py-3 text-sm"
-                style={{ background: "var(--bg-tertiary)" }}
-              >
-                <div>
-                  <p className="font-semibold" style={{ color: "var(--text-primary)" }}>{a.institution}</p>
-                  <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-                    {a.name}{a.number ? ` · ···${a.number.slice(-4)}` : ""}
-                  </p>
-                </div>
-                <span
-                  className="text-xs font-semibold uppercase rounded px-2 py-0.5"
-                  style={{ background: "rgba(48,209,88,0.15)", color: "var(--accent-green)" }}
-                >
-                  Connected
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {error && (
-          <p className="text-sm rounded-xl p-3" style={{ background: "rgba(255,69,58,0.10)", color: "var(--accent-red)" }}>
-            {error}
-          </p>
-        )}
-
-        {result && (
-          <p className="text-sm rounded-xl p-3" style={{ background: "rgba(48,209,88,0.10)", color: "var(--accent-green)" }}>
-            Synced {result.holdingsSynced} holding{result.holdingsSynced !== 1 ? "s" : ""} and{" "}
-            {result.tradesSynced} trade{result.tradesSynced !== 1 ? "s" : ""}.
-          </p>
-        )}
-
-        <div className="flex gap-3">
-          <button
-            onClick={openPortal}
-            disabled={loading}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors disabled:opacity-40"
-            style={{ color: "var(--accent-primary)" }}
-          >
-            <ExternalLink size={14} />
-            {accounts?.length ? "Add / Manage Accounts" : "Connect Broker"}
-          </button>
-          <button
-            onClick={syncNow}
-            disabled={syncing || !accounts?.length}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:brightness-110 disabled:opacity-40"
-            style={{ background: "var(--accent-primary)" }}
-          >
-            <RefreshCw size={14} className={syncing ? "animate-spin" : ""} />
-            {syncing ? "Syncing…" : "Sync Now"}
-          </button>
-        </div>
-      </div>
-    </Modal>
-  );
-}
-
 // ── Main export ───────────────────────────────────────────────────────────────
 
 export default function PortfolioAdminControls({
@@ -502,7 +369,7 @@ export default function PortfolioAdminControls({
   cashOnHand: number;
   totalInvested: number;
 }) {
-  const [modal, setModal] = useState<"holding" | "trade" | "cash" | "sync" | null>(null);
+  const [modal, setModal] = useState<"holding" | "trade" | "cash" | null>(null);
 
   return (
     <>
@@ -531,19 +398,10 @@ export default function PortfolioAdminControls({
           <DollarSign size={15} />
           Update Cash
         </button>
-        <button
-          onClick={() => setModal("sync")}
-          className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
-          style={{ color: "var(--accent-primary)" }}
-        >
-          <RefreshCw size={15} />
-          Sync Broker
-        </button>
       </div>
 
       {modal === "holding" && <AddHoldingModal onClose={() => setModal(null)} />}
       {modal === "trade"   && <LogTradeModal   onClose={() => setModal(null)} />}
-      {modal === "sync"    && <SyncBrokerModal  onClose={() => setModal(null)} />}
       {modal === "cash"    && (
         <UpdateCashModal
           initialCash={cashOnHand}

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import AppNav from "@/app/_components/AppNav";
 import PortfolioAdminControls from "./PortfolioAdminControls";
 import AllocationChart, { type AllocationSlice } from "./AllocationChart";
+import RefreshPricesButton from "./RefreshPricesButton";
 import Link from "next/link";
 import { Wallet, TrendingUp, DollarSign, BarChart2 } from "lucide-react";
 
@@ -19,7 +20,6 @@ function pct(n: number) {
   const sign = n >= 0 ? "+" : "";
   return sign + n.toFixed(2) + "%";
 }
-
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -74,12 +74,12 @@ export default async function Portfolio() {
   const holdingsValue = holdingsWithPrice.reduce(
     (sum, h) => sum + h.shares * (h.current_price ?? h.avg_cost_basis), 0,
   );
-  const totalValue  = holdingsValue + (financials?.cash_on_hand ?? 0);
-  const totalCost   = financials?.total_invested ?? 0;
+  const totalValue    = holdingsValue + (financials?.cash_on_hand ?? 0);
+  const totalCost     = financials?.total_invested ?? 0;
   const totalGainLoss = totalValue - totalCost - (financials?.cash_on_hand ?? 0);
   const totalGainPct  = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
 
-  // ── Allocation chart data ─────────────────────────────────────────────────
+  // ── Allocation chart data ──────────────────────────────────────────────────
   const ACCENT_COLORS = [
     "#5E6AD2", "#30d158", "#ff9f0a", "#64d2ff",
     "#bf5af2", "#ff453a", "#ffd60a", "#0891b2",
@@ -162,9 +162,7 @@ export default async function Portfolio() {
                   backdropFilter: "blur(12px)",
                 }}
               >
-                {/* Top accent stripe */}
                 <div className="absolute top-0 left-0 w-full h-0.5" style={{ background: `${card.stripe}66` }} />
-                {/* Ghost icon */}
                 <card.Icon size={40} className="absolute right-3 bottom-3" style={{ color: "rgba(255,255,255,0.05)", strokeWidth: 1.5 }} />
                 <p className="text-[10px] uppercase tracking-widest mb-2 geist-mono" style={{ color: "var(--text-secondary)" }}>
                   {card.label}
@@ -189,16 +187,19 @@ export default async function Portfolio() {
             className="rounded-2xl border border-[var(--border)] overflow-hidden"
             style={{ background: "var(--bg-glass)", backdropFilter: "blur(12px)" }}
           >
-            <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
-              <h2 className="font-semibold" style={{ color: "var(--text-primary)" }}>Holdings</h2>
-              <span className="text-xs num" style={{ color: "var(--text-secondary)" }}>
-                {holdingsWithPrice.length} position{holdingsWithPrice.length !== 1 ? "s" : ""}
-              </span>
+            <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <h2 className="font-semibold" style={{ color: "var(--text-primary)" }}>Holdings</h2>
+                <span className="text-xs num" style={{ color: "var(--text-secondary)" }}>
+                  {holdingsWithPrice.length} position{holdingsWithPrice.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <RefreshPricesButton />
             </div>
 
             {holdingsWithPrice.length === 0 ? (
               <p className="px-6 py-8 text-sm text-center" style={{ color: "var(--text-secondary)" }}>
-                No holdings on record.
+                No holdings on record.{profile?.role === "admin" && " Use \"Add Holding\" above to get started."}
               </p>
             ) : (
               <div className="overflow-x-auto">
@@ -218,13 +219,13 @@ export default async function Portfolio() {
                   </thead>
                   <tbody>
                     {holdingsWithPrice.map((holding) => {
-                      const price      = holding.current_price ?? holding.avg_cost_basis;
-                      const value      = holding.shares * price;
-                      const costBasis  = holding.shares * holding.avg_cost_basis;
-                      const gainLoss   = value - costBasis;
-                      const gainPct    = costBasis > 0 ? (gainLoss / costBasis) * 100 : 0;
-                      const gainColor  = gainLoss >= 0 ? "var(--accent-green)" : "var(--accent-red)";
-                      const weightPct  = totalValue > 0 ? (value / totalValue) * 100 : 0;
+                      const price     = holding.current_price ?? holding.avg_cost_basis;
+                      const value     = holding.shares * price;
+                      const costBasis = holding.shares * holding.avg_cost_basis;
+                      const gainLoss  = value - costBasis;
+                      const gainPct   = costBasis > 0 ? (gainLoss / costBasis) * 100 : 0;
+                      const gainColor = gainLoss >= 0 ? "var(--accent-green)" : "var(--accent-red)";
+                      const weightPct = totalValue > 0 ? (value / totalValue) * 100 : 0;
 
                       return (
                         <tr
@@ -305,8 +306,8 @@ export default async function Portfolio() {
                   </thead>
                   <tbody>
                     {trades.map((trade) => {
-                      const isBuy  = trade.trade_type === "buy";
-                      const total  = trade.shares * trade.price_per_share;
+                      const isBuy = trade.trade_type === "buy";
+                      const total = trade.shares * trade.price_per_share;
                       return (
                         <tr
                           key={trade.id}
