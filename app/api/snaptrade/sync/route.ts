@@ -36,6 +36,7 @@ export async function POST() {
   const snaptrade = getSnaptradeClient();
   const { snaptrade_user_id: userId, snaptrade_user_secret: userSecret } = snapUser;
 
+  try {
   // ── Fetch data from SnapTrade ────────────────────────────────────────────────
   const [holdingsRes, activitiesRes] = await Promise.all([
     snaptrade.accountInformation.getAllUserHoldings({ userId, userSecret }),
@@ -141,4 +142,8 @@ export async function POST() {
     holdingsSynced,
     tradesSynced,
   });
+  } catch (err: any) {
+    const message = err?.response?.data?.detail ?? err?.message ?? "Unknown error";
+    return NextResponse.json({ error: `SnapTrade error: ${message}` }, { status: 500 });
+  }
 }

@@ -30,18 +30,23 @@ export async function GET() {
 
   if (!snapUser) return NextResponse.json({ accounts: [] });
 
-  const snaptrade = getSnaptradeClient();
-  const response = await snaptrade.accountInformation.listUserAccounts({
-    userId: snapUser.snaptrade_user_id,
-    userSecret: snapUser.snaptrade_user_secret,
-  });
+  try {
+    const snaptrade = getSnaptradeClient();
+    const response = await snaptrade.accountInformation.listUserAccounts({
+      userId: snapUser.snaptrade_user_id,
+      userSecret: snapUser.snaptrade_user_secret,
+    });
 
-  const accounts = (response.data ?? []).map((a: any) => ({
-    id: a.id,
-    name: a.name,
-    number: a.number,
-    institution: a.institution_name ?? a.brokerage?.name ?? "Unknown",
-  }));
+    const accounts = (response.data ?? []).map((a: any) => ({
+      id: a.id,
+      name: a.name,
+      number: a.number,
+      institution: a.institution_name ?? a.brokerage?.name ?? "Unknown",
+    }));
 
-  return NextResponse.json({ accounts });
+    return NextResponse.json({ accounts });
+  } catch (err: any) {
+    const message = err?.response?.data?.detail ?? err?.message ?? "Unknown error";
+    return NextResponse.json({ error: `SnapTrade error: ${message}` }, { status: 500 });
+  }
 }

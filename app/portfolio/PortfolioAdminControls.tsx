@@ -389,11 +389,16 @@ function SyncBrokerModal({ onClose }: { onClose: () => void }) {
   async function openPortal() {
     setLoading(true);
     setError(null);
-    const res = await fetch("/api/snaptrade/portal");
-    const data = await res.json();
-    setLoading(false);
-    if (!res.ok) { setError(data.error ?? "Failed to generate portal link"); return; }
-    window.open(data.url, "_blank", "noopener,noreferrer");
+    try {
+      const res = await fetch("/api/snaptrade/portal");
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok) { setError(data.error ?? "Failed to generate portal link"); return; }
+      window.open(data.url, "_blank", "noopener,noreferrer");
+    } catch (e: any) {
+      setLoading(false);
+      setError(e?.message ?? "Unexpected error");
+    }
   }
 
   async function syncNow() {

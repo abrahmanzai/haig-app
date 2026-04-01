@@ -33,24 +33,29 @@ export async function POST() {
 
   if (existing) return NextResponse.json({ registered: true });
 
-  // Register with SnapTrade
-  const snaptrade = getSnaptradeClient();
-  const response = await snaptrade.authentication.registerSnapTradeUser({
-    userId: user.id,
-  });
+  try {
+    // Register with SnapTrade
+    const snaptrade = getSnaptradeClient();
+    const response = await snaptrade.authentication.registerSnapTradeUser({
+      userId: user.id,
+    });
 
-  const snapUser = response.data;
-  if (!snapUser?.userId || !snapUser?.userSecret) {
-    return NextResponse.json({ error: "SnapTrade registration failed" }, { status: 500 });
+    const snapUser = response.data;
+    if (!snapUser?.userId || !snapUser?.userSecret) {
+      return NextResponse.json({ error: "SnapTrade registration failed — check env vars" }, { status: 500 });
+    }
+
+    // Persist credentials
+    const { error } = await admin.from("snaptrade_users").insert({
+      id: user.id,
+      snaptrade_user_id: snapUser.userId,
+      snaptrade_user_secret: snapUser.userSecret,
+    });
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ registered: true }, { status: 201 });
+  } catch (err: any) {
+    const message = err?.response?.data?.detail ?? err?.message ?? "Unknown error";
+    return NextResponse.json({ error: `SnapTrade error: ${message}` }, { status: 500 });
   }
-
-  // Persist credentials
-  const { error } = await admin.from("snaptrade_users").insert({
-    id: user.id,
-    snaptrade_user_id: snapUser.userId,
-    snaptrade_user_secret: snapUser.userSecret,
-  });
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ registered: true }, { status: 201 });
 }
